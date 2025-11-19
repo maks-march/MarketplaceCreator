@@ -1,4 +1,5 @@
 using DataAccess;
+using Shared.DataTransferObjects;
 
 namespace BusinessLogic;
 
@@ -38,5 +39,28 @@ internal class ProductService(IProductRepository productRepository) : IProductSe
     {
         var product = await productRepository.GetByIdAsync(id, cancellationToken);
         await productRepository.DeleteByIdAsync(product, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Product>> GetAllAsync(ProductSearchDTO searchDto, CancellationToken cancellationToken = default)
+    {
+        var products = await productRepository.GetAllAsync(cancellationToken);
+        
+        return products.Skip((searchDto.Page - 1) * searchDto.PageSize)
+            .Take(searchDto.PageSize)
+            .ToList();
+    }
+
+    public async Task<IEnumerable<Product>> FindAsync(ProductSearchDTO searchDto, CancellationToken cancellationToken = default)
+    {
+        var products = await productRepository.GetAllAsync(cancellationToken);
+        
+        if (!string.IsNullOrEmpty(searchDto.Query))
+            products = products.Where(
+                p => p.Title.Contains(searchDto.Query) || p.Description.Contains(searchDto.Query)
+                );
+        
+        return products.Skip((searchDto.Page - 1) * searchDto.PageSize)
+            .Take(searchDto.PageSize)
+            .ToList();
     }
 }

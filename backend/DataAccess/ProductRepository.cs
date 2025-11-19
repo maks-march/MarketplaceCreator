@@ -28,4 +28,9 @@ internal class ProductRepository(AppContext context) : IProductRepository
         context.Products.Remove(product);
         await context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return context.Products.AsEnumerable();
+    }
 }

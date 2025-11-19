@@ -20,6 +20,11 @@
     <ItemGroup>
         <ProjectReference Include="..\DataAccess\DataAccess.csproj"/>
         <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj"/>
+        <ProjectReference Include="..\Shared\Shared.csproj"/>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Controllers\" />
     </ItemGroup>
     
     <ItemGroup>

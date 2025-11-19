@@ -5,27 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9a9456c2-2cf4-4f5f-ab3e-74c510a9794e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/projectSettingsUpdater.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/.idea/.idea.backend/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/.idea/.idea.backend/.idea/indexLayout.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/.idea/.idea.backend/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/DataAccess/AppContext.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/DataAccess/DataAccess.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/DataAccess/Extensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/DataAccess/Note.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/Program.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/Properties/launchSettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/WebApi.http" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/appsettings.Development.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/appsettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/backend.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.dockerignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/Dockerfile" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/Shared/DataTransferObjects/ProductSearchDTO.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.dockerignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.idea/.idea.backend/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/BusinessLogic.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/BusinessLogic.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/IProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/IProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/DataAccess/DataAccess.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/DataAccess.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/DataAccess/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/Extensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/DataAccess/IProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/IProductRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/DataAccess/ProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/ProductRepository.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/ProductController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/appsettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/backend.sln" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend.sln" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/nginx.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +34,15 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/DataAccess/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/WebApi/Program.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 3
@@ -46,8 +54,11 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.WebApi/Dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yaml: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;simple__crud&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -56,8 +67,40 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
   }
 }</component>
+  <component name="RunManager" selected="Docker.docker-compose.yaml: Compose Deployment">
+    <configuration name="WebApi/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="contextFolderPath" value="$PROJECT_DIR$/backend" />
+          <option name="sourceFilePath" value="backend/WebApi/Dockerfile" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yaml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yaml" />
+        </settings>
+      </deployment>
+      <EXTENSION ID="com.jetbrains.rider.docker.debug" isFastModeEnabled="true" isSslEnabled="false" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yaml: Compose Deployment" />
+        <item itemvalue="Docker.WebApi/Dockerfile" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="9a9456c2-2cf4-4f5f-ab3e-74c510a9794e" name="Changes" comment="" />
@@ -68,6 +111,10 @@
       <workItem from="1762842007530" duration="814000" />
       <workItem from="1762843087916" duration="78000" />
       <workItem from="1763463671676" duration="633000" />
+      <workItem from="1763541357485" duration="454000" />
+      <workItem from="1763542712801" duration="2015000" />
+      <workItem from="1763553109873" duration="2715000" />
+      <workItem from="1763558589802" duration="1285000" />
     </task>
     <servers />
   </component>
