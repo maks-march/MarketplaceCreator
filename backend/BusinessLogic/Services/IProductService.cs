@@ -1,7 +1,8 @@
 using DataAccess;
+using DataAccess.Models;
 using Shared.DataTransferObjects;
 
-namespace BusinessLogic;
+namespace BusinessLogic.Services;
 
 public interface IProductService
 {

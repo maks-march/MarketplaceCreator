@@ -1,40 +1,20 @@
 using BusinessLogic;
 using DataAccess;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDataAccess();
 builder.Services.AddBusinessLogic();
-
-builder.Services.AddControllers();
-builder.Services.AddApiVersioning(options =>
-{
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
-});
-
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1.0", new() { Title = "API v1", Version = "v1.0" });
-    c.SwaggerDoc("v2.0", new() { Title = "API v2", Version = "v2.0" });
-    
-    c.DocInclusionPredicate((docName, apiDesc) =>
-    {
-        var versions = apiDesc.ActionDescriptor.EndpointMetadata
-            .OfType<MapToApiVersionAttribute>()
-            .SelectMany(attr => attr.Versions)
-            .Select(v => $"v{v}")
-            .ToList();
-            
-        return versions.Contains(docName);
-    });
-});
+builder.Services.AddControllers();
+
+builder.Services.AddWebApiVersioning();
+
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "default-secret-key-min-32-chars-long-123456789";
+builder.Services.AddJwtAuthentification(jwtKey);
 
 var app = builder.Build();
 
@@ -74,6 +54,9 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v2.0/swagger.json", "v2");
 });
 
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.Run();

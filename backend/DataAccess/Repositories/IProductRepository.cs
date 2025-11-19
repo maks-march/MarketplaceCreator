@@ -1,6 +1,7 @@
+using DataAccess.Models;
 using Shared.DataTransferObjects;
 
-namespace DataAccess;
+namespace DataAccess.Repositories;
 
 public interface IProductRepository
 {

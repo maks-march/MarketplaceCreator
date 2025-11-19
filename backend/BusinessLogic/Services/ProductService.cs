@@ -1,8 +1,10 @@
 using DataAccess;
+using DataAccess.Models;
+using DataAccess.Repositories;
 using Shared.DataTransferObjects;
 using Shared.Exceptions;
 
-namespace BusinessLogic;
+namespace BusinessLogic.Services;
 
 internal class ProductService(IProductRepository productRepository) : IProductService
 {

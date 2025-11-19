@@ -1,4 +1,4 @@
-using BusinessLogic;
+using BusinessLogic.Services;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects;
 using Shared.Exceptions;
@@ -32,7 +32,7 @@ public class ProductController(IProductService productService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, "Internal server error" + ex.Message);
         }
     }
 
@@ -55,7 +55,7 @@ public class ProductController(IProductService productService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal server error"); // 500
+            return StatusCode(500, "Internal server error" + ex.Message);
         }
     }
     
@@ -80,7 +80,7 @@ public class ProductController(IProductService productService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, "Internal server error" + ex.Message);
         }
     }
     
@@ -99,7 +99,7 @@ public class ProductController(IProductService productService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return StatusCode(500, "Internal server error");
+            return StatusCode(500, "Internal server error" + ex.Message);
         }
     }
 }

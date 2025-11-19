@@ -1,6 +1,6 @@
 using Shared.DataTransferObjects;
 
-namespace DataAccess;
+namespace DataAccess.Models;
 
 public static class ProductExtensions
 {

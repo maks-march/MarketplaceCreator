@@ -1,7 +1,8 @@
+using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects;
 
-namespace DataAccess;
+namespace DataAccess.Repositories;
 
 internal class ProductRepository(AppContext context) : IProductRepository
 {
@@ -33,6 +34,6 @@ internal class ProductRepository(AppContext context) : IProductRepository
 
     public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return context.Products.AsEnumerable();
+        return await context.Products.ToListAsync(cancellationToken);
     }
 }
