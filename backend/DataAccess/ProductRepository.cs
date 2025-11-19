@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Shared.DataTransferObjects;
 
 namespace DataAccess;
 
@@ -16,8 +17,9 @@ internal class ProductRepository(AppContext context) : IProductRepository
         return await context.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task UpdateByIdAsync(Product product, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(Product product, ProductUpdateDTO productDto, CancellationToken cancellationToken = default)
     {
+        product = product.Update(productDto);
         product.Updated = DateTime.UtcNow;
         context.Products.Update(product);
         await context.SaveChangesAsync(cancellationToken);

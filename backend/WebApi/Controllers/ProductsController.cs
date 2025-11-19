@@ -14,22 +14,45 @@ public class ProductsController(IProductService productsService) : ControllerBas
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAllAsync(
         [FromQuery] int page = 1, 
-        [FromQuery] int pageSize = 20)
-    {
-        var searchDto = new ProductSearchDTO() 
-        { 
-            Page = page, 
-            PageSize = pageSize
-        };
-        var products = await productsService.GetAllAsync(searchDto);
-        return Ok(products);
+        [FromQuery] int pageSize = 20
+    ) {
+        try
+        {
+            var searchDto = new ProductSearchDTO() 
+            { 
+                Page = page, 
+                PageSize = pageSize
+            };
+            var products = await productsService.GetAllAsync(searchDto);
+            return Ok(products);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal server error");
+        }
+
     }
     
     [HttpGet("search/{query}")]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> FindAsync(ProductSearchDTO query)
     {
-        var products = await productsService.FindAsync(query);
-        return Ok(products);
+        try
+        {
+            var products = await productsService.FindAsync(query);
+            return Ok(products);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal server error");
+        }
     }
 }

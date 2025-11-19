@@ -1,3 +1,5 @@
+using Shared.DataTransferObjects;
+
 namespace DataAccess
 {
     public class Product

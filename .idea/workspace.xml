@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9a9456c2-2cf4-4f5f-ab3e-74c510a9794e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/958359df-173c-4788-b664-1a72b65d2f8e.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +99,7 @@
       <workItem from="1763558589802" duration="1285000" />
       <workItem from="1763560082802" duration="925000" />
       <workItem from="1763563907961" duration="1386000" />
-      <workItem from="1763565824796" duration="320000" />
+      <workItem from="1763565824796" duration="625000" />
     </task>
     <servers />
   </component>

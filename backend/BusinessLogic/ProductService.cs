@@ -1,38 +1,31 @@
 using DataAccess;
 using Shared.DataTransferObjects;
+using Shared.Exceptions;
 
 namespace BusinessLogic;
 
 internal class ProductService(IProductRepository productRepository) : IProductService
 {
-    public async Task CreateAsync(string title, string description = "", CancellationToken cancellationToken = default)
+    public async Task CreateAsync(ProductCreateDTO productDto, CancellationToken cancellationToken = default)
     {
-        var product = new Product()
-        {
-            Title = title,
-            Description = description
-        };
+        var product = ProductExtensions.Create(productDto);
         await productRepository.CreateAsync(product, cancellationToken);
     }
 
-    public async Task<string> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetByIdAsync(id, cancellationToken);
 
-        if (product is null)
-            throw new Exception("No product found");
-
-        return product.Title;
+        return product;
     }
 
-    public async Task UpdateByIdAsync(int id, string title, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(int id, ProductUpdateDTO productDto, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetByIdAsync(id, cancellationToken);
         if (product is null)
-            throw new Exception("No product found");
+            throw new NotFoundException("No product found");
         
-        product.Title = title;
-        await productRepository.UpdateByIdAsync(product, cancellationToken);
+        await productRepository.UpdateByIdAsync(product, productDto, cancellationToken);
     }
 
     public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
