@@ -10,7 +10,7 @@ public static class Extensions
         serviceCollection.AddScoped<IProductRepository, ProductRepository>();
         serviceCollection.AddDbContext<AppContext>(x =>
         {
-            x.UseNpgsql("Host=localhost;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
+            x.UseNpgsql("Host=postgres;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
         });
         return serviceCollection;
     }

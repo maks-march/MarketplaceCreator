@@ -5,26 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9a9456c2-2cf4-4f5f-ab3e-74c510a9794e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/Shared/DataTransferObjects/ProductSearchDTO.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/958359df-173c-4788-b664-1a72b65d2f8e.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.dockerignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.idea/.idea.backend/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/BusinessLogic.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/BusinessLogic.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/IProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/IProductService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/DataAccess/DataAccess.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/DataAccess.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/DataAccess/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/Extensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/DataAccess/IProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/IProductRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/DataAccess/ProductRepository.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/DataAccess/ProductRepository.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/ProductController.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/Controllers/ProductController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/WebApi/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/Program.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/WebApi.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/WebApi/appsettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/WebApi/appsettings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/backend.sln" beforeDir="false" afterPath="$PROJECT_DIR$/backend/backend.sln" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/nginx.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,8 +24,9 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/backend/BusinessLogic/ProductService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/backend/DataAccess/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/backend/WebApi/Program.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/DataAccess/AppContext.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/DataAccess/Extensions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/backend/WebApi/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
@@ -115,6 +104,9 @@
       <workItem from="1763542712801" duration="2015000" />
       <workItem from="1763553109873" duration="2715000" />
       <workItem from="1763558589802" duration="1285000" />
+      <workItem from="1763560082802" duration="925000" />
+      <workItem from="1763563907961" duration="1386000" />
+      <workItem from="1763565824796" duration="320000" />
     </task>
     <servers />
   </component>

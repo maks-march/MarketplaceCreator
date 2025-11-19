@@ -12,8 +12,8 @@
 4||10|C|G
 4||10|T|G</Grants>
       <IntrospectionStateNumber>737</IntrospectionStateNumber>
-      <ServerVersion>15.14</ServerVersion>
-      <StartupTime>1763543890</StartupTime>
+      <ServerVersion>15.15</ServerVersion>
+      <StartupTime>1763565917</StartupTime>
       <TimeZones>true ACDT
 true ACSST
 false ACST
@@ -4130,7 +4130,7 @@ false posixrules
       <LastIntrospectionL2Xid>737</LastIntrospectionL2Xid>
       <LastIntrospectionL3Xid>737</LastIntrospectionL3Xid>
       <LastIntrospectionLevel>3</LastIntrospectionLevel>
-      <LastIntrospectionLocalTimestamp>2025-11-19.09:18:15</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2025-11-19.15:26:50</LastIntrospectionLocalTimestamp>
       <ObjectId>2200</ObjectId>
       <StateNumber>518</StateNumber>
       <OwnerName>pg_database_owner</OwnerName>
