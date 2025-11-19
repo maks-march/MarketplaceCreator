@@ -1,0 +1,24 @@
+using BusinessLogic.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace WebApi.Controllers;
+
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+public class UsersController(IUserService userService) : ControllerBase
+{
+    [HttpGet]
+    [MapToApiVersion("1.0")]
+    public async Task<IActionResult> GetAllAsync()
+    {
+        try
+        {
+            var users = await userService.GetAllAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Internal server error" + ex.Message);
+        }
+    }
+}
