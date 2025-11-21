@@ -1,6 +1,7 @@
 using BusinessLogic;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Shared.Exceptions;
 using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,10 @@ builder.Services.AddDataAccess();
 builder.Services.AddBusinessLogic();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<CustomExceptionFilter>();
+});
 
 builder.Services.AddWebApiVersioning();
 
@@ -22,7 +26,6 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DataAccess.AppContext>();
     
-    // Ждем PostgreSQL
     for (int i = 0; i < 10; i++)
     {
         try

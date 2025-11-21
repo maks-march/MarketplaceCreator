@@ -6,11 +6,14 @@ using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
-internal class ProductService(IProductRepository productRepository) : IProductService
+internal class ProductService(IProductRepository productRepository, IBrandRepository brandRepository) : IProductService
 {
-    public async Task CreateAsync(ProductCreateDTO productDto, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(ProductCreateDTO productDto, int userId, CancellationToken cancellationToken = default)
     {
         var product = ProductExtensions.Create(productDto);
+        var brand = 
+        
+        product.BrandId = userId;
         await productRepository.CreateAsync(product, cancellationToken);
     }
 
@@ -21,7 +24,7 @@ internal class ProductService(IProductRepository productRepository) : IProductSe
         return product;
     }
 
-    public async Task UpdateByIdAsync(int id, ProductUpdateDTO productDto, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(int id, ProductUpdateDTO productDto, int userId, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetByIdAsync(id, cancellationToken);
         if (product is null)
@@ -30,7 +33,7 @@ internal class ProductService(IProductRepository productRepository) : IProductSe
         await productRepository.UpdateByIdAsync(product, productDto, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
         var product = await productRepository.GetByIdAsync(id, cancellationToken);
         await productRepository.DeleteByIdAsync(product, cancellationToken);

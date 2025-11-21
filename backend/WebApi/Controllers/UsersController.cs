@@ -11,14 +11,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAllAsync()
     {
-        try
-        {
-            var users = await userService.GetAllAsync();
-            return Ok(users);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error" + ex.Message);
-        }
+        var users = await userService.GetAllAsync();
+        return Ok(users);
     }
 }

@@ -2,6 +2,7 @@ using BusinessLogic.Services;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity.Data;
+using Shared.DataTransferObjects;
 
 namespace WebApi.Controllers;
 
@@ -11,31 +12,17 @@ public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
     [MapToApiVersion("1.0")]
-    public async Task<ActionResult<AuthResponse>> Register(LoginRequest request)
+    public async Task<ActionResult<AuthResponse>> Register(UserCreateDTO request)
     {
-        try
-        {
-            var result = await authService.RegisterAsync(request);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        var result = await authService.RegisterAsync(request);
+        return Ok(result);
     }
 
     [HttpPost("login")]
     [MapToApiVersion("1.0")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
-        try
-        {
-            var result = await authService.LoginAsync(request);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return Unauthorized(ex.Message);
-        }
+        var result = await authService.LoginAsync(request);
+        return Ok(result);
     }
 }

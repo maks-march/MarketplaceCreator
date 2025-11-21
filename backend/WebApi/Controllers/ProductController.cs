@@ -1,4 +1,7 @@
+using System.Security.Authentication;
+using System.Security.Claims;
 using BusinessLogic.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects;
 using Shared.Exceptions;
@@ -14,92 +17,53 @@ public class ProductController(IProductService productService) : ControllerBase
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAsync([FromRoute]int id)
     {
-        try
-        {
-            if (id < 1)
-                throw new ArgumentException("Id cant be less than 1");
+        if (id < 1)
+            throw new ArgumentException("Id cant be less than 1");
             
-            var result = await productService.GetByIdAsync(id);
+        var result = await productService.GetByIdAsync(id);
             
-            if (result == null)
-                return NotFound($"Product with id {id} not found");
+        if (result == null)
+            return NotFound($"Product with id {id} not found");
             
-            return Ok(result);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error" + ex.Message);
-        }
+        return Ok(result);
     }
-
+    
+    [Authorize]
     [HttpPost]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> CreateAsync([FromBody]ProductCreateDTO productDto)
     {
-        try
-        {
-            await productService.CreateAsync(productDto);
-            return NoContent();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error" + ex.Message);
-        }
+        await productService.CreateAsync(productDto, GetUserId());
+        return NoContent();
     }
-    
+
+
+    [Authorize]
     [HttpPut("{id:int}")]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> UpdateAsync(
         [FromRoute]int id, 
         [FromBody]ProductUpdateDTO productDto)
     {
-        try
-        {
-            await productService.UpdateByIdAsync(id, productDto);
-            return Ok();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (NotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error" + ex.Message);
-        }
+        await productService.UpdateByIdAsync(id, productDto, GetUserId());
+        return Ok();
     }
     
+    [Authorize]
     [HttpDelete("{id:int}")]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> DeleteAsync([FromRoute]int id)
     {
-        try
-        {
-            await productService.DeleteByIdAsync(id);
-            return Ok();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error" + ex.Message);
-        }
+        await productService.DeleteByIdAsync(id, GetUserId());
+        return Ok();
+    }
+    
+    private int GetUserId()
+    {
+        if (User.Identity?.IsAuthenticated != null && User.Identity.IsAuthenticated)
+            throw new AuthenticationException("Вы не авторизованы");
+        return int.Parse(
+            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
     }
 }

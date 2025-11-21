@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using DataAccess;
@@ -7,16 +8,19 @@ using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shared.DataTransferObjects;
 
 namespace BusinessLogic.Services;
 
 public class AuthService(IUserRepository userRepository, IConfiguration configuration) : IAuthService
 {
-    public async Task<AuthResponse> RegisterAsync(LoginRequest request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> RegisterAsync(UserCreateDTO request, CancellationToken cancellationToken = default)
     {
-        if (await userRepository.GetFirstOrNullByName(request.Email, cancellationToken) != null)
-            throw new InvalidOperationException("User already exists");
-
+        if (await userRepository.GetFirstOrNullByUsername(request.Username, cancellationToken) != null)
+            throw new ArgumentException("Пользователь с таким логином уже есть!");
+        if (await userRepository.GetFirstOrNullByEmail(request.Email, cancellationToken) != null)
+            throw new ArgumentException("Пользователь с такой почтой уже есть!");
+        
         var user = await userRepository.CreateAsync(request, cancellationToken);
         
         var token = GenerateJwtToken(user);
@@ -25,12 +29,26 @@ public class AuthService(IUserRepository userRepository, IConfiguration configur
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var user = await userRepository.GetFirstOrNullByName(request.Email, cancellationToken);
+        var emailUser = await userRepository.GetFirstOrNullByEmail(request.Email, cancellationToken);
+        var nameUser = await userRepository.GetFirstOrNullByUsername(request.Email, cancellationToken);
+
+        if (CheckUser(emailUser, request, out var response) && response != null)
+            return response;
+        
+        if (CheckUser(nameUser, request, out response) && response != null)
+            return response;
+        throw new AuthenticationException("Неправильный логин или пароль!");
+    }
+
+    private bool CheckUser(User? user, LoginRequest request, out AuthResponse? response)
+    {
+        response = null;
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
-            throw new InvalidOperationException("Invalid credentials");
+            return false;
 
         var token = GenerateJwtToken(user);
-        return new AuthResponse { Token = token, Username = user.Username };
+        response = new AuthResponse { Token = token, Username = user.Username };
+        return true;
     }
 
     public string GenerateJwtToken(User user)
