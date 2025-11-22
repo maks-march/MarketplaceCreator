@@ -2,7 +2,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
-using DataAccess;
 using DataAccess.Models;
 using DataAccess.Repositories;
 using Microsoft.AspNetCore.Identity.Data;
@@ -14,14 +13,15 @@ namespace BusinessLogic.Services;
 
 public class AuthService(IUserRepository userRepository, IConfiguration configuration) : IAuthService
 {
-    public async Task<AuthResponse> RegisterAsync(UserCreateDTO request, CancellationToken cancellationToken = default)
+    public async Task<AuthResponse> RegisterAsync(UserCreateDto request, CancellationToken cancellationToken = default)
     {
         if (await userRepository.GetFirstOrNullByUsername(request.Username, cancellationToken) != null)
             throw new ArgumentException("Пользователь с таким логином уже есть!");
         if (await userRepository.GetFirstOrNullByEmail(request.Email, cancellationToken) != null)
             throw new ArgumentException("Пользователь с такой почтой уже есть!");
-        
-        var user = await userRepository.CreateAsync(request, cancellationToken);
+
+        var user = User.Create(request);
+        await userRepository.CreateAsync(user, cancellationToken);
         
         var token = GenerateJwtToken(user);
         return new AuthResponse { Token = token, Username = user.Username };
@@ -61,12 +61,13 @@ public class AuthService(IUserRepository userRepository, IConfiguration configur
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
             configuration["Jwt:Key"] ?? "default-secret-key-min-32-chars-long-123456789"));
-        
+        var issuer = configuration["Jwt:Issuer"] ?? "marketplace-api";
+        var audience = configuration["Jwt:Audience"] ?? "marketplace-users"; 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
+            issuer: issuer,
+            audience: audience,
             claims: claims,
             expires: DateTime.Now.AddHours(2),
             signingCredentials: creds);

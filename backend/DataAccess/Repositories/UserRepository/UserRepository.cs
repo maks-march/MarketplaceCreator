@@ -1,12 +1,15 @@
 using DataAccess.Models;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
-using Shared.DataTransferObjects;
 
 namespace DataAccess.Repositories;
 
 public class UserRepository(AppContext context) : IUserRepository
 {
+    public async Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await context.Users.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+    
     public async Task<User?> GetFirstOrNullByUsername(string name, CancellationToken cancellationToken = default)
     {
         return await context.Users.FirstOrDefaultAsync(x => x.Username == name, cancellationToken);
@@ -17,20 +20,10 @@ public class UserRepository(AppContext context) : IUserRepository
         return await context.Users.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
     }
 
-    public async Task<User> CreateAsync(UserCreateDTO request, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
     {
-        var user = new User
-        {
-            Username = request.Username,
-            Email = request.Email,
-            Name = request.Name,
-            Surname = request.Surname,
-            Patronymic = request.Patronymic,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
-        };
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
-        return user;
     }
 
     public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)

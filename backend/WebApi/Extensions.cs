@@ -3,6 +3,7 @@ using BusinessLogic.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 
 namespace WebApi;
 
@@ -20,8 +21,8 @@ public static class Extensions
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "MarketplaceBuilder",
-                    ValidAudience = "users",
+                    ValidIssuer = "marketplace-api",
+                    ValidAudience = "marketplace-users",
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtKey))
                 };
@@ -46,7 +47,30 @@ public static class Extensions
         {
             c.SwaggerDoc("v1.0", new() { Title = "API v1", Version = "v1.0" });
             c.SwaggerDoc("v2.0", new() { Title = "API v2", Version = "v2.0" });
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter JWT token like: Bearer {token}"
+            });
     
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    new string[] {}
+                }
+            });
             c.DocInclusionPredicate((docName, apiDesc) =>
             {
                 var versions = apiDesc.ActionDescriptor.EndpointMetadata

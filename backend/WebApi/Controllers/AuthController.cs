@@ -12,7 +12,7 @@ public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
     [MapToApiVersion("1.0")]
-    public async Task<ActionResult<AuthResponse>> Register(UserCreateDTO request)
+    public async Task<ActionResult<AuthResponse>> Register(UserCreateDto request)
     {
         var result = await authService.RegisterAsync(request);
         return Ok(result);

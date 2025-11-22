@@ -1,6 +1,7 @@
 using System.Security.Authentication;
 using System.Security.Claims;
 using BusinessLogic.Services;
+using BusinessLogic.Services.UserBrandService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects;
@@ -10,20 +11,16 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class ProductController(IProductService productService) : ControllerBase
+public class ProductController(IProductService productService, IUserBrandService userBrandService) : BaseController
 {
     [HttpGet("{id:int}")]
     [ResponseCache(Duration = 30)]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAsync([FromRoute]int id)
-    {
-        if (id < 1)
-            throw new ArgumentException("Id cant be less than 1");
+    { 
+        this.EnsureValidateId(id);
             
         var result = await productService.GetByIdAsync(id);
-            
-        if (result == null)
-            return NotFound($"Product with id {id} not found");
             
         return Ok(result);
     }
@@ -31,9 +28,9 @@ public class ProductController(IProductService productService) : ControllerBase
     [Authorize]
     [HttpPost]
     [MapToApiVersion("1.0")]
-    public async Task<IActionResult> CreateAsync([FromBody]ProductCreateDTO productDto)
+    public async Task<IActionResult> CreateAsync([FromBody]ProductCreateDto productDto)
     {
-        await productService.CreateAsync(productDto, GetUserId());
+        await productService.CreateAsync(productDto);
         return NoContent();
     }
 
@@ -43,9 +40,11 @@ public class ProductController(IProductService productService) : ControllerBase
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> UpdateAsync(
         [FromRoute]int id, 
-        [FromBody]ProductUpdateDTO productDto)
+        [FromBody]ProductUpdateDto productDto)
     {
-        await productService.UpdateByIdAsync(id, productDto, GetUserId());
+        this.EnsureValidateId(id);
+        EnsureUserAuth(id);
+        await productService.UpdateByIdAsync(id, productDto);
         return Ok();
     }
     
@@ -54,16 +53,23 @@ public class ProductController(IProductService productService) : ControllerBase
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> DeleteAsync([FromRoute]int id)
     {
-        await productService.DeleteByIdAsync(id, GetUserId());
+        this.EnsureValidateId(id);
+        EnsureUserAuth(id);
+        await productService.DeleteByIdAsync(id);
         return Ok();
     }
-    
-    private int GetUserId()
+
+    private async void EnsureUserAuth(int productId)
     {
-        if (User.Identity?.IsAuthenticated != null && User.Identity.IsAuthenticated)
-            throw new AuthenticationException("Вы не авторизованы");
-        return int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-        );
+        if (!await IsUserRedactor(productId))
+            throw new AuthenticationException("Этот пользователь не может редактировать данный продукт");
+    }
+    
+    private async Task<bool> IsUserRedactor(int productId)
+    {
+        var product =  await productService.GetByIdAsync(productId);
+        var userId = GetCurrentUserId();
+        var usersOfBrand = await userBrandService.GetUsersOfBrandAsync(product.BrandId);
+        return usersOfBrand.Any(u => u.Id == userId);
     }
 }

@@ -6,7 +6,7 @@ using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDataAccess();
+builder.Services.AddDataAccess(builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing"));
 builder.Services.AddBusinessLogic();
 builder.Services.AddEndpointsApiExplorer();
 

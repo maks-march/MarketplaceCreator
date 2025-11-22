@@ -14,7 +14,7 @@ public class CustomExceptionFilter : IExceptionFilter
             InvalidOperationException => new ConflictObjectResult(context.Exception.Message),
             AuthenticationException => new UnauthorizedObjectResult(context.Exception.Message),
             NotFoundException => new NotFoundObjectResult(context.Exception.Message),
-            _ => new ObjectResult("Internal server error") { StatusCode = 500 }
+            _ => new ObjectResult("Internal server error " + context.Exception.Message) { StatusCode = 500 }
         };
 
         context.Result = result;

@@ -8,7 +8,6 @@ internal class ProductRepository(AppContext context) : IProductRepository
 {
     public async Task CreateAsync(Product product, CancellationToken cancellationToken = default)
     {
-        product.Created = DateTime.UtcNow;
         await context.Products.AddAsync(product, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
@@ -18,15 +17,15 @@ internal class ProductRepository(AppContext context) : IProductRepository
         return await context.Products.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task UpdateByIdAsync(Product product, ProductUpdateDTO productDto, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Product product, ProductUpdateDto productDto, CancellationToken cancellationToken = default)
     {
-        product = product.Update(productDto);
+        product.Update(productDto);
         product.Updated = DateTime.UtcNow;
         context.Products.Update(product);
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(Product product, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Product product, CancellationToken cancellationToken = default)
     {
         context.Products.Remove(product);
         await context.SaveChangesAsync(cancellationToken);

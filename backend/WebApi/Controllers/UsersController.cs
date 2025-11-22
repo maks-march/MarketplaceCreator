@@ -1,4 +1,7 @@
+using System.Security.Authentication;
+using System.Security.Claims;
 using BusinessLogic.Services;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
