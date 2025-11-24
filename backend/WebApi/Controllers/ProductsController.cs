@@ -1,16 +1,16 @@
 using BusinessLogic.Services;
-using BusinessLogic.Services.UserBrandService;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Shared.DataTransferObjects;
 using Microsoft.AspNetCore.Mvc;
+using Shared.DataTransferObjects.Response;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class ProductsController(IProductService productsService, IUserBrandService userBrandService) : BaseController
+public class ProductsController(IProductService productsService) : BaseController
 {
     [HttpGet]
     [ResponseCache(Duration = 30)]
@@ -81,10 +81,12 @@ public class ProductsController(IProductService productsService, IUserBrandServi
         return Ok(products);
     }
     
-    private async Task<IEnumerable<Product>> GetUserProducts(ProductSearchDto searchDto)
+    private async Task<IEnumerable<ProductLinkedDto>> GetUserProducts(ProductSearchDto searchDto)
     {
         var userId = GetCurrentUserId();
-        var userBrands = await userBrandService.GetBrandsOfUserAsync(userId);
-        return await productsService.FindWithBrandsAsync(searchDto, userBrands.Select(b => b.Id));
+        return await productsService.GetFilteredAsync(
+            searchDto, 
+            p => p.Brand.Users.Any(u => u.Id == userId)
+        );
     }
 }

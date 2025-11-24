@@ -1,4 +1,5 @@
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;
 
@@ -13,7 +14,7 @@ public class User : BaseModel
     
     public bool IsAdmin { get; set; } = false;
     
-    public ICollection<UserBrand> UserBrand { get; set; } = new List<UserBrand>();
+    public ICollection<Brand> Brands { get; set; } = new List<Brand>();
     
     public static User Create(UserCreateDto dto)
     {
@@ -39,5 +40,43 @@ public class User : BaseModel
         Name = dto.Name ?? Name;
         Surname = dto.Surname ??  Surname;
         Patronymic = dto.Patronymic ?? Patronymic;
+    }
+    
+    public UserDto GetDtoFromUser()
+    {
+        return new UserDto
+        {
+            Id = Id,
+            Created = Created,
+            Updated = Updated,
+            Username = Username,
+            Name = Name,
+            Surname = Surname,
+            Patronymic = Patronymic,
+            IsAdmin = IsAdmin
+        };
+    }
+    
+    public UserSecureDto GetSecuredDtoFromUser()
+    {
+        var dto = (UserSecureDto)GetDtoFromUser();
+        dto.Email = Email;
+        dto.PasswordHash = PasswordHash;
+        return dto;
+    }
+
+    public UserLinkedDto GetLinkedDtoFromUser()
+    {
+        var dto = (UserLinkedDto)GetDtoFromUser();
+
+        dto.Brands = Brands.Select(b => new BrandDto
+            {
+                Id = b.Id,
+                Created = b.Created,
+                Updated = b.Updated,
+                Name = b.Name
+            })
+            .ToList();
+        return dto;
     }
 }

@@ -10,7 +10,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class BrandController(IBrandService brandService, IUserService userService) : BaseController
+public class BrandController(IBrandService brandService, IUserService userService) : NeedAuthController(userService)
 {
     [HttpGet("{id:int}")]
     [ResponseCache(Duration = 30)]
@@ -55,10 +55,5 @@ public class BrandController(IBrandService brandService, IUserService userServic
         var userId = GetCurrentUserId();
         await brandService.DeleteByIdAsync(id, userId);
         return Ok();
-    }
-
-    private async Task<User> GetCurrentUser()
-    {
-        return await userService.GetByIdAsync(GetCurrentUserId());
     }
 }

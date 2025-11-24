@@ -1,21 +1,41 @@
+using System.Security.Authentication;
 using DataAccess.Models;
 using DataAccess.Repositories;
+using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
 public class UserService(IUserRepository userRepository) : IUserService
 {
-    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<UserDto>> GetAllAsync(UserSearchDto searchDto, CancellationToken cancellationToken = default)
     {
-        return await userRepository.GetAllAsync(cancellationToken);
+        var brands = await userRepository.GetAllAsync(cancellationToken);
+        
+        return brands.Skip((searchDto.Page - 1) * searchDto.PageSize)
+            .Take(searchDto.PageSize)
+            .ToList();
     }
     
     public async Task<User> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var result = await userRepository.GetByIdAsync(id, cancellationToken);
-        if (result == null)
-            throw new NotFoundException($"Пользователья с id = {id} не найдено");
-        return result;
+        return await GetUserById(id, true, cancellationToken: cancellationToken);
+    }
+
+    public async Task DeleteByIdAsync(int id, User user, CancellationToken cancellationToken = default)
+    {
+        var brand = await GetUserById(id, user.IsAdmin, cancellationToken: cancellationToken);
+        await userRepository.DeleteAsync(brand, cancellationToken);
+    }
+    
+    private async Task<User> GetUserById(int userId, bool isAdmin = false, CancellationToken cancellationToken = default)
+    {
+        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
+        if (user is null)
+            throw new NotFoundException($"Пользователя с id {userId} не найдено");
+        if (!isAdmin)
+            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+        return user;
     }
 }

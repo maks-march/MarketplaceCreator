@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Response;
 
 namespace BusinessLogic.Services;
 
@@ -23,24 +24,28 @@ public class AuthService(IUserRepository userRepository, IConfiguration configur
         var user = User.Create(request);
         await userRepository.CreateAsync(user, cancellationToken);
         
-        var token = GenerateJwtToken(user);
+        var token = GenerateJwtToken(user.GetSecuredDtoFromUser());
         return new AuthResponse { Token = token, Username = user.Username };
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var emailUser = await userRepository.GetFirstOrNullByEmail(request.Email, cancellationToken);
-        var nameUser = await userRepository.GetFirstOrNullByUsername(request.Email, cancellationToken);
+        var emailUser = await userRepository.GetSecureFirstOrNullByEmail(request.Email, cancellationToken);
+        var nameUser = await userRepository.GetSecureFirstOrNullByUsername(request.Email, cancellationToken);
 
-        if (CheckUser(emailUser, request, out var response) && response != null)
+        if (AuthentificateUser(emailUser, request, out var response) && response != null)
             return response;
         
-        if (CheckUser(nameUser, request, out response) && response != null)
+        if (AuthentificateUser(nameUser, request, out response) && response != null)
             return response;
+
+        if (emailUser is null && nameUser is null)
+            throw new AuthenticationException("Такого пользователя не существует");
+        
         throw new AuthenticationException("Неправильный логин или пароль!");
     }
 
-    private bool CheckUser(User? user, LoginRequest request, out AuthResponse? response)
+    private bool AuthentificateUser(UserSecureDto? user, LoginRequest request, out AuthResponse? response)
     {
         response = null;
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
@@ -51,7 +56,7 @@ public class AuthService(IUserRepository userRepository, IConfiguration configur
         return true;
     }
 
-    public string GenerateJwtToken(User user)
+    public string GenerateJwtToken(UserSecureDto user)
     {
         var claims = new[]
         {

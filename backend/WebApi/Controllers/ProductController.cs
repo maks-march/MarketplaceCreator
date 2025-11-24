@@ -1,17 +1,14 @@
 using System.Security.Authentication;
-using System.Security.Claims;
 using BusinessLogic.Services;
-using BusinessLogic.Services.UserBrandService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects;
-using Shared.Exceptions;
 
 namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
-public class ProductController(IProductService productService, IUserBrandService userBrandService) : BaseController
+public class ProductController(IProductService productService) : BaseController
 {
     [HttpGet("{id:int}")]
     [ResponseCache(Duration = 30)]
@@ -69,7 +66,7 @@ public class ProductController(IProductService productService, IUserBrandService
     {
         var product =  await productService.GetByIdAsync(productId);
         var userId = GetCurrentUserId();
-        var usersOfBrand = await userBrandService.GetUsersOfBrandAsync(product.BrandId);
-        return usersOfBrand.Any(u => u.Id == userId);
+        var isRedactorOfBrand = product.Brand.Users.Any(u => u.Id == userId);
+        return isRedactorOfBrand;
     }
 }

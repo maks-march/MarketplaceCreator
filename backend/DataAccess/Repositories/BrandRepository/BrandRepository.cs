@@ -1,6 +1,7 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 
@@ -23,9 +24,9 @@ public class BrandRepository(AppContext context) : IBrandRepository
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Brand>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BrandDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Brands.ToListAsync(cancellationToken);
+        return await context.Brands.Select(b => b.GetDtoFromBrand()).ToListAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Brand brand, BrandUpdateDto brandUpdateDto, CancellationToken cancellationToken)
