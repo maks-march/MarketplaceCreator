@@ -21,7 +21,7 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
 
     public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        var brand = await GetBrandById(id, cancellationToken: cancellationToken);
+        var brand = await GetBrandById(id, userId, cancellationToken: cancellationToken);
         await brandRepository.DeleteByIdAsync(brand, cancellationToken);
     }
 
@@ -29,7 +29,9 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
     {
         var brands = await brandRepository.GetAllAsync(cancellationToken);
         
-        return brands.Skip((searchDto.Page - 1) * searchDto.PageSize)
+        return brands
+            .Select(b => b.GetDtoFromBrand())
+            .Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
             .ToList();
     }
@@ -40,10 +42,10 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
         await brandRepository.UpdateAsync(brand, brandUpdateDto, cancellationToken);
     }
     
-    public async Task<BrandDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<BrandLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var brand = await GetBrandById(id, cancellationToken: cancellationToken);
-        return brand.GetDtoFromBrand();
+        return brand.GetLinkedDtoFromBrand();
     }
 
 
@@ -53,7 +55,7 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
         if (brand is null)
             throw new NotFoundException($"Бренда с id {brandId} не найдено");
         if (userId != -1 && brand.Users.All(u => u.Id != userId))
-            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+            throw new AuthenticationException("Данный пользователь не может редактировать этот бренд");
         
         return brand;
     }

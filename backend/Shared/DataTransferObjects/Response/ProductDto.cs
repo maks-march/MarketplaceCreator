@@ -12,12 +12,18 @@ public class ProductDto
     
     public string Description { get; set; } = string.Empty;
     
-    public int BrandId { get; set; }
-    
-    public BrandDto Brand { get; set; }
+    public void CopyFrom(ProductDto other)
+    {
+        Id = other.Id;
+        Created = other.Created;
+        Updated = other.Updated;
+        Title = other.Title;
+        Description = other.Description;
+    }
 }
 
 public class ProductLinkedDto : ProductDto
 {
+    public int BrandId { get; set; }
     public BrandLinkedDto Brand { get; set; }
 }

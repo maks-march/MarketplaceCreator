@@ -42,6 +42,7 @@ public class User : BaseModel
         Patronymic = dto.Patronymic ?? Patronymic;
     }
     
+    
     public UserDto GetDtoFromUser()
     {
         return new UserDto
@@ -59,7 +60,9 @@ public class User : BaseModel
     
     public UserSecureDto GetSecuredDtoFromUser()
     {
-        var dto = (UserSecureDto)GetDtoFromUser();
+        var dto = new UserSecureDto();
+        dto.CopyFrom(GetDtoFromUser());
+        
         dto.Email = Email;
         dto.PasswordHash = PasswordHash;
         return dto;
@@ -67,14 +70,21 @@ public class User : BaseModel
 
     public UserLinkedDto GetLinkedDtoFromUser()
     {
-        var dto = (UserLinkedDto)GetDtoFromUser();
-
-        dto.Brands = Brands.Select(b => new BrandDto
+        var dto = new UserLinkedDto();
+        dto.CopyFrom(GetDtoFromUser());
+        
+        dto.Brands = Brands.Select(b => new BrandLinkedDto
             {
                 Id = b.Id,
                 Created = b.Created,
                 Updated = b.Updated,
-                Name = b.Name
+                Name = b.Name,
+                Users = b.Users
+                    .Select(u => u.GetDtoFromUser())
+                    .ToList(),
+                Products = b.Products
+                    .Select(p => p.GetDtoFromProduct())
+                    .ToList()
             })
             .ToList();
         return dto;

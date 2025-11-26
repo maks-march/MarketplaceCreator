@@ -26,7 +26,7 @@ public class Product : BaseModel
         };
         return product;
     }
-
+    
     public void Update(ProductUpdateDto dto)
     {
         Update((BaseDto)dto);
@@ -34,6 +34,8 @@ public class Product : BaseModel
         Description = dto.Description ?? Description;
     }
 
+    
+    
     public ProductDto GetDtoFromProduct()
     {
         return new ProductDto
@@ -42,15 +44,15 @@ public class Product : BaseModel
             Created = Created,
             Updated = Updated,
             Title = Title,
-            BrandId = BrandId,
-            Description = Description,
-            Brand = Brand.GetDtoFromBrand()
+            Description = Description
         };
     }
     
     public ProductLinkedDto GetLinkedDtoFromProduct()
     {
-        var dto = GetDtoFromProduct() as ProductLinkedDto;
+        var dto = new ProductLinkedDto();
+        dto.CopyFrom(GetDtoFromProduct());
+        dto.BrandId = BrandId;
         dto.Brand = Brand.GetLinkedDtoFromBrand();
         return dto;
     }

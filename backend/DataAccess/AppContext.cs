@@ -18,7 +18,7 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
             .HasOne(p => p.Brand)
             .WithMany(b => b.Products)
             .HasForeignKey(p => p.BrandId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<User>().HasKey(n => n.Id);
         modelBuilder.Entity<User>().Property(n => n.Username).IsRequired();

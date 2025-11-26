@@ -15,7 +15,10 @@ public class BrandRepository(AppContext context) : IBrandRepository
 
     public async Task<Brand?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await context.Brands.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        return await context.Brands
+            .Include(b => b.Users)
+            .Include(b => b.Products)
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
     public async Task DeleteByIdAsync(Brand brand, CancellationToken cancellationToken = default)
@@ -24,9 +27,12 @@ public class BrandRepository(AppContext context) : IBrandRepository
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<BrandDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Brand>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await context.Brands.Select(b => b.GetDtoFromBrand()).ToListAsync(cancellationToken);
+        return await context.Brands
+            .Include(b => b.Products)
+            .Include(b => b.Users)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task UpdateAsync(Brand brand, BrandUpdateDto brandUpdateDto, CancellationToken cancellationToken)

@@ -17,11 +17,23 @@ public class UserDto
     public string Patronymic { get; set; }
     
     public bool IsAdmin { get; set; } = false;
+    
+    public void CopyFrom(UserDto other)
+    {
+        Id = other.Id;
+        Created = other.Created;
+        Updated = other.Updated;
+        Username = other.Username;
+        Name = other.Name;
+        Surname = other.Surname;
+        Patronymic = other.Patronymic;
+        IsAdmin = other.IsAdmin;
+    }
 }
 
 public class UserLinkedDto : UserDto
 {
-    public ICollection<BrandDto> Brands { get; set; } = new List<BrandDto>();
+    public ICollection<BrandLinkedDto> Brands { get; set; } = new List<BrandLinkedDto>();
 }
 
 public class UserSecureDto : UserDto

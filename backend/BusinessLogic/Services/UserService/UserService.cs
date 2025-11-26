@@ -13,7 +13,9 @@ public class UserService(IUserRepository userRepository) : IUserService
     {
         var brands = await userRepository.GetAllAsync(cancellationToken);
         
-        return brands.Skip((searchDto.Page - 1) * searchDto.PageSize)
+        return brands
+            .Select(u => u.GetDtoFromUser())
+            .Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
             .ToList();
     }
@@ -25,8 +27,8 @@ public class UserService(IUserRepository userRepository) : IUserService
 
     public async Task DeleteByIdAsync(int id, User user, CancellationToken cancellationToken = default)
     {
-        var brand = await GetUserById(id, user.IsAdmin, cancellationToken: cancellationToken);
-        await userRepository.DeleteAsync(brand, cancellationToken);
+        var currentUser = await GetUserById(id, user.IsAdmin, cancellationToken: cancellationToken);
+        await userRepository.DeleteAsync(currentUser, cancellationToken);
     }
     
     private async Task<User> GetUserById(int userId, bool isAdmin = false, CancellationToken cancellationToken = default)

@@ -10,7 +10,7 @@ public interface IUserRepository
     Task<UserLinkedDto?> GetFirstOrNullByUsername(string name, CancellationToken cancellationToken = default);
     Task<UserLinkedDto?> GetFirstOrNullByEmail(string email, CancellationToken cancellationToken = default);
     
-    Task<IEnumerable<UserLinkedDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default);
     
     Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken);
     

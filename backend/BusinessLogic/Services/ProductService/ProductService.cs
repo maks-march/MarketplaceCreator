@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+using DataAccess.Migrations;
 using DataAccess.Models;
 using DataAccess.Repositories;
 using Shared.DataTransferObjects;
@@ -6,11 +8,15 @@ using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
-internal class ProductService(IProductRepository productRepository) : IProductService
+internal class ProductService(IProductRepository productRepository, IBrandRepository brandRepository) : IProductService
 {
     public async Task CreateAsync(ProductCreateDto productDto, CancellationToken cancellationToken = default)
     {
         var product = Product.Create(productDto);
+        var brand = await brandRepository.GetByIdAsync(productDto.BrandId);
+        if (brand is null)
+            throw new NotFoundException($"Бренда с id {productDto.BrandId} не найдено");
+        product.Brand = brand;
         await productRepository.CreateAsync(product, cancellationToken);
     }
 
@@ -20,65 +26,39 @@ internal class ProductService(IProductRepository productRepository) : IProductSe
         return product.GetLinkedDtoFromProduct();
     }
 
-    public async Task UpdateByIdAsync(int id, ProductUpdateDto productDto, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(int id, ProductUpdateDto productDto, int userId, CancellationToken cancellationToken = default)
     {
-        var product = await GetProductById(id, cancellationToken);
+        var product = await GetProductById(id, cancellationToken, userId);
         await productRepository.UpdateAsync(product, productDto, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
-        var product = await GetProductById(id, cancellationToken);
+        var product = await GetProductById(id, cancellationToken, userId);
         await productRepository.DeleteAsync(product, cancellationToken);
     }
 
     public async Task<IEnumerable<ProductLinkedDto>> GetFilteredAsync(ProductSearchDto searchDto, Func<Product, bool>? filter = null, CancellationToken cancellationToken = default)
-    {
-        if (filter is null)
-            return await FilterProducts(searchDto, null);
-        
-        var dtoFilter = (ProductDto p) =>
-        {
-            var product = new Product
-            {
-                Id = p.Id,
-                Created = p.Created,
-                Updated = p.Updated,
-                BrandId = p.BrandId,
-                Title = p.Title,
-                Description = p.Description
-            };
-            return filter(product);
-        };
-        var products = await FilterProducts(searchDto, dtoFilter);
-        return products;
-    }
-
-    public async Task<IEnumerable<ProductLinkedDto>> FindWithBrandsAsync(ProductSearchDto searchDto, IEnumerable<int> brands, CancellationToken cancellationToken = default)
-    {
-        return await FilterProducts(searchDto, product =>
-        {
-            return brands.Any(b=> b == product.Id);
-        });
-    }
-
-    private async Task<Product> GetProductById(int id, CancellationToken cancellationToken = default)
-    {
-        var product = await productRepository.GetByIdAsync(id, cancellationToken);
-        if (product is null)
-            throw new NotFoundException($"Product with id {id} not found");
-        return product;
-    }
-
-    private async Task<IEnumerable<ProductLinkedDto>> FilterProducts(ProductSearchDto searchDto, Func<ProductDto, bool>? filter = null)
     {
         var products = await productRepository.GetAllAsync();
         if (!string.IsNullOrEmpty(searchDto.Query))
             products = products.Where(
                 p => p.Title.Contains(searchDto.Query) || p.Description.Contains(searchDto.Query)
             );
-        return products.Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
+        return products
+            .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
+            .Select(p => p.GetLinkedDtoFromProduct())
             .ToList();
+    }
+    
+    private async Task<Product> GetProductById(int id, CancellationToken cancellationToken, int userId = -1)
+    {
+        var product = await productRepository.GetByIdAsync(id, cancellationToken);
+        if (product is null)
+            throw new NotFoundException($"Product with id {id} not found");
+        if (userId != -1 && product.Brand.Users.All(u => u.Id != userId))
+            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+        return product;
     }
 }

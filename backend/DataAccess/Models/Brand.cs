@@ -23,12 +23,14 @@ public class Brand : BaseModel
         };
         return brand;
     }
-
+    
     public void Update(BrandUpdateDto dto)
     {
         Update((BaseDto)dto);
         Name = dto.Name ?? Name;
     }
+    
+    
     
     public BrandDto GetDtoFromBrand()
     {
@@ -43,8 +45,8 @@ public class Brand : BaseModel
 
     public BrandLinkedDto GetLinkedDtoFromBrand()
     {
-        var dto = (BrandLinkedDto)GetDtoFromBrand();
-
+        var dto = new BrandLinkedDto();
+        dto.CopyFrom(GetDtoFromBrand());
         dto.Users = Users
             .Select(u => u.GetDtoFromUser())
             .ToList();
@@ -54,4 +56,6 @@ public class Brand : BaseModel
             .ToList();
         return dto;
     }
+
+    
 }
