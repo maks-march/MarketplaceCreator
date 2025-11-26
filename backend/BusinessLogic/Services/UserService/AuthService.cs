@@ -24,7 +24,7 @@ public class AuthService(IUserRepository userRepository, IConfiguration configur
         var user = User.Create(request);
         await userRepository.CreateAsync(user, cancellationToken);
         
-        var token = GenerateJwtToken(user.GetSecuredDtoFromUser());
+        var token = GenerateJwtToken(user.GetSecuredDto());
         return new AuthResponse { Token = token, Username = user.Username };
     }
 

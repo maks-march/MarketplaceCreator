@@ -14,7 +14,7 @@ public class UserService(IUserRepository userRepository) : IUserService
         var brands = await userRepository.GetAllAsync(cancellationToken);
         
         return brands
-            .Select(u => u.GetDtoFromUser())
+            .Select(u => u.GetDto())
             .Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
             .ToList();

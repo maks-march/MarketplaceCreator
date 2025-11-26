@@ -1,7 +1,6 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects;
-using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 
@@ -21,7 +20,7 @@ public class BrandRepository(AppContext context) : IBrandRepository
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(Brand brand, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Brand brand, CancellationToken cancellationToken = default)
     {
         context.Brands.Remove(brand);
         await context.SaveChangesAsync(cancellationToken);

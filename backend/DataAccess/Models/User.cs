@@ -43,7 +43,7 @@ public class User : BaseModel
     }
     
     
-    public UserDto GetDtoFromUser()
+    public UserDto GetDto()
     {
         return new UserDto
         {
@@ -58,20 +58,20 @@ public class User : BaseModel
         };
     }
     
-    public UserSecureDto GetSecuredDtoFromUser()
+    public UserSecureDto GetSecuredDto()
     {
         var dto = new UserSecureDto();
-        dto.CopyFrom(GetDtoFromUser());
+        dto.CopyFrom(GetDto());
         
         dto.Email = Email;
         dto.PasswordHash = PasswordHash;
         return dto;
     }
 
-    public UserLinkedDto GetLinkedDtoFromUser()
+    public UserLinkedDto GetLinkedDto()
     {
         var dto = new UserLinkedDto();
-        dto.CopyFrom(GetDtoFromUser());
+        dto.CopyFrom(GetDto());
         
         dto.Brands = Brands.Select(b => new BrandLinkedDto
             {
@@ -80,10 +80,10 @@ public class User : BaseModel
                 Updated = b.Updated,
                 Name = b.Name,
                 Users = b.Users
-                    .Select(u => u.GetDtoFromUser())
+                    .Select(u => u.GetDto())
                     .ToList(),
                 Products = b.Products
-                    .Select(p => p.GetDtoFromProduct())
+                    .Select(p => p.GetDto())
                     .ToList()
             })
             .ToList();

@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Transactions;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 
@@ -36,7 +35,7 @@ public class Product : BaseModel
 
     
     
-    public ProductDto GetDtoFromProduct()
+    public ProductDto GetDto()
     {
         return new ProductDto
         {
@@ -48,12 +47,12 @@ public class Product : BaseModel
         };
     }
     
-    public ProductLinkedDto GetLinkedDtoFromProduct()
+    public ProductLinkedDto GetLinkedDto()
     {
         var dto = new ProductLinkedDto();
-        dto.CopyFrom(GetDtoFromProduct());
+        dto.CopyFrom(GetDto());
         dto.BrandId = BrandId;
-        dto.Brand = Brand.GetLinkedDtoFromBrand();
+        dto.Brand = Brand.GetLinkedDto();
         return dto;
     }
 }

@@ -22,17 +22,20 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
     public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
     {
         var brand = await GetBrandById(id, userId, cancellationToken: cancellationToken);
-        await brandRepository.DeleteByIdAsync(brand, cancellationToken);
+        await brandRepository.DeleteAsync(brand, cancellationToken);
     }
 
-    public async Task<IEnumerable<BrandDto>> GetAllBrands(BrandSearchDto searchDto, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BrandLinkedDto>> GetFilteredAsync(BrandSearchDto searchDto, Func<Brand, bool>? filter = null, CancellationToken cancellationToken = default)
     {
         var brands = await brandRepository.GetAllAsync(cancellationToken);
-        
+        if (!string.IsNullOrEmpty(searchDto.Query))
+            brands = brands.Where(
+                p => p.Name.Contains(searchDto.Query)
+            );
         return brands
-            .Select(b => b.GetDtoFromBrand())
-            .Skip((searchDto.Page - 1) * searchDto.PageSize)
+            .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
+            .Select(p => p.GetLinkedDto())
             .ToList();
     }
 
@@ -45,7 +48,7 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
     public async Task<BrandLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var brand = await GetBrandById(id, cancellationToken: cancellationToken);
-        return brand.GetLinkedDtoFromBrand();
+        return brand.GetLinkedDto();
     }
 
 

@@ -32,7 +32,7 @@ public class Brand : BaseModel
     
     
     
-    public BrandDto GetDtoFromBrand()
+    public BrandDto GetDto()
     {
         return new BrandDto
         {
@@ -43,19 +43,17 @@ public class Brand : BaseModel
         };
     }
 
-    public BrandLinkedDto GetLinkedDtoFromBrand()
+    public BrandLinkedDto GetLinkedDto()
     {
         var dto = new BrandLinkedDto();
-        dto.CopyFrom(GetDtoFromBrand());
+        dto.CopyFrom(GetDto());
         dto.Users = Users
-            .Select(u => u.GetDtoFromUser())
+            .Select(u => u.GetDto())
             .ToList();
         
         dto.Products = Products
-            .Select(p => p.GetDtoFromProduct())
+            .Select(p => p.GetDto())
             .ToList();
         return dto;
     }
-
-    
 }

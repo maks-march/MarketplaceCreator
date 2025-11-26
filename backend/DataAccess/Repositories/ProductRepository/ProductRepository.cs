@@ -1,7 +1,6 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects;
-using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 

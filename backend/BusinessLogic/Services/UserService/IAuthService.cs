@@ -1,4 +1,3 @@
-using DataAccess;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Identity.Data;
 using Shared.DataTransferObjects;

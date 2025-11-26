@@ -1,5 +1,4 @@
 using System.Security.Authentication;
-using DataAccess.Migrations;
 using DataAccess.Models;
 using DataAccess.Repositories;
 using Shared.DataTransferObjects;
@@ -8,12 +7,12 @@ using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
-internal class ProductService(IProductRepository productRepository, IBrandRepository brandRepository) : IProductService
+internal class ProductService(IProductRepository productRepository) : IProductService
 {
-    public async Task CreateAsync(ProductCreateDto productDto, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(ProductCreateDto productDto, User user, CancellationToken cancellationToken = default)
     {
         var product = Product.Create(productDto);
-        var brand = await brandRepository.GetByIdAsync(productDto.BrandId);
+        var brand = user.Brands.FirstOrDefault(b => b.Id == productDto.BrandId);
         if (brand is null)
             throw new NotFoundException($"Бренда с id {productDto.BrandId} не найдено");
         product.Brand = brand;
@@ -23,7 +22,7 @@ internal class ProductService(IProductRepository productRepository, IBrandReposi
     public async Task<ProductLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         var product = await GetProductById(id, cancellationToken);
-        return product.GetLinkedDtoFromProduct();
+        return product.GetLinkedDto();
     }
 
     public async Task UpdateByIdAsync(int id, ProductUpdateDto productDto, int userId, CancellationToken cancellationToken = default)
@@ -48,7 +47,7 @@ internal class ProductService(IProductRepository productRepository, IBrandReposi
         return products
             .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
-            .Select(p => p.GetLinkedDtoFromProduct())
+            .Select(p => p.GetLinkedDto())
             .ToList();
     }
     

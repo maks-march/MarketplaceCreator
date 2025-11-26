@@ -60,14 +60,14 @@ public class UserRepository(AppContext context) : IUserRepository
     private static UserSecureDto? CreateSecureDtoFromUser(User user)
     {
         if (user is not null) 
-            return user.GetSecuredDtoFromUser();
+            return user.GetSecuredDto();
         return null;
     }
     
     private static UserLinkedDto? CreateLinkedDtoFromUser(User user)
     {
         if (user is not null) 
-            return user.GetLinkedDtoFromUser();
+            return user.GetLinkedDto();
         return null;
     }
 

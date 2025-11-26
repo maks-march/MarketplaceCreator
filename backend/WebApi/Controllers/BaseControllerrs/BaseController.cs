@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
 
-public abstract class BaseController : ControllerBase
+public abstract class BaseController() : ControllerBase
 {
     protected int GetCurrentUserId()
     {
