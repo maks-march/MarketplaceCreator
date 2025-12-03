@@ -1,0 +1,789 @@
+.main-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8f9fa;
+}
+
+.main-header {
+    width: 100%;
+    height: 60px;
+    background-color: white;
+    padding: 0 clamp(16px, 4vw, 60px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.main-header h1 {
+    font-size: 28px;
+    font-weight: bold;
+    color: #6BBF21;
+    margin: 0;
+}
+
+.main-nav {
+    display: flex;
+    gap: 30px;
+}
+
+.main-nav-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    padding: 0;
+}
+
+.main-nav-btn:hover {
+    color: #6BBF21;
+}
+
+.main-hero {
+    width: 100%;
+    min-height: 160px;
+    background: linear-gradient(135deg, #6BBF21 0%, #5a9d1a 100%);
+    color: white;
+    padding: clamp(12px, 3vw, 60px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.main-hero h2 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.main-hero p {
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+.main-filters {
+    width: 100%;
+    background-color: white;
+    padding: clamp(12px, 3vw, 30px) clamp(16px, 4vw, 60px);
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #eee;
+}
+
+.filter-btn {
+    padding: 10px 24px;
+    background-color: #f0f0f0;
+    color: #333;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.filter-btn.active {
+    background-color: #6BBF21;
+    color: white;
+}
+
+.filter-btn:hover:not(.active) {
+    background-color: #e0e0e0;
+}
+
+.products-grid {
+    width: 100%;
+    padding: clamp(16px, 4vw, 60px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(12px, 2vw, 30px);
+    overflow-y: auto;
+}
+
+.product-card {
+    width: 280px;
+    height: 360px;
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+
+.product-image {
+    width: 280px;
+    height: 200px;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+}
+
+.product-content {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+}
+
+.product-category {
+    font-size: 14px;
+    color: #666;
+}
+
+.product-rating {
+    font-size: 13px;
+    color: #999;
+}
+
+.product-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+}
+
+.product-price {
+    font-size: 24px;
+    font-weight: bold;
+    color: #6BBF21;
+}
+
+.product-btn {
+    padding: 8px 16px;
+    background-color: #6BBF21;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.product-btn:hover {
+    background-color: #5a9d1a;
+}
+
+/* Главная витрина (по макету) */
+.storefront {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden; /* скрыть горизонтальный скролл */
+}
+
+/* Хедер: одинаковый стиль с auth */
+.main-topbar {
+  width: 100%;
+  height: 64px;
+  background: linear-gradient(135deg, #6BBF21 0%, #B7F558 100%);
+  display: grid;
+  grid-template-columns: 270px 1fr auto; /* 270px – отступ слева под логотип */
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.main-topbar .brand {
+  justify-self: start;
+  margin-left: 270px; /* фиксированный отступ под требования */
+  color: #111;
+  font-weight: 800;
+  line-height: 1.05;
+}
+.brand .brand-l1 { display: block; font-size: 20px; }
+.brand .brand-l2 { display: block; font-size: 14px; opacity: .95; margin-top: 2px; }
+
+.main-topbar .search {
+  justify-self: center;
+  position: relative;
+  width: min(520px, 60vw);
+}
+.main-topbar .search input {
+  width: 100%;
+  height: 36px;
+  background: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0 38px 0 16px;
+  font-size: 14px;
+  color: #111;
+}
+.search-ico {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #8a8a8a;
+  display: inline-flex;
+  align-items: center;
+}
+
+.main-topbar .profile {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #111;
+  font-weight: 700;
+}
+.profile .avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid; place-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Верхняя панель инструментов — адаптивная сетка */
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr auto; /* селектор слева, кнопка фильтра справа */
+  align-items: center;
+  padding: 16px 24px 12px 0px;
+  gap: 12px 16px;
+  width: 100%;
+  /* Добавляем переменную высоты/отступа тулбара */
+  --toolbar-offset: 56px;
+}
+
+/* селектор: небольшой отступ слева, но резиновый */
+.sort-select-box {
+  position: relative;
+  margin: 0;
+  min-width: 120px;
+  max-width: 212px;
+}
+
+/* контейнер для кнопки фильтра — прижат к правому краю */
+.toolbar-actions {
+  display: flex;
+  gap: 10px;
+  justify-self: end;
+}
+
+/* Кнопка — убран хардкод, остаётся резиновой */
+.toolbar-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #E7E7E7;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #111;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.toolbar-ico svg { display: block; }
+
+/* Узкие экраны: селектор во всю ширину, кнопка остаётся справа */
+@media (max-width: 640px) {
+  .toolbar {
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+  }
+  .sort-select-box {
+    margin-left: 0;
+    max-width: 100%;
+  }
+  .sort-trigger { width: 100%; }
+}
+
+/* Грид карточек уже адаптивный */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 280px); /* фиксированная ширина карточки */
+  gap: 16px;
+  justify-content: start;           /* не растягивать колонки на всю ширину */
+  align-content: start;             /* ВАЖНО: ряды не растягиваются по высоте */
+  align-items: start;               /* элементы внутри ячеек не растягиваются */
+  grid-auto-rows: max-content;      /* высота строки = контенту */
+  padding-bottom: 40px;
+}
+
+/* Кастомный селектор сортировки */
+.sort-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 24px;
+  height: 40px;
+  padding: 0 17px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.sort-trigger:hover {
+  border-color: #cddfc2;
+  box-shadow: 0 4px 10px rgba(0,0,0,.08);
+}
+
+.sort-trigger.open {
+  border-color: #6BBF21;
+  box-shadow: 0 4px 12px rgba(107,191,33,.18);
+}
+
+.sort-icon-wrap {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sort-arrow {
+  display: inline-flex;
+  transition: transform .25s;
+}
+
+.sort-arrow.rot {
+  transform: rotate(180deg);
+}
+
+.sort-menu {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  width: 240px;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 24px;
+  padding: 6px 0;
+  box-shadow: 0 12px 32px rgba(0,0,0,.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 30;
+}
+
+.sort-item {
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.sort-item:hover {
+  background: #f5f8f3;
+}
+
+.sort-item.active {
+  color: #111;
+  font-weight: 600;
+  background: #eef9e5;
+}
+
+/* Контентная зона */
+.content {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 16px;
+  padding: 0 16px 24px;
+}
+
+/* Левая вертикальная навигация — рейка из макета */
+.side-nav {
+  position: sticky;
+  top: 84px;
+  height: calc(100vh - 84px);
+  display: flex;
+  align-items: flex-start;
+}
+.side-rail {
+  width: 56px;
+  padding: 12px 8px;
+  background: #dfdfdf;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* кнопки без границы и белого фона по умолчанию */
+.nav-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #111;
+  transition: background .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+.nav-ico svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* hover — белая плитка без бордера и мягкая тень как в макете */
+.nav-ico:hover {
+  background: #fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,.16);
+}
+
+/* active/pressed — зелёная плитка с тенью */
+.nav-ico.is-active {
+  background: linear-gradient(180deg, #A4F52A 0%, #6BBF21 100%);
+  box-shadow: 0 10px 22px rgba(107,191,33,.35);
+  color: #111;
+}
+
+/* нижняя кнопка — прижата к низу */
+.nav-bottom { margin-top: auto; }
+
+/* Сетка карточек */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 280px); /* фиксированная ширина карточки */
+  gap: 16px;
+  justify-content: start; /* не растягивать колонки на всю ширину */
+  align-content: start; /* фиксация высоты рядов */
+  align-items: start; /* без растягивания карточек */
+  grid-auto-rows: max-content; /* строки по контенту */
+  padding-bottom: 40px;
+}
+
+.card {
+  border: 1px solid #E7E7E7;
+  border-radius: 14px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  align-self: start; /* карточка не растягивается по высоте */
+  height: auto; /* высота от контента */
+}
+.card-media {
+  height: 180px;
+  background-image: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                    linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                    linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+  background-size: 26px 26px;
+  background-position: 0 0, 0 13px, 13px -13px, -13px 0px;
+  position: relative;
+}
+.fav-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  /* убираем овальный фон и тень */
+  background: transparent;
+  border: 0;
+  padding: 0;
+  width: auto;
+  height: auto;
+  box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.fav-badge svg { width: 20px; height: 20px; }
+.fav-badge:hover { transform: scale(1.05); box-shadow: none; }
+/* без подсветки овала для активного состояния */
+.fav-badge[aria-pressed="true"] { box-shadow: none; }
+/* левое сердечко больше не используется */
+.wish-badge { display: none; }
+
+.card-body {
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+}
+.card-title { font-weight: 700; color: #111; font-size: 15px; }
+.card-desc  { font-size: 12px; color: #777; }
+.card-price { font-weight: 800; color: #111; font-size: 14px; }
+.card-add {
+  height: 28px;
+  border: none; border-radius: 14px;
+  background: #6BBF21; color: #fff;
+  font-weight: 700; font-size: 12px;
+  cursor: pointer;
+}
+.card-add:hover { background: #5a9d1a; }
+
+/* Выезжающая справа панель фильтров */
+.filters-drawer {
+  position: fixed;
+  /* было: top: 64px; — смещаем ниже тулбара */
+  top: calc(64px + var(--toolbar-offset, 56px));
+  right: 0;
+  width: 360px;
+  max-width: 100%;
+  transform: translateX(120%);
+  transition: transform .35s ease;
+  z-index: 50;
+  padding: 24px 20px 24px 0; /* небольшой внутренний отступ справа */
+  height: auto;
+  pointer-events: none;
+}
+.filters-drawer.open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.filters-shell {
+  background: #fff;
+  border-radius: 18px;
+  width: 320px;
+  padding: 24px 24px 28px;
+  box-shadow:
+    0 0 0 1px #e6f6d8,
+    0 8px 28px rgba(107,191,33,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid #e9e9e9;
+}
+.filters-title {
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 4px;
+  color: #111;
+}
+
+.filters-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111;
+  margin: 4px 0 4px;
+  text-align: left;
+}
+
+.filters-select {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.filters-select select,
+.filters-select input {
+  height: 42px;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 0 42px 0 14px;
+  font-size: 13px;
+  background: #fff;
+  color: #111;
+  transition: border-color .2s, background .2s;
+}
+.filters-select select:focus,
+.filters-select input:focus {
+  outline: none;
+  border-color: #6BBF21;
+  background: #fff;
+}
+.filters-select .sel-ico {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  color: #777;
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.price-row input {
+  height: 42px;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 0 12px;
+  font-size: 13px;
+  background: #fff;
+  color: #111;
+}
+.price-row input:focus {
+  outline: none;
+  border-color: #6BBF21;
+}
+.price-row .dash {
+  color: #111;
+  font-size: 13px;
+}
+
+/* Ползунок цены (макет) */
+.price-slider,
+.price-slider .range-active,
+.price-slider .handle { display: none !important; }
+
+/* Новый рабочий двойной слайдер цены */
+.price-range {
+  position: relative;
+  height: 4px;                /* как на макете (тонкая полоса) */
+  background: #d3d3d3;
+  border-radius: 2px;
+  margin: 6px 0 14px;
+  user-select: none;
+}
+.price-range-fill {
+  position: absolute;
+  top: 0; bottom: 0;
+  background: #6BBF21;
+  border-radius: 2px;
+}
+.price-range-handle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  background: #6BBF21;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #6BBF21, 0 2px 4px rgba(0,0,0,.25);
+  cursor: pointer;
+  padding: 0;
+}
+.price-range-handle:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px #B7F558;
+}
+.price-range-handle:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* строка с ценой */
+.filters-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* базовый инпут цены */
+.filters-price-input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 0 12px;
+  font-size: 13px;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+}
+
+/* при фокусе — как у других полей */
+.filters-price-input:focus {
+  outline: none;
+  border-color: #6BBF21;
+  background: #fff;
+}
+
+/* правый инпут ограничиваем по макету */
+.filters-price-input--max {
+  max-width: 180px;
+}
+
+/* разделитель между полями */
+.filters-price-separator {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Кнопка применить — светло-зелёная с чёрным текстом */
+.filters-apply {
+  width: 100%;
+  height: 44px;
+  background: #A4F52A;
+  color: #111;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background .2s;
+}
+.filters-apply:hover {
+  background: #58A624;
+  color: #fff;
+}
+
+/* Затемнение — тоже ниже тулбара, чтобы не закрывать кнопку фильтра */
+.filters-backdrop {
+  position: fixed;
+  inset: 0;
+  top: calc(64px + var(--toolbar-offset, 56px));
+  height: calc(100vh - (64px + var(--toolbar-offset, 56px)));
+  background: rgba(0,0,0,.18);
+  opacity: 0;
+  visibility: hidden;
+  transition: .25s ease;
+  z-index: 40;
+}
+.filters-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Адаптив: панель занимает всю ширину на узких */
+@media (max-width: 760px) {
+  .filters-drawer {
+    width: 100%;
+    padding: 12px;
+  }
+  .filters-shell {
+    width: 100%;
+    border-radius: 16px;
+  }
+}
+
+/* Адаптив */
+@media (max-width: 900px) {
+  .main-topbar { grid-template-columns: 1fr; height: 64px; }
+  .main-topbar .brand { margin-left: 0; }
+  .main-topbar .profile { display: none; }
+  .content { grid-template-columns: 1fr; }
+  .side-nav { display: none; }
+}
+
+
+body, html {
+  overflow-x: hidden;
+}
