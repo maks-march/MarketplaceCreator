@@ -1,0 +1,153 @@
+/* Кнопка-триггер (три полоски) */
+.category-trigger {
+  position: absolute;
+  left: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px; /* Размер круга */
+  height: 48px;
+  border-radius: 50%; /* Круглая форма */
+  background-color: #54AC34; /* Темно-зеленый (Active) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 101;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Hover (светло-зеленый) */
+.category-trigger:hover {
+  background-color: #95DA46; /* Светло-зеленый (Hover) */
+  box-shadow: 0 4px 12px rgba(149, 218, 70, 0.4);
+}
+
+/* Состояние, когда меню открыто (Clicked) */
+.category-trigger.is-open {
+  background-color: #54AC34; /* Темно-зеленый */
+}
+
+/* Hover при открытом меню (Clicked + Hover) */
+.category-trigger.is-open:hover {
+  background-color: #95DA46; /* Светло-зеленый */
+}
+
+/* Иконка внутри кнопки */
+.category-trigger svg {
+  transition: transform 0.3s ease;
+}
+
+/* Поворот иконки при открытии (горизонтальные -> вертикальные) */
+.category-trigger.is-open svg {
+  transform: rotate(90deg);
+}
+
+/* Основной контейнер выпадающего меню */
+.category-dropdown {
+  position: absolute;
+  top: 80px; /* Отступ от верха (высота хедера + отступ) */
+  left: 32px;
+  width: 260px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 100;
+}
+
+/* Элемент списка категорий */
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s;
+  position: relative;
+}
+
+/* Состояние наведения и активное */
+.category-item:hover,
+.category-item.active {
+  background-color: #7AC142;
+  color: #fff;
+  /* Добавляем тень при наведении, как на макете */
+  box-shadow: 0 4px 12px rgba(122, 193, 66, 0.4);
+}
+
+/* Иконки (img) */
+.category-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  transition: filter 0.2s;
+}
+
+/* При наведении делаем иконку белой */
+.category-item:hover .category-icon,
+.category-item.active .category-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* Иконки внутри элемента */
+.category-item svg {
+  width: 20px;
+  height: 20px;
+  fill: #999; /* Серый по умолчанию */
+  transition: fill 0.2s;
+}
+
+.category-item:hover svg,
+.category-item.active svg {
+  fill: #fff; /* Белый при наведении */
+}
+
+/* Подменю (вторая колонка) */
+.subcategory-menu {
+  position: absolute;
+  left: 100%; /* Справа от родителя */
+  top: 0;
+  margin-left: 16px; /* Зазор между меню */
+  width: 220px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 101;
+  cursor: default;
+}
+
+.subcategory-item {
+  padding: 10px 16px;
+  border-radius: 12px;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s; /* Плавный переход */
+}
+
+/* Hover на подкатегории: зеленый фон, белый текст, тень */
+.subcategory-item:hover {
+  background-color: #7AC142;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(122, 193, 66, 0.4);
+}
+
+/* Оверлей для закрытия меню при клике вне */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: transparent;
+}

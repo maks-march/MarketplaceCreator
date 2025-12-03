@@ -1,0 +1,136 @@
+.admin-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-header {
+    width: 100%;
+    height: 60px;
+    background-color: white;
+    padding: 0 clamp(16px, 4vw, 60px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    margin-bottom: clamp(20px, 4vw, 40px);
+}
+
+.admin-header h1 {
+    font-size: clamp(20px, 2.2vw, 28px);
+    font-weight: bold;
+    color: #6BBF21;
+    margin: 0;
+}
+
+.admin-content {
+    padding: 0 clamp(16px, 4vw, 60px) clamp(24px, 6vw, 60px);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(12px, 2vw, 24px);
+    margin-bottom: clamp(20px, 4vw, 40px);
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 12px;
+    padding: clamp(16px, 2.4vw, 24px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    border-left: 4px solid #6BBF21;
+}
+
+.stat-icon {
+    font-size: clamp(24px, 3vw, 32px);
+    margin-bottom: 12px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: clamp(20px, 2.6vw, 28px);
+    font-weight: bold;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.admin-menu {
+    background-color: white;
+    border-radius: 12px;
+    padding: clamp(20px, 3vw, 32px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-menu h2 {
+    font-size: clamp(18px, 2.2vw, 20px);
+    font-weight: 600;
+    margin-bottom: clamp(16px, 2.4vw, 24px);
+    color: #1a1a1a;
+}
+
+.admin-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: clamp(10px, 2vw, 16px);
+}
+
+.admin-btn {
+    padding: 20px;
+    border: 2px solid #3b82f6;
+    background-color: #f0f7ff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: #3b82f6;
+    transition: all 0.3s;
+}
+
+.admin-btn:hover {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.admin-btn-green {
+    border-color: #6BBF21;
+    background-color: #f0fdf4;
+    color: #6BBF21;
+}
+
+.admin-btn-green:hover {
+    background-color: #6BBF21;
+    color: white;
+}
+
+.admin-btn-orange {
+    border-color: #f59e0b;
+    background-color: #fff7ed;
+    color: #f59e0b;
+}
+
+.admin-btn-orange:hover {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.admin-btn-pink {
+    border-color: #ec4899;
+    background-color: #fdf2f8;
+    color: #ec4899;
+}
+
+.admin-btn-pink:hover {
+    background-color: #ec4899;
+    color: white;
+}

@@ -1,0 +1,39 @@
+.admin-products-container {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    padding: clamp(24px, 4vw, 40px) clamp(16px, 4vw, 60px);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(20px, 4vw, 40px);
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.admin-products-header h1 {
+    font-size: clamp(24px, 2.6vw, 36px);
+    font-weight: bold;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.admin-add-btn {
+    padding: 12px 24px;
+    background-color: #6BBF21;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-add-btn:hover {
+    background-color: #5a9d1a;
+}

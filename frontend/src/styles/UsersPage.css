@@ -1,0 +1,316 @@
+.users-container {
+    width: 1920px;
+    height: 1080px;
+    background-color: #f8f9fa;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+}
+
+.users-header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 40px;
+}
+
+/* Базовый контейнер страницы пользователей */
+.users-page {
+  padding: 32px 0 40px;
+  max-width: 960px;
+  margin: 40px auto;
+}
+
+/* Заголовок страницы */
+.users-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 880px;
+  justify-content: flex-start;
+  margin-bottom: 54px;
+}
+
+.users-page__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.users-page__title {
+  font-size: 38px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* ТАБЛИЦА */
+.users-table {
+  width: 880px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ШАПКА ТАБЛИЦЫ */
+.users-table__header {
+  display: grid;
+  /* Сетка: 76px (id) | 1fr (Логин) | 1fr (Роль) | 1.5fr (Email) | 1.5fr (Дата) | 60px (Edit) */
+  grid-template-columns: 76px 1fr 1fr 1.5fr 1.5fr 60px;
+  background-color: #A5D06F;
+  color: #000;
+  font-weight: 400;
+  font-size: 24px;
+  height: 76px;
+  padding: 0;
+}
+
+.users-table__header .users-table__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Центрируем заголовки */
+  height: 100%;
+  padding: 0 10px;
+}
+
+/* Ячейка ID в шапке */
+.users-table__header .users-table__cell--id {
+  background-color: #54AC34;
+  color: #fff;
+}
+
+/* ТЕЛО ТАБЛИЦЫ */
+.users-table__body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* СТРОКА */
+.users-table__row {
+  display: grid;
+  grid-template-columns: 76px 1fr 1fr 1.5fr 1.5fr 60px;
+  min-height: 76px;
+  font-size: 24px; /* Увеличили с 20px до 24px */
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+
+/* Чередование цветов строк */
+.users-table__row--odd {
+  background-color: #D9D9D9;
+}
+
+.users-table__row--even {
+  background-color: #A5D06F;
+}
+
+/* Ячейки строки */
+.users-table__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Центрируем данные */
+  padding: 0 10px;
+  height: 100%;
+  color: #333;
+}
+
+/* ID строки */
+.users-table__row .users-table__cell--id {
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  height: 100%;
+  padding: 0;
+  font-size: 24px;
+}
+
+/* Цвет ID для НЕЧЕТНЫХ строк */
+.users-table__row--odd .users-table__cell--id {
+  background-color: #A5D06F;
+}
+
+/* Цвет ID для ЧЕТНЫХ строк */
+.users-table__row--even .users-table__cell--id {
+  background-color: #54AC34;
+}
+
+/* Кнопка редактирования */
+.users-table__edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.users-table__edit-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* === СТИЛИ МОДАЛЬНОГО ОКНА ПОЛЬЗОВАТЕЛЕЙ === */
+
+.users-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.users-modal {
+  width: 900px;
+  height: 700px;
+  background-color: #95DA46; /* Ярко-зеленый фон */
+  border-radius: 20px;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Шапка */
+.users-modal__header-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.users-modal__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  margin: 0;
+}
+
+.users-modal__close-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Основной контент (белый блок) */
+.users-modal__content-area {
+  background-color: #fff;
+  border-radius: 16px;
+  flex: 1;
+  padding: 32px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Поля ввода */
+.users-modal__label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+  color: #333;
+  text-align: left; /* Выравнивание заголовков полей слева */
+}
+
+.users-modal__input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #fff; /* Белый фон */
+  color: #000;            /* Черный текст */
+}
+
+.users-modal__input:focus {
+  outline: none;
+  border-color: #54AC34;
+}
+
+/* Футер с кнопками */
+.users-modal__actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.users-modal__btn-cancel {
+  padding: 10px 24px;
+  border: 1px solid #ff4d4f;
+  border-radius: 6px;
+  background: #fff;
+  color: #ff4d4f;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.users-modal__btn-save {
+  padding: 10px 24px;
+  background-color: #54AC34;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Стили для режима просмотра */
+.users-modal__view-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 18px; /* Вернули размер шрифта */
+  color: #000;
+  text-align: left;
+  align-items: flex-start;
+  padding-left: 20px;
+}
+
+.users-modal__view-row {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.users-modal__view-row strong {
+  font-weight: 700;
+  margin-right: 12px;
+}
+
+/* Стили для режима редактирования (контейнер) */
+.users-modal__edit-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left; /* Выравнивание всего блока слева */
+}
+
+/* Кнопка "Изменить" (белая с рамкой) */
+.users-modal__btn-edit {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid #54AC34;
+  border-radius: 6px;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}

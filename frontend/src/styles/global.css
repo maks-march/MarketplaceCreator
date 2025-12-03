@@ -1,0 +1,160 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a1a1a;
+  background-color: #f8f9fa;
+  overflow: hidden; /* фон html справа не виден */
+}
+
+/* Адаптивный контейнер страницы */
+.page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-wrapper {
+  width: 100%;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-wrapper thead {
+  background-color: #6BBF21;
+  color: white;
+}
+
+.table-wrapper th {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  height: 60px;
+}
+
+.table-wrapper td {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  height: 60px;
+}
+
+.table-wrapper tbody tr {
+  background-color: white;
+  transition: background-color 0.3s;
+}
+
+.table-wrapper tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.table-wrapper tbody tr:hover {
+  background-color: #f0f9f0;
+}
+
+.table-row-text {
+  color: #333;
+  font-weight: 500;
+}
+
+.table-row-secondary {
+  color: #666;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  transition: transform 0.2s;
+}
+
+.table-action-btn:hover {
+  transform: scale(1.2);
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-published {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-draft {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-available {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-ending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-unavailable {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.btn {
+  padding: 12px 24px;
+  background-color: #6BBF21;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #5a9d1a;
+}

@@ -1,0 +1,40 @@
+/* Базовые UI стили для форм и кнопок */
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary {
+  background: #6BBF21;
+  color: #fff;
+}
+.btn-danger {
+  background: #e74c3c;
+  color: #fff;
+}
+.btn-ghost {
+  background: #eee;
+  color: #333;
+}
+.form-card {
+  background: #fff;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+  width: 420px;
+}
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #6BBF21;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}

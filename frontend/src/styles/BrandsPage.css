@@ -1,0 +1,726 @@
+/* Базовый контейнер страницы брендов, как было раньше */
+.brands-container {
+  width: 1920px;
+  height: 1080px;
+  background-color: #f8f9fa;
+  padding: 40px 60px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Заголовок страницы */
+.brands-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 40px;
+}
+
+/* Сетка карточек брендов (старый вариант) */
+.brands-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+/* Карточка бренда (старый вариант) */
+.brand-card {
+  width: 220px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  padding: 16px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brand-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.brand-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.brand-info {
+  font-size: 14px;
+  color: #666;
+  margin: 8px 0;
+}
+
+/* Кнопка внизу карточки */
+.brand-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 16px;
+  background-color: #6BBF21;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.brand-btn:hover {
+  background-color: #5a9d1a;
+}
+
+/* общий отступ страницы (внутри PageLayout под хедером) */
+.brands-page {
+  padding: 32px 0 40px;
+  max-width: 960px;          /* ширина блока с таблицей */
+  margin: 40px auto;         /* центр по горизонтали */
+}
+
+/* центрируем контент с учётом левого сайдбара из PageLayout */
+.brands-page__inner {
+  max-width: 980px;
+  margin: 0 auto;               /* центр по горизонтали */
+  padding-left: 72px;           /* небольшой отступ, чтобы не прилипало к сайдбару */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+
+/* Заголовок */
+.brands-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 54px;  /* было 16px — отступ до таблицы 54px */
+  margin-left: 0;
+}
+
+.brands-page__icon {
+  width: 28px;
+  height: 28px;
+}
+
+.brands-page__title {
+  font-size: 36px;   /* размер оставляем как раньше */
+  font-weight: 400;  /* убрали сильное жирное начертание */
+  margin: 0;
+}
+
+/* Таблица: фиксированная ширина и центрирование через родителя */
+.brands-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Шапка таблицы */
+.brands-table__header {
+  display: grid;
+  grid-template-columns: 76px 120px 1fr 1fr 1fr 64px;
+  background: #A5D06F;
+  color: #000;
+  font-weight: 400;      /* как в макете */
+  font-size: 24px;       /* ← размер текста шапки */
+  height: 76px;
+}
+
+/* ячейки шапки */
+.brands-table__header .brands-table__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border: none;
+  box-sizing: border-box;
+  height: 76px;
+}
+
+/* цвет блока с № в шапке */
+.brands-table__header .brands-table__cell--index {
+  background-color: #54AC34;
+  color: #fff;
+}
+
+/* ячейки без скругления */
+.brands-table__cell {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 24px;       /* ← размер текста в строках */
+  border: none;
+  box-sizing: border-box;
+  border-radius: 0;          /* было 10px */
+  height: 76px;             /* высота ячеек данных */
+}
+
+/* Тело таблицы */
+.brands-table__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* строка-обёртка с псевдофоном */
+.brands-table__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px 120px 1fr 1fr 1fr 64px;
+  margin: 0;
+  border: 0;
+  min-height: 76px;         /* высота строки данных */
+}
+
+/* общий фон строки с radius */
+.brands-table__row::before {
+  content: '';
+  position: absolute;
+  inset: 0;                 /* растянуть по всей строке */
+  border-radius: 10px;      /* скругление у контейнера строки */
+  z-index: 0;
+}
+
+/* нечётные строки: фон */
+.brands-table__row--light { background: #eaf6c7; }
+.brands-table__row--dark  { background: #d8ef9b; }
+.brands-table__row--odd {
+  background-color: #e6f7d5;
+}
+
+.brands-table__row--even {
+  background-color: #f4f4f4;
+}
+
+/* нечётные строки: фон */
+.brands-table__row--odd::before {
+  background: #D9D9D9;
+}
+
+/* чётные строки: фон */
+.brands-table__row--even::before {
+  background: #A5D06F;
+}
+
+/* контент ячеек поверх фона */
+.brands-table__row > .brands-table__cell {
+  position: relative;
+  z-index: 1;
+}
+
+/* НЕЧЁТНЫЕ строки: номер и остальные ячейки */
+.brands-table__row--odd .brands-table__cell--index {
+  background: #A5D06F;   /* номер */
+  color: #fff;
+}
+
+/* и при этом остальные ячейки уже НЕ задают background —
+   убери/закомментируй старые правила:
+   .brands-table__row--odd .brands-table__cell:not(.brands-table__cell--index) { background: ... }
+   .brands-table__row--even .brands-table__cell:not(.brands-table__cell--index) { background: ... }
+*/
+
+/* ЧЁТНЫЕ строки */
+.brands-table__row--even .brands-table__cell--index {
+  background: #54AC34;   /* номер */
+  color: #fff;
+}
+
+.brands-table__cell--index {
+  justify-content: center;
+  font-weight: 700;
+  font-size: 24px;       /* ← цифры тоже 24px */
+  color: #fff;
+  text-align: center;
+  border-radius: 10px;
+  width: 76px;   /* совпадает с grid */
+  height: 76px;
+  padding: 0;
+}
+
+.brands-table__cell--logo { justify-content: center; }
+.brands-table__cell--img {
+  text-align: center;
+  justify-content: center;
+}
+
+.brands-table__logo-placeholder {
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.brands-table__img-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.brands-table__cell--name { justify-content: center; }
+.brands-table__name { font-size: 16px; }
+.brands-table__cell--country,
+.brands-table__cell--category { justify-content: center; }
+.brands-table__cell--actions { justify-content: center; }
+.brands-table__cell--actions {
+  text-align: center;
+}
+
+.brands-table__edit-btn {
+  width: 40px;
+  height: 32px;
+  border: none;                 /* убрали рамку */
+  background: transparent;      /* фон прозрачный */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.brands-table__edit-icon {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+/* адаптация: на узких экранах немного уменьшить сетку */
+@media (max-width: 1000px) {
+  .brands-page__inner { padding: 0 16px; max-width: 100%; }
+  .brands-table__header,
+  .brands-table__row {
+    grid-template-columns: 56px 72px 1fr 0.8fr 0.9fr 48px;
+  }
+}
+
+/* Фиксированная сетка карточек как в макете */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 220px);
+  gap: 24px;
+  justify-content: start;      /* не растягивать по ширине */
+  align-content: start;        /* не растягивать ряды */
+  grid-auto-rows: max-content; /* высота строк по контенту */
+}
+
+/* Карточка бренда — фиксированная ширина и предсказуемая высота */
+.brand-card__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #F3F5F7;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 4px; /* по центру сверху, как в макете */
+}
+
+.brand-card__title {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.brand-card__meta {
+  display: grid;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.brand-card__meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.brand-card__meta-key {
+  color: #6f6f6f;
+}
+
+.brand-card__meta-val {
+  color: #111;
+  font-weight: 600;
+}
+
+.brand-card__actions {
+  margin-top: 10px;
+  display: grid;
+}
+
+.brand-card__btn {
+  height: 30px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #A4F52A 0%, #6BBF21 100%);
+  color: #0e0e0e;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(107,191,33,.3);
+  transition: transform .08s ease, box-shadow .2s ease;
+}
+
+.brand-card__btn:hover {
+  box-shadow: 0 8px 18px rgba(107,191,33,.38);
+}
+
+.brand-card__btn:active {
+  transform: translateY(1px);
+}
+
+/* ===== Модалка просмотра бренда ===== */
+
+.brand-view-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);   /* лёгкое затемнение */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  backdrop-filter: blur(4px);        /* размытие фона */
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.brand-view-modal {
+  position: relative;
+  width: 80vw;
+  max-width: 1024px;
+  height: 80vh;
+  max-height: 640px;
+  background: #95DA46;   /* был #a5d06f */
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 32px 40px 24px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.brand-view-modal__header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.brand-view-modal__title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.brand-view-modal__close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  color: #000;        /* крестик чёрный */
+}
+
+.brand-view-modal__top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.brand-view-modal__chip {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 18px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-view-modal__chip--logo {
+  min-width: 120px;
+  justify-content: center;
+}
+
+.brand-view-modal__chip--name {
+  flex: 1;
+}
+
+.brand-view-modal__chip--country {
+  white-space: nowrap;
+}
+
+.brand-view-modal__chip-value {
+  font-weight: 600;
+}
+
+.brand-view-modal__content {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-view-modal__description-label {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.brand-view-modal__description-box {
+  flex: 1;
+  border-radius: 12px;
+  background: #ffffff;
+  font-size: 16px;
+  line-height: 1.5;
+  overflow-y: auto;
+}
+
+.brand-view-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.brand-view-modal__done-btn {
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #54ac34;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ===== Модалка редактирования бренда (та же подложка и фон) ===== */
+
+.brand-edit-modal {
+  position: relative;
+  width: 80vw;
+  max-width: 1024px;
+  height: 80vh;
+  max-height: 640px;
+  background: #95DA46;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  padding: 32px 40px 24px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* шапка модалки редактирования */
+.brand-edit-modal__header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 16px;        /* небольшой отступ вниз */
+}
+
+.brand-edit-modal__title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+/* крестик справа сверху в шапке */
+.brand-edit-modal__close {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.brand-edit-modal__close img {
+  width: 20px;
+  height: 20px;
+}
+
+/* отступ сверху для всего блока с формой */
+.brand-edit-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;            /* чуть больше пространства сверху */
+  flex: 1;
+}
+
+.brand-edit-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex: 1;                /* форма занимает всё доступное место */
+}
+
+/* поля как на макете */
+
+.brand-edit-modal__input--name {
+  width: 100%;
+  height: 44px;
+  border-radius: 16px;
+  border: none;
+  padding: 0 18px;
+  font-size: 16px;
+  background: #ffffff;   /* белый фон */
+  color: #000000;        /* чёрный текст */
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+
+.brand-edit-modal__input--name::placeholder {
+  color: #7a7a7a;
+}
+
+/* строка с «скрепкой» уже ок, оставляем только цвет текста */
+.brand-edit-modal__upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  color: #000;
+  font-size: 15px;
+  text-decoration: underline;
+}
+
+.brand-edit-modal__upload-input {
+  display: none; /* прячем настоящий input */
+}
+
+.brand-edit-modal__upload-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-edit-modal__upload-text {
+  user-select: none;
+}
+
+.brand-edit-modal__field-label {
+  font-size: 15px;     /* 15px как просили */
+  color: #000;
+}
+
+/* если нужно чуть меньше отступа над «Описание бренда» */
+.brand-edit-modal__field-label + .brand-edit-modal__description-wrapper,
+.brand-edit-modal__field-label + .brand-edit-modal__description-wrapper textarea {
+  margin-top: 4px;
+}
+
+.brand-edit-modal__select {
+  width: 230px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  padding: 0 12px;
+  font-size: 14px;
+  background: #ffffff;   /* белый фон */
+  color: #000000;        /* чёрный текст */
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+}
+
+.brand-edit-modal__content {
+  position: relative;
+  flex: 1;
+  margin-top: 8px;
+}
+
+.brand-edit-modal__country-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 5px;       /* отступ вниз от селекта */
+}
+
+/* обёртка белого блока с описанием */
+.brand-edit-modal__description-wrapper {
+  position: relative;
+  flex: 1;
+
+}
+
+/* сама «белая» область */
+.brand-edit-modal__textarea {
+  width: 100%;
+  height: calc(100% - 8px);  /* немного выше, до уровня селекта */
+  border-radius: 16px;
+  border: none;
+  padding: 16px 20px 56px;
+  font-size: 14px;
+  resize: none;
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+  box-sizing: border-box;
+  min-height: 200px;         /* чуть выше минимальная высота */
+}
+
+/* футер теперь внутри белого блока */
+.brand-edit-modal__footer {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.brand-edit-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.brand-edit-modal__btn {
+  padding: 6px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.brand-edit-modal__btn--delete {
+  background: #ff5b5b;
+  color: #fff;
+}
+
+.brand-edit-modal__btn--ok {
+  background: #54ac34;
+  color: #fff;
+}
+
+.brand-edit-modal__country-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
