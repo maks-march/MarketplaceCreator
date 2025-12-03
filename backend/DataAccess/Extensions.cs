@@ -14,9 +14,9 @@ public static class Extensions
         serviceCollection.AddDbContext<AppContext>(x =>
         {
             // для локального пользования
-            x.UseNpgsql("Host=localhost;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
+             //x.UseNpgsql("Host=localhost;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
             // для docker
-            // x.UseNpgsql("Host=postgres;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
+            x.UseNpgsql("Host=postgres;Port=5432;Database=MainDB;Username=postgres;Password=123456;");
         });
         
         return serviceCollection;
