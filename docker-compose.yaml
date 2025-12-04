@@ -1,4 +1,9 @@
 version: '3.8'
+
+volumes:
+  pg_data:
+  static:
+
 services:
   postgres:
     image: postgres:15
@@ -8,8 +13,25 @@ services:
       POSTGRES_PASSWORD: 123456
     ports:
       - "5432:5432"
-  
+    volumes:
+      - pg_data:/var/lib/postgresql/data
   backend:
     build: ./backend/
+    expose:
+      - "5089"
+  
+  frontend:
+    build: ./frontend/
+    expose:
+      - "8080"
+    volumes:
+      - static:/staticfiles/
+  
+  gateway:
+    build: ./gateway/
     ports:
-      - "8080:5089"
+      - "80:80"
+    depends_on:
+      - backend
+    volumes:
+      - static:/staticfiles/

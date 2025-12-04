@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import UserEditModal from '../components/UserEditModal'; // Импорт модалки
 import usersIcon from '../assets/Groups.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/UsersPage.css';
 
 type UserRow = {

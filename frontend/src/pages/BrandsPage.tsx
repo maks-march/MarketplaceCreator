@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import tagIcon from '../assets/Tag.svg';
 import { BrandViewModal } from '../components/BrandViewModal';
 import { BrandEditModal } from '../components/BrandEditModal';

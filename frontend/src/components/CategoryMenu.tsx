@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import '../styles/CategoryMenu.css';
 
 // Импорт иконок из папки assets
-import percentIcon from '../assets/percent.svg';
-import treeIcon from '../assets/tree.svg';
-import clothesIcon from '../assets/clothes.svg';
-import shoeIcon from '../assets/shoe.svg';
-import womanIcon from '../assets/woman.svg';
-import manIcon from '../assets/man.svg';
-import childIcon from '../assets/child.svg';
-import electronicsIcon from '../assets/electronics.svg';
-import healthIcon from '../assets/health.svg';
-import hobbyIcon from '../assets/hobby.svg';
+import percentIcon from '../assets/Percent.svg';
+import treeIcon from '../assets/Tree.svg';
+import clothesIcon from '../assets/Clothes.svg';
+import shoeIcon from '../assets/Shoe.svg';
+import womanIcon from '../assets/Woman.svg';
+import manIcon from '../assets/Man.svg';
+import childIcon from '../assets/Child.svg';
+import electronicsIcon from '../assets/Electronics.svg';
+import healthIcon from '../assets/Health.svg';
+import hobbyIcon from '../assets/Hobby.svg';
 
 const categories = [
   { id: 1, name: 'Акции', icon: percentIcon, sub: [] },
