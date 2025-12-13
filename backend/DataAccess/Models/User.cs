@@ -16,6 +16,8 @@ public class User : BaseModel
     
     public ICollection<Brand> Brands { get; set; } = new List<Brand>();
     
+    public RefreshToken RefreshToken { get; set; }
+    
     public static User Create(UserCreateDto dto)
     {
         if (dto == null || dto.Name == null || dto.Email == null || dto.Password == null || dto.Surname == null)

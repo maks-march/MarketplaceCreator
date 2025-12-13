@@ -6,24 +6,24 @@ public class UserCreateDto : BaseDto
 {
     [Required(ErrorMessage = "Логин обязателен")]
     [StringLength(50, MinimumLength = 3)]
-    public string Username { get; set; } = string.Empty;
+    public required string Username { get; set; }
     
     [Required(ErrorMessage = "Email обязателен")]
     [EmailAddress(ErrorMessage = "Некорректный формат email")]
-    public string Email { get; set; } = string.Empty;
+    public required string Email { get; set; }
     
     [Required(ErrorMessage = "Имя обязательно")]
     [StringLength(50, MinimumLength = 2)]
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
     
     [Required(ErrorMessage = "Фамилия обязательна")]
     [StringLength(50, MinimumLength = 2)]
-    public string Surname { get; set; } = string.Empty;
+    public required string Surname { get; set; }
     
     [StringLength(50)]
     public string Patronymic { get; set; } = string.Empty;
     
     [Required(ErrorMessage = "Пароль обязателен")]
     [StringLength(100, MinimumLength = 6, ErrorMessage = "Пароль должен быть от 6 до 100 символов")]
-    public string Password { get; set; } = string.Empty;
+    public required string Password { get; set; }
 }

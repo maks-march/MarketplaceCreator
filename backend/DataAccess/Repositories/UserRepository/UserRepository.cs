@@ -6,19 +6,19 @@ namespace DataAccess.Repositories;
 
 public class UserRepository(AppContext context) : IUserRepository
 {
-    public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(User user, CancellationToken cancellationToken)
     {
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(User user, CancellationToken cancellationToken)
     {
         context.Users.Remove(user);
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await context.Users
             .Include(u => u.Brands)

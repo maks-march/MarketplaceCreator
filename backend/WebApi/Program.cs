@@ -38,6 +38,10 @@ using (var scope = app.Services.CreateScope())
                 Console.WriteLine("Migrations applied successfully");
                 break;
             }
+            else
+            {
+                Console.WriteLine("Can't connect to database!");
+            }
         }
         catch (Exception ex)
         {

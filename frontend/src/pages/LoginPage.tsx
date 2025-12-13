@@ -14,11 +14,11 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ok = login(loginValue, password, 'user');
-    if (ok) navigate('/');
-    else setError('Неверные данные');
+    const ok = await login(loginValue, password);
+    if (ok.success) navigate('/');
+    else setError(ok.error || 'Неверные данные');
   };
 
   return (

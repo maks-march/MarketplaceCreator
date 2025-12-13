@@ -1,22 +1,30 @@
 import { createContext } from 'react';
-import type { User } from '../types/userTypes';
-
-type Role = 'user' | 'admin';
+import type { User } from '../services/api/users/users.types';
 
 export interface AuthContextValue {
   user: User | null;
-  role: Role | null;
   isAuthenticated: boolean;
-  login: (loginOrEmail: string, password: string, role: Role) => boolean;
-  logout: () => void;
+  loading: boolean;
+  error: string | null;
+  login: (emailOrUsername: string, password: string) => Promise<{
+    success: boolean;
+    user?: User;
+    error?: string;
+  }>;
+  logout: () => Promise<void>;
   signup: (
     email: string,
-    lastName: string,
-    firstName: string,
+    name: string,
+    surname: string,
     patronymic: string,
-    loginValue: string,
+    username: string,
     password: string
-  ) => boolean;
+  ) => Promise<{
+    success: boolean;
+    user?: User;
+    error?: string;
+  }>;
+  clearError: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);

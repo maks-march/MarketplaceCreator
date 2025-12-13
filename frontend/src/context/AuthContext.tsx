@@ -1,73 +1,152 @@
-import { useState } from 'react';
-import type { User } from '../types/userTypes';
-import { MOCK_USERS } from '../utils/mockData';
+// src/providers/AuthProvider.tsx
+import { useState, useEffect } from 'react';
 import { AuthContext } from './AuthContextObject';
+import type {User} from "../services/api/users/users.types.ts";
+import {authApi} from "../services/api";
 
-type Role = 'user' | 'admin';
+interface AuthState {
+    user: User | null;
+    accessToken: string | null;
+    refreshToken: string | null;
+}
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // локальная копия моков вместо мутации import'а
-  const [users, setUsers] = useState<User[]>(() => [...MOCK_USERS]);
-  const [user, setUser] = useState<User | null>(() => {
-    const raw = localStorage.getItem('auth');
-    return raw ? (JSON.parse(raw).user as User) : null;
-  });
-  const [role, setRole] = useState<Role | null>(() => {
-    const raw = localStorage.getItem('auth');
-    return raw ? (JSON.parse(raw).role as Role) : null;
-  });
+    const [auth, setAuth] = useState<AuthState>({
+        user: null,
+        accessToken: null,
+        refreshToken: null
+    });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  const login = (loginOrEmail: string, password: string, userRole: Role): boolean => {
-    const foundUser = users.find(
-      u =>
-        (u.login === loginOrEmail || u.email === loginOrEmail) &&
-        u.password === password &&
-        (userRole === 'admin' ? u.role === 'Администратор' : u.role === 'Пользователь')
-    );
-    if (foundUser) {
-      setUser(foundUser);
-      setRole(userRole);
-      localStorage.setItem('auth', JSON.stringify({ user: foundUser, role: userRole }));
-      return true;
-    }
-    return false;
-  };
+    // Восстановление сессии при загрузке
+    useEffect(() => {
+        const restoreAuth = async () => {
+            const token = localStorage.getItem('access_token');
 
-  const logout = () => {
-    setUser(null);
-    setRole(null);
-    localStorage.removeItem('auth');
-  };
+            if (!token) {
+                setLoading(false);
+                return;
+            }
 
-  const signup = (
-    email: string,
-    lastName: string,
-    firstName: string,
-    patronymic: string,
-    loginValue: string,
-    password: string
-  ): boolean => {
-    const exists = users.some(u => u.login === loginValue || u.email === email);
-    if (exists) return false;
-    const newUser: User = {
-      id: String(users.length + 1),
-      login: loginValue,
-      password,
-      email,
-      name: `${lastName} ${firstName} ${patronymic}`.trim(),
-      role: 'Пользователь',
-      dateCreated: new Date().toLocaleDateString('ru-RU'),
+            try {
+                const response = await authApi.getMe();
+                setAuth({
+                    user: response,
+                    accessToken: token,
+                    refreshToken: localStorage.getItem('refresh_token')
+                });
+            } catch (err) {
+                // Если токен невалидный - очищаем
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                console.error('Session restore failed:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        restoreAuth();
+    }, []);
+
+    const login = async (emailOrUsername: string, password: string) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await authApi.login({ emailOrUsername, password });
+
+            // Сохраняем в state
+            setAuth({
+                user: response.user,
+                accessToken: response.accessToken,
+                refreshToken: response.refreshToken
+            });
+
+            // Сохраняем в localStorage
+            localStorage.setItem('access_token', response.accessToken);
+            localStorage.setItem('refresh_token', response.refreshToken);
+
+            return { success: true, user: response.user };
+        } catch (err: any) {
+            const message = err.response?.data?.message || 'Ошибка входа';
+            setError(message);
+            return { success: false, error: message };
+        } finally {
+            setLoading(false);
+        }
     };
-    setUsers(prev => [...prev, newUser]);
-    setUser(newUser);
-    setRole('user');
-    localStorage.setItem('auth', JSON.stringify({ user: newUser, role: 'user' }));
-    return true;
-  };
 
-  return (
-    <AuthContext.Provider value={{ user, role, isAuthenticated: !!user, login, logout, signup }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    const signup = async (
+        email: string,
+        name: string,
+        surname: string,
+        patronymic: string,
+        username: string,
+        password: string
+    ) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await authApi.register({
+                email,
+                username: username,
+                password,
+                name,
+                surname,
+                patronymic
+            });
+
+            setAuth({
+                user: response.user,
+                accessToken: response.accessToken,
+                refreshToken: response.refreshToken
+            });
+
+            localStorage.setItem('access_token', response.accessToken);
+            localStorage.setItem('refresh_token', response.refreshToken);
+
+            return { success: true, user: response.user };
+        } catch (err: any) {
+            const message = err.response?.data?.message || 'Ошибка регистрации';
+            setError(message);
+            return { success: false, error: message };
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const logout = async () => {
+        try {
+            await authApi.logout();
+        } catch (err) {
+            console.error('Logout error:', err);
+        } finally {
+            setAuth({ user: null, accessToken: null, refreshToken: null });
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+        }
+    };
+
+    const value = {
+        user: auth.user,
+        isAuthenticated: !!auth.user,
+        loading,
+        error,
+        login,
+        logout,
+        signup,
+        clearError: () => setError(null)
+    };
+
+    if (loading) {
+        return <div>Загрузка...</div>; // Или спиннер
+    }
+
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 };

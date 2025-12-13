@@ -12,12 +12,11 @@ public class UserService(IUserRepository userRepository) : IUserService
     public async Task<IEnumerable<UserDto>> GetAllAsync(UserSearchDto searchDto, CancellationToken cancellationToken = default)
     {
         var brands = await userRepository.GetAllAsync(cancellationToken);
-        
+
         return brands
             .Select(u => u.GetDto())
             .Skip((searchDto.Page - 1) * searchDto.PageSize)
-            .Take(searchDto.PageSize)
-            .ToList();
+            .Take(searchDto.PageSize);
     }
     
     public async Task<User> GetByIdAsync(int id, CancellationToken cancellationToken = default)

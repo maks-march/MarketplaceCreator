@@ -7,39 +7,57 @@ import '../styles/AuthShell.css';
 import '../styles/LoginPage.css'; 
 
 const SignUpPage: React.FC = () => {
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { signup } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
-    lastName: '',
-    firstName: '',
+    name: '',
+    surname: '',
     patronymic: '',
-    login: '',
+    username: '',
     password: '',
-    confirmPassword: '',
+    confirmPassword: ''
   });
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
-    const ok = signup(
-      formData.email,
-      formData.lastName,
-      formData.firstName,
-      formData.patronymic,
-      formData.login,
-      formData.password
-    );
-    if (!ok) setError('Логин или email уже заняты');
-    else navigate('/login');
+    try {
+      const result = await signup(
+        formData.email,
+        formData.name,
+        formData.surname,
+        formData.patronymic,
+        formData.username,
+        formData.password
+      );
+      if (result.success) {
+        navigate('/login');
+      } else if (result.error) {
+        setError(result.error);
+      } else {
+        setError('Логин или email уже заняты');
+      }
+    } catch (error) {
+      // Обработка исключений
+      console.error('Registration error:', error);
+      
+      if (error instanceof Error) {
+        setError(error.message || 'Ошибка регистрации');
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError('Произошла неизвестная ошибка');
+      }
+    }
   };
 
   return (
@@ -72,8 +90,8 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="lastName"
-                value={formData.lastName}
+                name="surname"
+                value={formData.surname}
                 onChange={handleChange}
                 placeholder="Иванов"
               />
@@ -82,8 +100,8 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="firstName"
-                value={formData.firstName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
                 placeholder="Иван"
               />
@@ -102,10 +120,10 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="login"
-                value={formData.login}
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
-                placeholder="login"
+                placeholder="Логин"
               />
 
               <label className="signup-label">Пароль:</label>
@@ -115,7 +133,7 @@ const SignUpPage: React.FC = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="Пароль"
               />
 
               <label className="signup-label">Повторите пароль:</label>
@@ -125,7 +143,7 @@ const SignUpPage: React.FC = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="******"
+                placeholder="Повторите пароль"
               />
 
               <button type="submit" className="signup-btn">Зарегистрироваться</button>

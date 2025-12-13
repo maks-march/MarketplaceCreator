@@ -6,6 +6,7 @@ namespace WebApi.Controllers;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
 public class BaseCrudController<TDto, TCreateDto, TUpdateDto>(ICrudService<TDto, TCreateDto, TUpdateDto> service, IUserService userService) : NeedAuthController(userService)
 {
     [HttpGet("{id:int}")]
@@ -31,7 +32,7 @@ public class BaseCrudController<TDto, TCreateDto, TUpdateDto>(ICrudService<TDto,
     }
     
     [Authorize]
-    [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> UpdateAsync(
         [FromRoute]int id,
