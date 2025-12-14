@@ -5,6 +5,10 @@ namespace DataAccess.Repositories;
 
 internal class RefreshTokenRepository(AppContext context) : IRefreshTokenRepository
 {
+    public async Task<RefreshToken?> GetByIdAsync(int tokenId, CancellationToken cancellationToken)
+    {
+        return await context.RefreshTokens.FirstOrDefaultAsync(t => t.Id == tokenId, cancellationToken);
+    }
     public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken)
     {
         return await context.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token, cancellationToken);

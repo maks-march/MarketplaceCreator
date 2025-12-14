@@ -38,6 +38,7 @@ public class UserLinkedDto : UserDto
 
 public class UserSecureDto : UserDto
 {
+    public int RefreshTokenId { get; set; }
     public string PasswordHash { get; set; }
     
     public string Email { get; set; }

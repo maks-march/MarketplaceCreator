@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import '../styles/SignUpPage.css';
 import '../styles/AuthShell.css';
-// ИСПРАВЛЕНИЕ: Подключаем существующий файл стилей
 import '../styles/LoginPage.css'; 
+import type { RegisterRequest } from '../services/api/auth/auth.types';
 
 const SignUpPage: React.FC = () => {
   const [error, setError] = useState('');
@@ -26,39 +26,33 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     if (formData.password !== formData.confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
-    try {
-      const result = await signup(
-        formData.email,
-        formData.name,
-        formData.surname,
-        formData.patronymic,
-        formData.username,
-        formData.password
-      );
-      if (result.success) {
-        navigate('/login');
-      } else if (result.error) {
-        setError(result.error);
-      } else {
-        setError('Логин или email уже заняты');
-      }
-    } catch (error) {
-      // Обработка исключений
-      console.error('Registration error:', error);
-      
-      if (error instanceof Error) {
-        setError(error.message || 'Ошибка регистрации');
-      } else if (typeof error === 'string') {
-        setError(error);
-      } else {
-        setError('Произошла неизвестная ошибка');
-      }
-    }
+    submitFormAsync(e);
   };
+
+  async function submitFormAsync(e: React.FormEvent) {
+    const registerRequest: RegisterRequest = {
+      email: formData.email,
+      name: formData.name,
+      surname: formData.surname,
+      username: formData.username,
+      password: formData.password,
+      // patronymic может быть optional
+      patronymic: formData.patronymic || undefined,
+    };
+    const result = await signup(registerRequest);
+    console.log(result);
+    if (result.success) {
+      navigate('/login');
+    } else {
+      setError(result.error || "Ошибка при регистрации!");
+    }
+  }
 
   return (
     <>

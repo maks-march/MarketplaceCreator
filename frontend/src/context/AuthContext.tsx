@@ -1,8 +1,9 @@
 // src/providers/AuthProvider.tsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AuthContext } from './AuthContextObject';
 import type {User} from "../services/api/users/users.types.ts";
-import {authApi} from "../services/api";
+import {apiClient, authApi} from "../services/api";
+import type { LoginRequest, RegisterRequest } from '../services/api/auth/auth.types.ts';
 
 interface AuthState {
     user: User | null;
@@ -18,6 +19,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const setTokens = useCallback((user: User, accessToken: string, refreshToken: string) => {
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('refresh_token', refreshToken);
+        setAuth(prev => ({ ...prev, user, accessToken, refreshToken }));
+    }, []);
+
+    // Функция очистки токенов
+    const clearTokens = useCallback(() => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        setAuth(prev => ({ ...prev, user: null, accessToken: null, refreshToken: null }));
+    }, []);
 
     // Восстановление сессии при загрузке
     useEffect(() => {
@@ -31,15 +44,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             try {
                 const response = await authApi.getMe();
-                setAuth({
-                    user: response,
-                    accessToken: token,
-                    refreshToken: localStorage.getItem('refresh_token')
-                });
+                setTokens(response, token, localStorage.getItem('refresh_token') || '');
             } catch (err) {
                 // Если токен невалидный - очищаем
-                localStorage.removeItem('access_token');
-                localStorage.removeItem('refresh_token');
+                clearTokens();
                 console.error('Session restore failed:', err);
             } finally {
                 setLoading(false);
@@ -49,25 +57,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         restoreAuth();
     }, []);
 
-    const login = async (emailOrUsername: string, password: string) => {
+    const login = async (request: LoginRequest) => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await authApi.login({ emailOrUsername, password });
+            const response = await authApi.login(request);
 
             // Сохраняем в state
-            setAuth({
-                user: response.user,
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
-            });
+            setTokens(response.user, response.accessToken, response.refreshToken);
 
-            // Сохраняем в localStorage
-            localStorage.setItem('access_token', response.accessToken);
-            localStorage.setItem('refresh_token', response.refreshToken);
-
-            return { success: true, user: response.user };
+            return { success: true, response: response };
         } catch (err: any) {
             const message = err.response?.data?.message || 'Ошибка входа';
             setError(message);
@@ -77,39 +77,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
-    const signup = async (
-        email: string,
-        name: string,
-        surname: string,
-        patronymic: string,
-        username: string,
-        password: string
-    ) => {
+    const signup = async (request: RegisterRequest) => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await authApi.register({
-                email,
-                username: username,
-                password,
-                name,
-                surname,
-                patronymic
-            });
+            const response = await authApi.register(request);
+            if (!response || !response.accessToken || !response.refreshToken || !response.user) {
+                throw new Error('Ошибка регистрации');
+            }
+            setTokens(response.user, response.accessToken, response.refreshToken);
+            return { success: true, response: response };
 
-            setAuth({
-                user: response.user,
-                accessToken: response.accessToken,
-                refreshToken: response.refreshToken
-            });
-
-            localStorage.setItem('access_token', response.accessToken);
-            localStorage.setItem('refresh_token', response.refreshToken);
-
-            return { success: true, user: response.user };
         } catch (err: any) {
-            const message = err.response?.data?.message || 'Ошибка регистрации';
+            const message = err.message || 'Ошибка регистрации';
             setError(message);
             return { success: false, error: message };
         } finally {
@@ -123,9 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
             console.error('Logout error:', err);
         } finally {
-            setAuth({ user: null, accessToken: null, refreshToken: null });
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
+            clearTokens();
         }
     };
 

@@ -15,6 +15,9 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
     {
         modelBuilder.Entity<Product>().HasKey(n => n.Id);
         modelBuilder.Entity<Product>().Property(n => n.Title).IsRequired();
+        modelBuilder.Entity<Product>()
+            .Property(n => n.ProductCategory)
+            .HasConversion(new EnumDescriptionConverter<ProductCategory>());
         
         modelBuilder.Entity<Product>()
             .HasOne(p => p.Brand)
@@ -23,6 +26,13 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
             .OnDelete(DeleteBehavior.Restrict);
         
         modelBuilder.Entity<RefreshToken>().HasKey(n => n.Id);
+        modelBuilder.Entity<RefreshToken>().Property(n => n.Token).IsRequired();
+        
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithOne(u => u.RefreshToken)
+            .HasForeignKey<User>(u => u.RefreshTokenId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<User>().HasKey(n => n.Id);
         modelBuilder.Entity<User>().Property(n => n.Username).IsRequired();
@@ -36,12 +46,6 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
             .WithMany(b => b.Users)
             .UsingEntity(j => j.ToTable("UserBrands"));
         
-        
-        modelBuilder.Entity<User>()
-            .HasOne(u => u.RefreshToken)
-            .WithOne()
-            .HasForeignKey<RefreshToken>(rt => rt.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
         
         base.OnModelCreating(modelBuilder);
     }

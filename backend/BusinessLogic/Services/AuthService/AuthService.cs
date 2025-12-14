@@ -24,10 +24,9 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
         var user = User.Create(request);
         var token = GenerateJwtToken(user.GetSecuredDto());
         var refreshToken = GenerateJwtRefreshToken(user.GetSecuredDto());
-        var tokenEntity = RefreshToken.Create(token, user.Id);
+        var tokenEntity = RefreshToken.Create(token);
         user.RefreshToken = tokenEntity;
         await userRepository.CreateAsync(user, cancellationToken);
-        await tokenRepository.CreateAsync(tokenEntity, cancellationToken);
         
         return new AuthResponse { AccessToken = token, RefreshToken = refreshToken, User = user.GetDto() };
     }
@@ -54,10 +53,10 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
         {
             var token = GenerateJwtToken(user);
             var newRefreshToken = GenerateJwtRefreshToken(user);
-            var userEntity = await userRepository.GetByIdAsync(user.Id, cancellationToken);
-            if (userEntity == null)
+            var tokenEntity = await tokenRepository.GetByIdAsync(user.RefreshTokenId, cancellationToken);
+            if (tokenEntity == null)
                 throw new Exception("Скорее всего ты удален ;)");
-            await tokenRepository.UpdateAsync(userEntity.RefreshToken, newRefreshToken, cancellationToken);
+            await tokenRepository.UpdateAsync(tokenEntity, newRefreshToken, cancellationToken);
             return new AuthResponse { AccessToken = token, RefreshToken = newRefreshToken, User = user };
         }
         throw new AuthenticationException("Неправильный логин или пароль!");
@@ -65,12 +64,12 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
 
     public async Task LogoutAsync(string refreshToken, int userId, CancellationToken cancellationToken = default)
     {
-        var token = await tokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
-        if (token == null)
+        var refreshTokenEntity = await tokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
+        if (refreshTokenEntity == null)
             throw new NotFoundException("Неверный токен!");
-        if (token.UserId != userId)
+        if (refreshTokenEntity.User.Id != userId)
             throw new AuthenticationException("Данный пользователь не может разрушить этот токен");
-        await tokenRepository.DeleteAsync(token, cancellationToken);
+        await tokenRepository.DeleteAsync(refreshTokenEntity, cancellationToken);
     }
 
     public async Task<RefreshResponse> RefreshAsync(RefreshRequest request, User user, CancellationToken cancellationToken = default)
@@ -80,7 +79,7 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
             throw new NotFoundException("Неверный токен!");
         if (refreshToken.Expires > DateTime.UtcNow)
             throw new InvalidOperationException("Токен просрочен!");
-        if (refreshToken.UserId != user.Id)
+        if (refreshToken.User.Id != user.Id)
             throw new AuthenticationException("Данный пользователь не может обновить этот токен");
         
         var token = GenerateJwtToken(user.GetSecuredDto());

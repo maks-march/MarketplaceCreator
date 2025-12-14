@@ -10,7 +10,7 @@ public class RefreshToken : BaseModel
     
     public DateTime Expires { get; set; }
     
-    public int UserId { get; set; }
+    public User User { get; set; }
 
     public void Update(string token)
     {
@@ -19,12 +19,11 @@ public class RefreshToken : BaseModel
         Expires = Updated.AddMinutes(20);
     }
 
-    public static RefreshToken Create(string token, int userId)
+    public static RefreshToken Create(string token)
     {
         return new RefreshToken()
         {
             Token = token,
-            UserId = userId,
             Expires = DateTime.UtcNow.AddMinutes(20),
         };
     }

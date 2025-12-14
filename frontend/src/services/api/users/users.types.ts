@@ -1,5 +1,7 @@
+import type { Brand } from "../brands/brands.types";
+
 export interface User {
-    id: string;
+    id: number;
     username: string;
     name: string;
     surname: string;
@@ -8,6 +10,19 @@ export interface User {
     сreated: string;
     updated: string;
 }
+
+export interface UserLinked {
+    id: number;
+    username: string;
+    name: string;
+    surname: string;
+    patronymic: string;
+    isAdmin: boolean;
+    сreated: string;
+    updated: string;
+    brands: Brand[];
+}
+
 
 export interface UpdateUserRequest {
     email?: string;
@@ -21,8 +36,6 @@ export interface UsersResponse {
     users: User[];
     page: number;
     pageSize: number;
-}
-
-export interface UserResponse {
-    user: User;
+    // nextPage?: string;
+    // prevpage?:string;
 }

@@ -25,5 +25,5 @@ public class ProductDto
 public class ProductLinkedDto : ProductDto
 {
     public int BrandId { get; set; }
-    public BrandLinkedDto Brand { get; set; }
+    public BrandDto Brand { get; set; }
 }

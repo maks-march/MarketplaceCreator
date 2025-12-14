@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
@@ -12,6 +13,8 @@ public class Product : BaseModel
     public string Title { get; set; }
     public string Description { get; set; } = string.Empty;
     public Brand Brand { get; set; }
+    
+    public ProductCategory ProductCategory { get; set; }   
 
     public static Product Create(ProductCreateDto dto)
     {
@@ -52,7 +55,7 @@ public class Product : BaseModel
         var dto = new ProductLinkedDto();
         dto.CopyFrom(GetDto());
         dto.BrandId = BrandId;
-        dto.Brand = Brand.GetLinkedDto();
+        dto.Brand = Brand.GetDto();
         return dto;
     }
 }

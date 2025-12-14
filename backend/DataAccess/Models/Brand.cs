@@ -8,6 +8,8 @@ public class Brand : BaseModel
 {
     [Required]
     public string Name { get; set; }
+
+    public string Description { get; set; } = string.Empty;
     
     public ICollection<User> Users { get; set; } = new List<User>();
     
@@ -20,6 +22,7 @@ public class Brand : BaseModel
         var brand = new Brand()
         {
             Name = dto.Name,
+            Description = dto.Description ?? string.Empty,
         };
         return brand;
     }
@@ -28,9 +31,8 @@ public class Brand : BaseModel
     {
         Update((BaseDto)dto);
         Name = dto.Name ?? Name;
+        Description = dto.Description ?? Description;
     }
-    
-    
     
     public BrandDto GetDto()
     {
@@ -39,6 +41,7 @@ public class Brand : BaseModel
             Id = Id,
             Created = Created,
             Updated = Updated,
+            Description = Description,
             Name = Name
         };
     }

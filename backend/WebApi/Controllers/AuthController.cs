@@ -41,7 +41,7 @@ public class AuthController(IAuthService authService, IUserService userService) 
     public async Task<ActionResult<AuthResponse>> GetMe()
     {
         var result = await GetCurrentUser();
-        return Ok(result);
+        return Ok(result.GetSecuredDto());
     }
     
     [Authorize]

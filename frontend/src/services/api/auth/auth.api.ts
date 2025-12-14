@@ -1,7 +1,8 @@
 // src/services/api/auth/auth.api.ts
 import { apiClient } from '../client';
-import type { User } from '../users/users.types';
+import type { User, UserLinked } from '../users/users.types';
 import type {
+    UserRequest,
     LoginRequest,
     LoginResponse,
     RegisterRequest,
@@ -18,7 +19,12 @@ export const authApi = {
 
     register: async (userData: RegisterRequest): Promise<RegisterResponse> => {
         const response = await apiClient.post<RegisterResponse>('/auth/register', userData);
-        return response.data;
+        if (response.status >= 200 && response.status < 300) {
+            return response.data;
+        }
+        throw new Error(
+            `Ошибка регистрации (${response.data})`
+        );
     },
 
     logout: async (): Promise<void> => {
@@ -35,8 +41,8 @@ export const authApi = {
         return response.data;
     },
     
-    getMe: async (): Promise<User> => {
-        const response = await apiClient.get<User>('/auth/me');
+    getMe: async (): Promise<UserLinked> => {
+        const response = await apiClient.get<UserLinked>('/auth/me');
         return response.data;
     }
 };
