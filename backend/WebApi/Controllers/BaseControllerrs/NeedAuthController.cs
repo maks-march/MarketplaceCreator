@@ -7,6 +7,6 @@ public class NeedAuthController(IUserService userService) : BaseController
 {
     protected async Task<User> GetCurrentUser()
     {
-        return await userService.GetByIdAsync(GetCurrentUserId());
+        return await userService.GetEntityByIdAsync(GetCurrentUserId());
     }
 }

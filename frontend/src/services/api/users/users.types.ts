@@ -33,7 +33,7 @@ export interface UpdateUserRequest {
 }
 
 export interface UsersResponse {
-    users: User[];
+    users: UserLinked[];
     page: number;
     pageSize: number;
     // nextPage?: string;

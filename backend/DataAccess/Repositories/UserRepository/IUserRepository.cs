@@ -1,4 +1,5 @@
 using DataAccess.Models;
+using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
@@ -15,5 +16,6 @@ public interface IUserRepository
     Task<User?> GetByIdAsync(int id, CancellationToken cancellationToken);
     
     Task CreateAsync(User user, CancellationToken cancellationToken);
+    Task UpdateAsync(User user, UserUpdateDto dto, CancellationToken cancellationToken);
     Task DeleteAsync(User user, CancellationToken cancellationToken);
 }

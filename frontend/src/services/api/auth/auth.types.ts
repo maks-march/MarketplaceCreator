@@ -6,11 +6,6 @@ export interface LoginRequest {
     password: string;
 }
 
-export interface UserRequest {
-    user: User;
-}
-
-
 export interface RegisterRequest {
     email: string;
     username: string;
@@ -27,7 +22,6 @@ export interface AuthResponse {
 }
 
 export type LoginResponse = AuthResponse;
-export type RegisterResponse = AuthResponse;
 
 export interface RefreshTokenRequest {
     refreshToken: string;
@@ -35,5 +29,5 @@ export interface RefreshTokenRequest {
 
 export interface RefreshTokenResponse {
     accessToken: string;
-    refreshToken?: string;
+    refreshToken: string;
 }

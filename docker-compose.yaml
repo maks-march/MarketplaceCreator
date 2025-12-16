@@ -22,7 +22,6 @@ services:
       - "5089"
     depends_on:
       - postgres
-      - frontend
   
   frontend:
     build: ./frontend/

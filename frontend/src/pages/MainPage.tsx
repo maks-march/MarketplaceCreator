@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/MainPage.css';
 import { FiltersPanel } from '../components/FiltersPanel';
 import { SearchIcon, FilterIcon, SortIcon, ChevronDownIcon, HeartIcon, HeartFilledIcon } from '../components/Icon';
 import PageLayout from '../components/PageLayout';
+import { productsApi } from '../services/api';
 
 const MainPage: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('popular');
   const [sortOpen, setSortOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(true); // надо обыграть
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const data = await productsApi.getAll();
+      setProducts(data.response || []);
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []); 
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => {
@@ -42,13 +56,6 @@ const MainPage: React.FC = () => {
   }, [sortOpen]);
 
   const categories = ['Все', 'Электроника', 'Мебель', 'Аксессуары', 'Одежда'];
-  const products = Array.from({ length: 12 }).map((_, i) => ({
-    id: i + 1,
-    name: `Product ${i + 1}`,
-    description: 'Description',
-    price: 0,
-    category: categories[(i % (categories.length - 1)) + 1]
-  }));
 
   return (
     <PageLayout>

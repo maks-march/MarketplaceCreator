@@ -14,7 +14,7 @@ namespace BusinessLogic.Services;
 
 public class AuthService(IUserRepository userRepository, IRefreshTokenRepository tokenRepository, IConfiguration configuration) : IAuthService
 {
-    public async Task<AuthResponse> RegisterAsync(UserCreateDto request, CancellationToken cancellationToken = default)
+    public async Task RegisterAsync(UserCreateDto request, CancellationToken cancellationToken = default)
     {
         if (await userRepository.GetFirstOrNullByUsername(request.Username, cancellationToken) != null)
             throw new ArgumentException("Пользователь с таким логином уже есть!");
@@ -22,13 +22,10 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
             throw new ArgumentException("Пользователь с такой почтой уже есть!");
 
         var user = User.Create(request);
-        var token = GenerateJwtToken(user.GetSecuredDto());
         var refreshToken = GenerateJwtRefreshToken(user.GetSecuredDto());
-        var tokenEntity = RefreshToken.Create(token);
+        var tokenEntity = RefreshToken.Create(refreshToken);
         user.RefreshToken = tokenEntity;
         await userRepository.CreateAsync(user, cancellationToken);
-        
-        return new AuthResponse { AccessToken = token, RefreshToken = refreshToken, User = user.GetDto() };
     }
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)

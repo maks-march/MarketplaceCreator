@@ -7,15 +7,16 @@ using Shared.DataTransferObjects;
 namespace WebApi.Controllers;
 
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]/")]
+[Route("api/v{version:apiVersion}/auth")]
+[ApiVersion("1.0")]
 public class AuthController(IAuthService authService, IUserService userService) : NeedAuthController(userService)
 {
     [HttpPost("register")]
     [MapToApiVersion("1.0")]
-    public async Task<ActionResult<AuthResponse>> Register(UserCreateDto request)
+    public async Task<ActionResult> Register(UserCreateDto request)
     {
-        var result = await authService.RegisterAsync(request);
-        return Ok(result);
+        await authService.RegisterAsync(request);
+        return Ok();
     }
 
     [HttpPost("login")]

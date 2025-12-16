@@ -9,12 +9,12 @@ namespace BusinessLogic.Services;
 
 internal class ProductService(IProductRepository productRepository) : IProductService
 {
-    public async Task CreateAsync(ProductCreateDto productDto, User user, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(ProductCreateDto userCreateDto, User user, CancellationToken cancellationToken = default)
     {
-        var product = Product.Create(productDto);
-        var brand = user.Brands.FirstOrDefault(b => b.Id == productDto.BrandId);
+        var product = Product.Create(userCreateDto);
+        var brand = user.Brands.FirstOrDefault(b => b.Id == userCreateDto.BrandId);
         if (brand is null)
-            throw new NotFoundException($"Бренда с id {productDto.BrandId} не найдено");
+            throw new NotFoundException($"Бренда с id {userCreateDto.BrandId} не найдено");
         product.Brand = brand;
         await productRepository.CreateAsync(product, cancellationToken);
     }
@@ -25,10 +25,10 @@ internal class ProductService(IProductRepository productRepository) : IProductSe
         return product.GetLinkedDto();
     }
 
-    public async Task UpdateByIdAsync(int id, ProductUpdateDto productDto, int userId, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(int id, ProductUpdateDto userUpdateDto, User user, CancellationToken cancellationToken = default)
     {
-        var product = await GetProductById(id, cancellationToken, userId);
-        await productRepository.UpdateAsync(product, productDto, cancellationToken);
+        var product = await GetProductById(id, cancellationToken, user.Id);
+        await productRepository.UpdateAsync(product, userUpdateDto, cancellationToken);
     }
 
     public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)

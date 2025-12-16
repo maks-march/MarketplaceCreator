@@ -3,6 +3,24 @@ import axios from 'axios';
 
 const API_BASE_URL = (window as any).__ENV__?.REACT_APP_API_URL || 'http://localhost:80/api/v1.0/';
 
+export interface BaseResponse {
+    success: boolean;
+    response: any | null; 
+    errors: string[] | null;
+}
+
+export const buildErrors = (err: any): string[] => {
+    const errorMessages: string[] = [];  
+    
+    Object.values(err.response?.data?.errors ?? []).forEach((errorArray) => {
+        if (Array.isArray(errorArray)) {
+            errorMessages.push(...errorArray);
+        }
+    });
+    
+    return errorMessages;
+};
+
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     timeout: 10000,
@@ -38,8 +56,9 @@ apiClient.interceptors.response.use(
                     refreshToken,
                 });
 
-                const { accessToken } = response.data;
+                const { accessToken, newRefreshToken } = response.data;
                 localStorage.setItem('access_token', accessToken);
+                localStorage.setItem('refresh_token', newRefreshToken);
 
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                 return apiClient(originalRequest);

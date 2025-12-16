@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth';
 import '../styles/SignUpPage.css';
 import '../styles/AuthShell.css';
 import '../styles/LoginPage.css'; 
 import type { RegisterRequest } from '../services/api/auth/auth.types';
+import { authApi } from '../services/api';
 
 const SignUpPage: React.FC = () => {
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -26,33 +25,29 @@ const SignUpPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation();
+    
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(['Пароли не совпадают']);
       return;
     }
-    submitFormAsync(e);
-  };
-
-  async function submitFormAsync(e: React.FormEvent) {
     const registerRequest: RegisterRequest = {
       email: formData.email,
       name: formData.name,
       surname: formData.surname,
       username: formData.username,
       password: formData.password,
-      // patronymic может быть optional
       patronymic: formData.patronymic || undefined,
     };
-    const result = await signup(registerRequest);
-    console.log(result);
+    const result = await authApi.register(registerRequest)
+      
     if (result.success) {
       navigate('/login');
     } else {
-      setError(result.error || "Ошибка при регистрации!");
+      setError(result.errors ?? ['Неизвестная ошибка']);
     }
-  }
+    return;
+  };
 
   return (
     <>
@@ -68,7 +63,18 @@ const SignUpPage: React.FC = () => {
           <h2 className="signup-title">Регистрация</h2>
           <div className="signup-card">
             <form onSubmit={handleSubmit} className="signup-form">
-              {error && <div className="signup-error">{error}</div>}
+              {error && (
+                <div>
+                  {Array.isArray(error) 
+                    ? error.map((err, index) => (
+                        <div className="signup-error" key={index}>
+                          {err}
+                          {index < error.length - 1 && <br />}
+                        </div>
+                      ))
+                    : error}
+                </div>
+              )}
 
               <label className="signup-label">Email:</label>
               <input
@@ -143,7 +149,7 @@ const SignUpPage: React.FC = () => {
               <button type="submit" className="signup-btn">Зарегистрироваться</button>
               <div className="signup-link">
                 Уже есть аккаунт?{' '}
-                <button type="button" className="signup-link-btn" onClick={() => navigate('/login')}>
+                <button className="signup-link-btn" onClick={() => navigate('/login')}>
                   Войти
                 </button>
               </div>

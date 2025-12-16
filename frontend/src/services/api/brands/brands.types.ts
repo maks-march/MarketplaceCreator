@@ -34,7 +34,7 @@ export interface CreateBrandRequest {
 }
 
 export interface BrandsResponse {
-    users: Brand[];
+    users: BrandLinked[];
     page: number;
     pageSize: number;
     // nextPage?: string;

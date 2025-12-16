@@ -9,12 +9,12 @@ namespace BusinessLogic.Services;
 
 public class BrandService(IBrandRepository brandRepository) : IBrandService
 {
-    public async Task CreateAsync(BrandCreateDto brandCreateDto, User user, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(BrandCreateDto userCreateDto, User user, CancellationToken cancellationToken = default)
     {
-        if (await brandRepository.ExistsAsync(brandCreateDto.Name, cancellationToken))
+        if (await brandRepository.ExistsAsync(userCreateDto.Name, cancellationToken))
             throw new InvalidOperationException("Такой бренд уже существует");
         
-        var brand = Brand.Create(brandCreateDto);
+        var brand = Brand.Create(userCreateDto);
         brand.Users.Add(user);
         await brandRepository.CreateAsync(brand, cancellationToken);
     }
@@ -39,10 +39,10 @@ public class BrandService(IBrandRepository brandRepository) : IBrandService
             .ToList();
     }
 
-    public async Task UpdateByIdAsync(int id, BrandUpdateDto brandUpdateDto, int userId, CancellationToken cancellationToken)
+    public async Task UpdateByIdAsync(int id, BrandUpdateDto userUpdateDto, User user, CancellationToken cancellationToken)
     {
-        var brand = await GetBrandById(id, userId, cancellationToken: cancellationToken);
-        await brandRepository.UpdateAsync(brand, brandUpdateDto, cancellationToken);
+        var brand = await GetBrandById(id, user.Id, cancellationToken: cancellationToken);
+        await brandRepository.UpdateAsync(brand, userUpdateDto, cancellationToken);
     }
     
     public async Task<BrandLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)

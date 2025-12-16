@@ -1,5 +1,6 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
@@ -9,6 +10,13 @@ public class UserRepository(AppContext context) : IUserRepository
     public async Task CreateAsync(User user, CancellationToken cancellationToken)
     {
         await context.Users.AddAsync(user);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(User user, UserUpdateDto dto, CancellationToken cancellationToken)
+    {
+        user.Update(dto);
+        context.Users.Update(user);
         await context.SaveChangesAsync();
     }
 

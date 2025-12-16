@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth';
 import '../styles/LoginPage.css'; 
 import type { LoginRequest } from '../services/api/auth/auth.types';
+import { authApi } from '../services/api';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     emailOrUsername: '',
     password: ''
@@ -23,12 +22,13 @@ const LoginPage: React.FC = () => {
       emailOrUsername: formData.emailOrUsername,
       password: formData.password
     };
-    const response = await login(request);
-    if (response.success) navigate('/');
-    else {
-      setError(response.error || 'Неверные данные');
-      return;
+    const result = await authApi.login(request);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.errors ?? ['Неверные данные']);
     }
+    return;
   };
 
   return (
@@ -44,7 +44,18 @@ const LoginPage: React.FC = () => {
           <h2 className="login-title">Вход</h2>
           <div className="login-card">
             <form onSubmit={handleLogin} className="login-form">
-              {error && <div className="login-error">{error}</div>}
+              {error && (
+                <div>
+                  {Array.isArray(error) 
+                    ? error.map((err, index) => (
+                        <div className="login-error" key={index}>
+                          {err}
+                          {index < error.length - 1 && <br />}
+                        </div>
+                      ))
+                    : error}
+                </div>
+              )}
 
               <label className="login-label">Логин или email:</label>
               <input
@@ -70,12 +81,12 @@ const LoginPage: React.FC = () => {
 
               <div className="login-links">
                 <span>Нет аккаунта?{' '}
-                  <button type="button" className="login-link-btn" onClick={() => navigate('/signup')}>
+                  <button className="login-link-btn" onClick={() => navigate('/signup')}>
                     Регистрация
                   </button>
                 </span>
                 <span>Забыли пароль?{' '}
-                  <button type="button" className="login-link-btn" onClick={() => navigate('/forgot-password')}>
+                  <button className="login-link-btn" onClick={() => navigate('/forgot-password')}>
                     Восстановление
                   </button>
                 </span>
