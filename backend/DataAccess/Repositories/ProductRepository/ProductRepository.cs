@@ -5,15 +5,13 @@ using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 
-internal class ProductRepository(AppContext context) : IProductRepository
+internal class ProductRepository(AppContext context) : 
+    CrudRepository<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>(context),
+    IProductRepository
 {
-    public async Task CreateAsync(Product product, CancellationToken cancellationToken = default)
-    {
-        await context.Products.AddAsync(product, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
-    }
+    protected override DbSet<Product> Items => context.Products;
 
-    public async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public override async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await context.Products
             .Include(p => p.Brand)
@@ -21,20 +19,7 @@ internal class ProductRepository(AppContext context) : IProductRepository
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public async Task UpdateAsync(Product product, ProductUpdateDto productDto, CancellationToken cancellationToken = default)
-    {
-        product.Update(productDto);
-        context.Products.Update(product);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task DeleteAsync(Product product, CancellationToken cancellationToken = default)
-    {
-        context.Products.Remove(product);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await context.Products
             .Include(p => p.Brand)

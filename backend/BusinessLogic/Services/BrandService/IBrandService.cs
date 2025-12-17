@@ -4,11 +4,7 @@ using Shared.DataTransferObjects.Response;
 
 namespace BusinessLogic.Services;
 
-public interface IBrandService
-{
-    Task CreateAsync(BrandCreateDto brandCreateDto, User user, CancellationToken cancellationToken = default);
-    Task<BrandLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-    Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default);
-    Task<IEnumerable<BrandDto>> GetAllBrands(BrandSearchDto searchDto, CancellationToken cancellationToken = default);
-    Task UpdateByIdAsync(int id, BrandUpdateDto brandUpdateDto, int userId, CancellationToken cancellationToken = default);
-}
+public interface IBrandService : 
+    ICrudService<BrandLinkedDto, BrandCreateDto, BrandUpdateDto>, 
+    IManyService<Brand, BrandLinkedDto, BrandSearchDto>
+{ }

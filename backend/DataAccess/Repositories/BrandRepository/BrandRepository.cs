@@ -5,45 +5,30 @@ using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 
-public class BrandRepository(AppContext context) : IBrandRepository
+public class BrandRepository(AppContext context) : 
+    CrudRepository<Brand, BrandLinkedDto, BrandCreateDto, BrandUpdateDto>(context),
+    IBrandRepository
 {
-    public async Task CreateAsync(Brand brand, CancellationToken cancellationToken = default)
-    {
-        await context.Brands.AddAsync(brand, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
-    }
+    protected override DbSet<Brand> Items => context.Brands;
 
-    public async Task<Brand?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public override async Task<Brand?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        return await context.Brands
+        return await Items
             .Include(b => b.Users)
             .Include(b => b.Products)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(Brand brand, CancellationToken cancellationToken = default)
+    public override async Task<IEnumerable<Brand>> GetAllAsync(CancellationToken cancellationToken)
     {
-        context.Brands.Remove(brand);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<IEnumerable<Brand>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        return await context.Brands
+        return await Items
             .Include(b => b.Products)
             .Include(b => b.Users)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(Brand brand, BrandUpdateDto brandUpdateDto, CancellationToken cancellationToken)
+    public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken)
     {
-        brand.Update(brandUpdateDto);
-        context.Brands.Update(brand);
-        await context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default)
-    {
-        return await context.Brands.AnyAsync(x => x.Name == name, cancellationToken);
+        return await Items.AnyAsync(x => x.Name == name, cancellationToken);
     }
 }

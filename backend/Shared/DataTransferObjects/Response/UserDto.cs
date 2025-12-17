@@ -1,13 +1,7 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class UserDto
+public class UserDto: BaseDto
 {
-    public int Id { get; set; }
-    
-    public DateTime Created { get; set; }
-    
-    public DateTime Updated { get; set; }
-    
     public string Username { get; set; }
     
     public string Name { get; set; }
@@ -38,6 +32,7 @@ public class UserLinkedDto : UserDto
 
 public class UserSecureDto : UserDto
 {
+    public int RefreshTokenId { get; set; }
     public string PasswordHash { get; set; }
     
     public string Email { get; set; }

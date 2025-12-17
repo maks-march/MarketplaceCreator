@@ -1,24 +1,32 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
+using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories;
 
 public class UserRepository(AppContext context) : IUserRepository
 {
-    public async Task CreateAsync(User user, CancellationToken cancellationToken = default)
+    public async Task CreateAsync(User user, CancellationToken cancellationToken)
     {
         await context.Users.AddAsync(user);
         await context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(User user, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(User user, UserUpdateDto dto, CancellationToken cancellationToken)
+    {
+        user.Update(dto);
+        context.Users.Update(user);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(User user, CancellationToken cancellationToken)
     {
         context.Users.Remove(user);
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await context.Users
             .Include(u => u.Brands)
@@ -36,47 +44,36 @@ public class UserRepository(AppContext context) : IUserRepository
     public async Task<UserSecureDto?> GetSecureFirstOrNullByUsername(string name, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(name);
-        return CreateSecureDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetSecuredDto();
     }
 
     public async Task<UserSecureDto?> GetSecureFirstOrNullByEmail(string email, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(email, true);
-        return CreateSecureDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetSecuredDto();
     }
     
     public async Task<UserLinkedDto?> GetFirstOrNullByUsername(string name, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(name);
-        return CreateLinkedDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetDto();
     }
 
     public async Task<UserLinkedDto?> GetFirstOrNullByEmail(string email, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(email, true);
-        return CreateLinkedDtoFromUser(user);
-    }
-
-    private static UserSecureDto? CreateSecureDtoFromUser(User user)
-    {
-        if (user is not null) 
-            return user.GetSecuredDtoFromUser();
-        return null;
-    }
-    
-    private static UserLinkedDto? CreateLinkedDtoFromUser(User user)
-    {
-        if (user is not null) 
-            return user.GetLinkedDtoFromUser();
-        return null;
+        if (user is null) return null;
+        return user.GetDto();
     }
 
     private async Task<User?> GetUser(string value, bool byEmail = false, CancellationToken cancellationToken = default)
     {
         if (byEmail)
             return await GetUserByEmail(value, cancellationToken);
-        else
-            return await GetUserByUsername(value, cancellationToken);
+        return await GetUserByUsername(value, cancellationToken);
     }
 
     private async Task<User?> GetUserByUsername(string username, CancellationToken cancellationToken = default)

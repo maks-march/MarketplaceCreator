@@ -38,6 +38,10 @@ using (var scope = app.Services.CreateScope())
                 Console.WriteLine("Migrations applied successfully");
                 break;
             }
+            else
+            {
+                Console.WriteLine("Can't connect to database!");
+            }
         }
         catch (Exception ex)
         {
@@ -55,6 +59,7 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1");
     c.SwaggerEndpoint("/swagger/v2.0/swagger.json", "v2");
+    c.ConfigObject.AdditionalItems["theme"] = "dark";
 });
 
 app.UseHttpsRedirection();

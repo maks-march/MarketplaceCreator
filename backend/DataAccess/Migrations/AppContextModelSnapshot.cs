@@ -48,6 +48,10 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -60,7 +64,7 @@ namespace DataAccess.Migrations
                     b.ToTable("Brands");
                 });
 
-            modelBuilder.Entity("DataAccess.Models.Product", b =>
+            modelBuilder.Entity("DataAccess.Models.News", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -89,7 +93,72 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("BrandId");
 
+                    b.ToTable("News");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BrandId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ProductCategory")
+                        .IsRequired()
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
+
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.RefreshToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("Expires")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("DataAccess.Models.User", b =>
@@ -122,6 +191,9 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("RefreshTokenId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasColumnType("text");
@@ -134,6 +206,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RefreshTokenId")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -153,20 +228,50 @@ namespace DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DataAccess.Models.Product", b =>
+            modelBuilder.Entity("DataAccess.Models.News", b =>
                 {
                     b.HasOne("DataAccess.Models.Brand", "Brand")
-                        .WithMany("Products")
+                        .WithMany("News")
                         .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Brand");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Product", b =>
+                {
+                    b.HasOne("DataAccess.Models.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Brand");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.User", b =>
+                {
+                    b.HasOne("DataAccess.Models.RefreshToken", "RefreshToken")
+                        .WithOne("User")
+                        .HasForeignKey("DataAccess.Models.User", "RefreshTokenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RefreshToken");
+                });
+
             modelBuilder.Entity("DataAccess.Models.Brand", b =>
                 {
+                    b.Navigation("News");
+
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.RefreshToken", b =>
+                {
+                    b.Navigation("User")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

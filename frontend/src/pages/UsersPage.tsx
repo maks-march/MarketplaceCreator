@@ -3,8 +3,9 @@ import PageLayout from '../components/PageLayout';
 import UserEditModal from '../components/UserEditModal';
 import UserAddModal from '../components/UserAddModal';
 import usersIcon from '../assets/Groups.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/UsersPage.css';
+import { usersApi } from '../services/api';
 
 type UserRow = {
   id: number;
@@ -13,6 +14,8 @@ type UserRow = {
   email: string;
   date: string;
 };
+
+usersApi.getAll();
 
 const initialUsers: UserRow[] = Array.from({ length: 10 }).map((_, i) => ({
   id: i + 1,

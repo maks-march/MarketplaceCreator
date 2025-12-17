@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
-import '../styles/LoginPage.css';
+import { useNavigate } from 'react-router-dom';
+import '../styles/LoginPage.css'; 
+import type { LoginRequest } from '../services/api/auth/auth.types';
+import { authApi } from '../services/api';
 
 const LoginPage: React.FC = () => {
   const auth = useAuth();
@@ -27,6 +29,29 @@ const LoginPage: React.FC = () => {
     } catch (err) {
       setError('Ошибка входа');
     }
+  const [error, setError] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    emailOrUsername: '',
+    password: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+  
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const request: LoginRequest = {
+      emailOrUsername: formData.emailOrUsername,
+      password: formData.password
+    };
+    const result = await authApi.login(request);
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.errors ?? ['Неверные данные']);
+    }
+    return;
   };
 
   return (
@@ -38,22 +63,33 @@ const LoginPage: React.FC = () => {
           <span className="brand-line2">creator</span>
         </div>
       </div>
-
       <div className="login-page">
         <div className="login-shell">
           <h2 className="login-title">Вход для пользователей</h2>
           <div className="login-card">
-            <form onSubmit={handleSubmit} className="login-form">
-              {error && <div className="login-error">{error}</div>}
+
+            <form onSubmit={handleLogin} className="login-form">
+              {error && (
+                <div>
+                  {Array.isArray(error) 
+                    ? error.map((err, index) => (
+                        <div className="login-error" key={index}>
+                          {err}
+                          {index < error.length - 1 && <br />}
+                        </div>
+                      ))
+                    : error}
+                </div>
+              )}
 
               <label className="login-label">Логин или email:</label>
               <input
                 className="login-input"
                 type="text"
-                name="login"
-                placeholder="login или example@mail.ru"
-                value={loginValue}
-                onChange={e => setLoginValue(e.target.value)}
+                name="emailOrUsername"
+                placeholder="Логин или example@mail.ru"
+                value={formData.emailOrUsername}
+                onChange={handleChange}
               />
 
               <label className="login-label">Пароль:</label>
@@ -61,9 +97,9 @@ const LoginPage: React.FC = () => {
                 className="login-input"
                 type="password"
                 name="password"
-                placeholder="******"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                placeholder="Пароль"
+                value={formData.password}
+                onChange={handleChange}
               />
 
               <button type="submit" className="login-btn">Вход</button>

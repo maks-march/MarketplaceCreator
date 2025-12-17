@@ -7,56 +7,37 @@ using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
-public class BrandService(IBrandRepository brandRepository) : IBrandService
+public class BrandService(IBrandRepository brandRepository) : 
+    CrudService<Brand, BrandLinkedDto, BrandCreateDto, BrandUpdateDto>(brandRepository),
+    IBrandService
 {
-    public async Task CreateAsync(BrandCreateDto brandCreateDto, User user, CancellationToken cancellationToken = default)
+    protected async override Task<bool> CheckItem(Brand? item, int userId = -1, params string[] valuesCheck)
     {
-        if (await brandRepository.ExistsAsync(brandCreateDto.Name, cancellationToken))
+        await base.CheckItem(item, userId, valuesCheck);
+        if (userId != -1 && item!.Users.All(u => u.Id != userId))
+            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+        return await Task.FromResult(true);
+    }
+
+    protected async override Task<Brand> FillFromUser(Brand item, User user, CancellationToken cancellationToken)
+    {
+        if (await brandRepository.ExistsAsync(item.Name, cancellationToken))
             throw new InvalidOperationException("Такой бренд уже существует");
-        
-        var brand = Brand.Create(brandCreateDto);
-        brand.Users.Add(user);
-        await brandRepository.CreateAsync(brand, cancellationToken);
+        item.Users.Add(user);
+        return await base.FillFromUser(item, user, cancellationToken);
     }
 
-    public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
-    {
-        var brand = await GetBrandById(id, userId, cancellationToken: cancellationToken);
-        await brandRepository.DeleteByIdAsync(brand, cancellationToken);
-    }
-
-    public async Task<IEnumerable<BrandDto>> GetAllBrands(BrandSearchDto searchDto, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<BrandLinkedDto>> GetFilteredAsync(BrandSearchDto searchDto, Func<Brand, bool>? filter = null, CancellationToken cancellationToken = default)
     {
         var brands = await brandRepository.GetAllAsync(cancellationToken);
-        
+        if (!string.IsNullOrEmpty(searchDto.Query))
+            brands = brands.Where(
+                p => p.Name.Contains(searchDto.Query)
+            );
         return brands
-            .Select(b => b.GetDtoFromBrand())
-            .Skip((searchDto.Page - 1) * searchDto.PageSize)
+            .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
+            .Select(p => p.GetDto())
             .ToList();
-    }
-
-    public async Task UpdateByIdAsync(int id, BrandUpdateDto brandUpdateDto, int userId, CancellationToken cancellationToken)
-    {
-        var brand = await GetBrandById(id, userId, cancellationToken: cancellationToken);
-        await brandRepository.UpdateAsync(brand, brandUpdateDto, cancellationToken);
-    }
-    
-    public async Task<BrandLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var brand = await GetBrandById(id, cancellationToken: cancellationToken);
-        return brand.GetLinkedDtoFromBrand();
-    }
-
-
-    private async Task<Brand> GetBrandById(int brandId, int userId = -1, CancellationToken cancellationToken = default)
-    {
-        var brand = await brandRepository.GetByIdAsync(brandId, cancellationToken);
-        if (brand is null)
-            throw new NotFoundException($"Бренда с id {brandId} не найдено");
-        if (userId != -1 && brand.Users.All(u => u.Id != userId))
-            throw new AuthenticationException("Данный пользователь не может редактировать этот бренд");
-        
-        return brand;
     }
 }

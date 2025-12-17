@@ -4,11 +4,9 @@ using Shared.DataTransferObjects.Response;
 
 namespace BusinessLogic.Services;
 
-public interface IUserService
+public interface IUserService: 
+    IManyService<User, UserLinkedDto, UserSearchDto>, 
+    ICrudService<UserLinkedDto, UserCreateDto, UserUpdateDto>
 {
-    Task<IEnumerable<UserDto>> GetAllAsync(UserSearchDto searchDto, CancellationToken cancellationToken = default);
-    
-    Task<User> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-
-    Task DeleteByIdAsync(int id, User user, CancellationToken cancellationToken = default);
+    Task<User> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,5 @@
 using BusinessLogic.Services;
+using BusinessLogic.Services.NewsService;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BusinessLogic;
@@ -11,6 +12,7 @@ public static class Extensions
         serviceCollection.AddScoped<IAuthService, AuthService>();
         serviceCollection.AddScoped<IUserService, UserService>();
         serviceCollection.AddScoped<IBrandService, BrandService>();
+        serviceCollection.AddScoped<INewsService, NewsService>();
         return serviceCollection;
     }
 }

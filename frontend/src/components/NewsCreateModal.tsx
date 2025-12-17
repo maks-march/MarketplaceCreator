@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import xIcon from '../assets/X.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/NewsPage.css';
 
 type NewsCreateModalProps = {

@@ -1,18 +1,31 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Transactions;
+using System.ComponentModel.DataAnnotations.Schema;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;
 
-public class Product : BaseModel
+public sealed class Product : 
+    BaseModel,
+    IBaseModel<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>
 {
     [Required]
     public int BrandId { get; set; }
+    
     [Required]
     public string Title { get; set; }
+    
     public string Description { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "Цена для продукта обязательна")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Цена должна быть больше 0")]
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal Price { get; set; }
+    
     public Brand Brand { get; set; }
+    
+    public ProductCategory ProductCategory { get; set; }   
 
     public static Product Create(ProductCreateDto dto)
     {
@@ -34,9 +47,7 @@ public class Product : BaseModel
         Description = dto.Description ?? Description;
     }
 
-    
-    
-    public ProductDto GetDtoFromProduct()
+    public ProductDto GetUnlinkedDto()
     {
         return new ProductDto
         {
@@ -47,13 +58,13 @@ public class Product : BaseModel
             Description = Description
         };
     }
-    
-    public ProductLinkedDto GetLinkedDtoFromProduct()
+
+    public override ProductLinkedDto GetDto()
     {
         var dto = new ProductLinkedDto();
-        dto.CopyFrom(GetDtoFromProduct());
+        dto.CopyFrom(GetUnlinkedDto());
         dto.BrandId = BrandId;
-        dto.Brand = Brand.GetLinkedDtoFromBrand();
+        dto.Brand = Brand.GetDto();
         return dto;
     }
 }
