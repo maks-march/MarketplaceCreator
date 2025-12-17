@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shared.DataTransferObjects;
 
-public class UserCreateDto : BaseDto
+public class UserCreateDto
 {
     [Required(ErrorMessage = "Логин обязателен")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Логин от 3 до 50 символов")]

@@ -3,14 +3,14 @@ using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;
 
-public class User : BaseModel
+public class User : BaseModel, IBaseModel<User, UserLinkedDto, UserCreateDto, UserUpdateDto>
 {
-    public string Username { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Surname { get; set; } = string.Empty;
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string Name { get; set; }
+    public string Surname { get; set; }
     public string Patronymic { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public string PasswordHash { get; set; }
     
     public bool IsAdmin { get; set; } = false;
     
@@ -46,7 +46,7 @@ public class User : BaseModel
     }
     
     
-    public UserDto GetDto()
+    public UserDto GetUnlinkedDto()
     {
         return new UserDto
         {
@@ -64,7 +64,7 @@ public class User : BaseModel
     public UserSecureDto GetSecuredDto()
     {
         var dto = new UserSecureDto();
-        dto.CopyFrom(GetDto());
+        dto.CopyFrom(GetUnlinkedDto());
         
         dto.Email = Email;
         dto.PasswordHash = PasswordHash;
@@ -72,10 +72,10 @@ public class User : BaseModel
         return dto;
     }
 
-    public UserLinkedDto GetLinkedDto()
+    public override UserLinkedDto GetDto()
     {
         var dto = new UserLinkedDto();
-        dto.CopyFrom(GetDto());
+        dto.CopyFrom(GetUnlinkedDto());
         
         dto.Brands = Brands.Select(b => new BrandLinkedDto
             {
@@ -84,10 +84,10 @@ public class User : BaseModel
                 Updated = b.Updated,
                 Name = b.Name,
                 Users = b.Users
-                    .Select(u => u.GetDto())
+                    .Select(u => u.GetUnlinkedDto())
                     .ToList(),
                 Products = b.Products
-                    .Select(p => p.GetDto())
+                    .Select(p => p.GetUnlinkedDto())
                     .ToList()
             })
             .ToList();

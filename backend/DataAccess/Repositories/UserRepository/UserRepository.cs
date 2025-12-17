@@ -44,47 +44,36 @@ public class UserRepository(AppContext context) : IUserRepository
     public async Task<UserSecureDto?> GetSecureFirstOrNullByUsername(string name, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(name);
-        return CreateSecureDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetSecuredDto();
     }
 
     public async Task<UserSecureDto?> GetSecureFirstOrNullByEmail(string email, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(email, true);
-        return CreateSecureDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetSecuredDto();
     }
     
     public async Task<UserLinkedDto?> GetFirstOrNullByUsername(string name, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(name);
-        return CreateLinkedDtoFromUser(user);
+        if (user is null) return null;
+        return user.GetDto();
     }
 
     public async Task<UserLinkedDto?> GetFirstOrNullByEmail(string email, CancellationToken cancellationToken = default)
     {
         var user = await GetUser(email, true);
-        return CreateLinkedDtoFromUser(user);
-    }
-
-    private static UserSecureDto? CreateSecureDtoFromUser(User user)
-    {
-        if (user is not null) 
-            return user.GetSecuredDto();
-        return null;
-    }
-    
-    private static UserLinkedDto? CreateLinkedDtoFromUser(User user)
-    {
-        if (user is not null) 
-            return user.GetLinkedDto();
-        return null;
+        if (user is null) return null;
+        return user.GetDto();
     }
 
     private async Task<User?> GetUser(string value, bool byEmail = false, CancellationToken cancellationToken = default)
     {
         if (byEmail)
             return await GetUserByEmail(value, cancellationToken);
-        else
-            return await GetUserByUsername(value, cancellationToken);
+        return await GetUserByUsername(value, cancellationToken);
     }
 
     private async Task<User?> GetUserByUsername(string username, CancellationToken cancellationToken = default)

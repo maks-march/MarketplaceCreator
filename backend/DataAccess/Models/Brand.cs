@@ -4,7 +4,8 @@ using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;
 
-public class Brand : BaseModel
+public sealed class Brand : 
+    BaseModel, IBaseModel<Brand, BrandLinkedDto, BrandCreateDto, BrandUpdateDto>
 {
     [Required]
     public string Name { get; set; }
@@ -14,6 +15,8 @@ public class Brand : BaseModel
     public ICollection<User> Users { get; set; } = new List<User>();
     
     public ICollection<Product> Products { get; set; } = new List<Product>();
+    
+    public ICollection<News> News { get; set; } = new List<News>();
 
     public static Brand Create(BrandCreateDto dto)
     {
@@ -34,7 +37,7 @@ public class Brand : BaseModel
         Description = dto.Description ?? Description;
     }
     
-    public BrandDto GetDto()
+    public BrandDto GetUnlinkedDto()
     {
         return new BrandDto
         {
@@ -46,16 +49,21 @@ public class Brand : BaseModel
         };
     }
 
-    public BrandLinkedDto GetLinkedDto()
+    public override BrandLinkedDto GetDto()
     {
         var dto = new BrandLinkedDto();
-        dto.CopyFrom(GetDto());
+        dto.CopyFrom(GetUnlinkedDto());
         dto.Users = Users
-            .Select(u => u.GetDto())
+            .Select(u => u.GetUnlinkedDto())
             .ToList();
         
         dto.Products = Products
-            .Select(p => p.GetDto())
+            .Select(p => p.GetUnlinkedDto())
+            .ToList();
+        
+        
+        dto.News = News
+            .Select(p => p.GetUnlinkedDto())
             .ToList();
         return dto;
     }

@@ -40,7 +40,7 @@ public class BaseCrudController<TDto, TCreateDto, TUpdateDto>(
         [FromBody]TUpdateDto updateDto)
     {
         this.EnsureValidateId(id);
-        var user = await GetCurrentUser();
+        var user = GetCurrentUserId();
         await service.UpdateByIdAsync(id, updateDto, user);
         return NoContent();
     }

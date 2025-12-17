@@ -21,8 +21,7 @@ public class UserController(IUserService userService):
         this.EnsureValidateId(id);
         if (id != GetCurrentUserId())
             throw new AuthenticationException("Пользователь может редактировать только себя");
-        var user = await GetCurrentUser();
-        await userService.DeleteByIdAsync(id, user);
+        await userService.DeleteByIdAsync(id, id);
         return Ok();
     }
 

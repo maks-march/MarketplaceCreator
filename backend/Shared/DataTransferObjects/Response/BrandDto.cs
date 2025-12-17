@@ -1,13 +1,7 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class BrandDto
+public class BrandDto: BaseDto
 {
-    public int Id { get; set; }
-    
-    public DateTime Created { get; set; }
-    
-    public DateTime Updated { get; set; }
-    
     public string Name { get; set; }
     
     public string Description { get; set; }
@@ -24,6 +18,8 @@ public class BrandDto
 public class BrandLinkedDto : BrandDto
 {
     public ICollection<UserDto> Users { get; set; } = new List<UserDto>();
+    
+    public ICollection<NewsDto>? News { get; set; } = new List<NewsDto>();
     
     public ICollection<ProductDto>? Products { get; set; } = new List<ProductDto>();
 }

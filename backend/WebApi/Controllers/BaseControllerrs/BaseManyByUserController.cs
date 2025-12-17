@@ -12,7 +12,7 @@ public class BaseManyByUserController<T,TDto,TSearchDto>(IManyService<T,TDto,TSe
     [Authorize]
     [HttpGet("user")]
     [MapToApiVersion("1.0")]
-    public virtual async Task<IActionResult> UserItemsSearchAsync(
+    public async Task<IActionResult> UserItemsSearchAsync(
         [FromQuery] string query = "",
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20)

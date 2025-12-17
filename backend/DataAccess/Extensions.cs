@@ -1,4 +1,5 @@
 using DataAccess.Repositories;
+using DataAccess.Repositories.NewsRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,6 +13,7 @@ public static class Extensions
         serviceCollection.AddScoped<IUserRepository, UserRepository>();
         serviceCollection.AddScoped<IBrandRepository, BrandRepository>();
         serviceCollection.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        serviceCollection.AddScoped<INewsRepository, NewsRepository>();
         
         serviceCollection.AddDbContext<AppContext>(x =>
         {

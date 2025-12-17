@@ -7,62 +7,27 @@ using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
-public class UserService(IUserRepository userRepository) : IUserService
+public class UserService(IUserRepository userRepository) : 
+    CrudService<User, UserLinkedDto, UserCreateDto, UserUpdateDto>(userRepository),
+    IUserService
 {
-    public async Task<IEnumerable<UserLinkedDto>> GetAllAsync(UserSearchDto searchDto, CancellationToken cancellationToken = default)
+    protected async override Task<bool> CheckItem(User? item, int userId = -1, params string[] valuesCheck)
     {
-        var users = await userRepository.GetAllAsync(cancellationToken);
-
-        return users
-            .Select(u => u.GetLinkedDto())
-            .Skip((searchDto.Page - 1) * searchDto.PageSize)
-            .Take(searchDto.PageSize);
-    }
-    
-    public async Task<User> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await GetUserById(id, true, cancellationToken: cancellationToken);
+        await base.CheckItem(item, userId, valuesCheck);
+        if (item is null)
+            throw new NotFoundException($"Пользователя с id {userId} не найдено");
+        if (userId != -1 && (!item.IsAdmin || userId == item.Id))
+            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+        return await Task.FromResult(true);
     }
 
-    public async Task CreateAsync(UserCreateDto userCreateDto, User user, CancellationToken cancellationToken = default)
+    protected async override Task<User> FillFromUser(User item, User user, CancellationToken cancellationToken)
     {
         if (!user.IsAdmin)
         {
             throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
         }
-        await userRepository.CreateAsync(User.Create(userCreateDto), cancellationToken);
-    }
-
-    public async Task UpdateByIdAsync(int id, UserUpdateDto userUpdateDto, User redactor, CancellationToken cancellationToken = default)
-    {
-        var user = await GetUserById(id, redactor.IsAdmin || redactor.Id == id, cancellationToken);
-        await userRepository.UpdateAsync(user, userUpdateDto, cancellationToken);
-    }
-
-    public async Task DeleteByIdAsync(int id, int userId, CancellationToken cancellationToken = default)
-    {
-        var redactor = await GetUserById(userId, true, cancellationToken);
-        if (!redactor.IsAdmin)
-        {
-            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
-        }
-        await userRepository.DeleteAsync(await GetUserById(id, redactor.IsAdmin, cancellationToken), cancellationToken);
-    }
-
-    public async Task DeleteByIdAsync(int id, User user, CancellationToken cancellationToken = default)
-    {
-        var currentUser = await GetUserById(id, user.IsAdmin, cancellationToken: cancellationToken);
-        await userRepository.DeleteAsync(currentUser, cancellationToken);
-    }
-    
-    private async Task<User> GetUserById(int userId, bool isAdmin = false, CancellationToken cancellationToken = default)
-    {
-        var user = await userRepository.GetByIdAsync(userId, cancellationToken);
-        if (user is null)
-            throw new NotFoundException($"Пользователя с id {userId} не найдено");
-        if (!isAdmin)
-            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
-        return user;
+        return await base.FillFromUser(item, user, cancellationToken);
     }
 
     public async Task<IEnumerable<UserLinkedDto>> GetFilteredAsync(UserSearchDto searchDto, Func<User, bool>? filter = null, CancellationToken cancellationToken = default)
@@ -77,13 +42,15 @@ public class UserService(IUserRepository userRepository) : IUserService
         return users
             .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)
             .Take(searchDto.PageSize)
-            .Select(p => p.GetLinkedDto())
+            .Select(p => p.GetDto())
             .ToList();
     }
 
-    public async Task<UserLinkedDto> GetByIdAsync(int id, CancellationToken cancellationToken)
+    public async Task<User> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var user = await GetUserById(id);
-        return user.GetLinkedDto();
+        var user = await userRepository.GetByIdAsync(id, cancellationToken);
+        if (user is null)
+            throw new NotFoundException("Пользователь не найден");
+        return user;
     }
 }
