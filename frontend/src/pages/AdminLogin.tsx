@@ -3,35 +3,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import '../styles/LoginPage.css';
 
-const LoginPage: React.FC = () => {
+const AdminLogin: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  // по умолчанию перенаправляем пользователя в /user после логина
-  const from = (location.state as any)?.from?.pathname || '/user';
+  const from = (location.state as any)?.from?.pathname || '/admin/main';
   const [loginValue, setLoginValue] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (!loginValue || !password) {
-      setError('Введите логин и пароль');
-      return;
-    }
-
-    try {
-      auth.login('user');
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError('Ошибка входа');
-    }
+    // выполнить реальную проверку учётных данных...
+    auth.login('admin'); // пометить как admin
+    navigate(from, { replace: true });
   };
 
   return (
     <>
-      {/* Хедер (как в AdminLogin) */}
       <div className="auth-header">
         <div className="auth-brand">
           <span className="brand-line1">Marketplace</span>
@@ -41,7 +30,8 @@ const LoginPage: React.FC = () => {
 
       <div className="login-page">
         <div className="login-shell">
-          <h2 className="login-title">Вход для пользователей</h2>
+          {/* отличие только в заголовке */}
+          <h2 className="login-title">Вход для администрации</h2>
           <div className="login-card">
             <form onSubmit={handleSubmit} className="login-form">
               {error && <div className="login-error">{error}</div>}
@@ -66,31 +56,20 @@ const LoginPage: React.FC = () => {
                 onChange={e => setPassword(e.target.value)}
               />
 
-              <button type="submit" className="login-btn">Вход</button>
+              <button type="submit" className="login-btn">
+                Вход
+              </button>
 
-              <div className="login-actions">
+              {/* блок с регистрацией и восстановлением УБРАН */}
+
+              {/* возврат к обычному входу */}
+              <div style={{ marginTop: '20px', textAlign: 'center' }}>
                 <button
                   type="button"
                   className="login-link-btn"
-                  onClick={() => navigate('/signup')}
+                  onClick={() => navigate('/login')}
                 >
-                  Регистрация
-                </button>
-
-                <button
-                  type="button"
-                  className="login-link-btn"
-                  onClick={() => navigate('/forgot-password')}
-                >
-                  Забыли пароль?
-                </button>
-
-                                <button
-                  type="button"
-                  className="login-link-btn"
-                  onClick={() => navigate('/admin/login')}
-                >
-                  Вход для администрации
+                  Вернуться к входу для пользователей
                 </button>
               </div>
             </form>
@@ -101,4 +80,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default AdminLogin;

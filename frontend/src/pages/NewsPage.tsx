@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import NewsCreateModal from '../components/NewsCreateModal'; // Импорт модалки
+import NewsCreateCreateModal from '../components/NewsCreateCreateModal'; // <-- добавлено
 import newsIcon from '../assets/News.svg';
 import bookmarkIcon from '../assets/Bookmark - empty.svg';
 import bookmarkFilledIcon from '../assets/Bookmark - filled.svg'; // Импорт заполненной иконки
@@ -25,8 +26,23 @@ const NewsPage: React.FC = () => {
   const [news, setNews] = useState<NewsRow[]>(initialNews);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleAddNewsClick = () => {
-    // Пока пусто
+  // состояние для окна "Создать"
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  // открыть окно создания при клике "Добавить"
+  const handleAddNewsClick = () => setIsCreateOpen(true);
+
+  // обработчик создания новости (получает payload из NewsCreateCreateModal)
+  const handleCreateNews = (data: { id: number; title: string; date?: string; text?: string; images: (number | string)[] }) => {
+    const newId = data.id ?? (Math.max(0, ...news.map(n => n.id)) + 1);
+    const newNewsItem: NewsRow = {
+      id: newId,
+      title: data.title || 'Без названия',
+      isBookmarked: false,
+      images: data.images ?? [],
+    };
+    setNews(prev => [newNewsItem, ...prev]);
+    setIsCreateOpen(false);
   };
 
   const handleTitleClick = () => {
@@ -185,6 +201,13 @@ const NewsPage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveNews}
+      />
+
+      {/* Модалка создания новости */}
+      <NewsCreateCreateModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onCreate={handleCreateNews}
       />
     </PageLayout>
   );

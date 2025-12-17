@@ -1,0 +1,41 @@
+/* Обеспечиваем flex-контейнер и стабильный порядок элементов.
+   Кнопка будет располагаться справа даже если она вставляется в начало DOM. */
+
+.brands-page__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  /* если есть глобальные padding/width в родителях — можно убрать центрирование */
+}
+
+/* Заголовок всегда первый визуально */
+.brands-page__title {
+  order: 0;
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Вставляемая кнопка — гарантированно справа */
+.brands-page__injected-add-btn {
+  order: 1;           /* быть после заголовка в визуальном порядке */
+  margin-left: auto;  /* сдвигает кнопку максимально вправо */
+  background: linear-gradient(180deg,#b7e67a 0%,#57b73a 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Адаптация для узких экранов — кнопка под заголовком */
+@media (max-width: 640px) {
+  .brands-page__header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .brands-page__injected-add-btn { margin-left: 0; align-self: flex-end; }
+}

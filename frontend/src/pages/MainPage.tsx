@@ -4,7 +4,13 @@ import { FiltersPanel } from '../components/FiltersPanel';
 import { SearchIcon, FilterIcon, SortIcon, ChevronDownIcon, HeartIcon, HeartFilledIcon } from '../components/Icon';
 import PageLayout from '../components/PageLayout';
 
-const MainPage: React.FC = () => {
+type Props = {
+  mode?: 'admin' | 'user';
+};
+
+const MainPage: React.FC<Props> = ({ mode }) => {
+  const basePath = mode === 'admin' ? '/admin' : mode === 'user' ? '/user' : '';
+
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('popular');
   const [sortOpen, setSortOpen] = useState(false);

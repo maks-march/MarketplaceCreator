@@ -217,16 +217,18 @@
 }
 
 .news-modal {
-  width: 900px;
-  height: 700px;
-  background-color: #95DA46; /* Ярко-зеленый фон */
+  width: 1040px; /* увеличил ширину, чтобы всё вмещалось */
+  height: auto;
+  max-height: 92vh; /* чтобы модалка не выходила за экран */
+  background-color: #95DA46;
   border-radius: 20px;
-  padding: 24px 32px;
+  padding: 16px 20px; /* уменьшил внутренние отступы */
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   position: relative;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 /* Шапка: Заголовок "Просмотр новости" и крестик */
@@ -270,16 +272,14 @@
 .news-modal__gallery {
   display: flex;
   gap: 16px;
-  margin-bottom: 20px;
-  overflow-x: auto;       /* Разрешаем горизонтальный скролл */
-  padding-bottom: 10px;   /* Место для теней/стопки */
-  padding-right: 20px;    /* Отступ справа, чтобы стопка не обрезалась */
-  
-  /* Скрываем скроллбар */
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
-  cursor: grab;           /* Курсор-рука */
-  user-select: none;      /* Запрещаем выделение текста при перетаскивании */
+  margin-bottom: 12px !important; /* уменьшенный отступ */
+  overflow-x: auto;
+  padding-bottom: 10px;
+  padding-right: 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
 }
 
 .news-modal__gallery::-webkit-scrollbar {
@@ -379,8 +379,8 @@
 }
 
 .news-modal__textarea {
-  width: 100%;
-  height: 100%;
+  width: 794px;           /* ширина поля описания */
+  height: 293px;          /* высота поля описания */
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 12px;
@@ -394,6 +394,39 @@
 .news-modal__textarea:focus {
   outline: none;
   border-color: #54AC34;
+}
+
+/* короткий инпут — теперь по ширине совпадает с полем описания (100%) */
+.news-modal__short-input {
+  display: block;
+  width: 794px;           /* ширина короткого инпута = ширине описания */
+  height: 147px;          /* половина высоты описания */
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;   /* белый фон */
+  color: #000;        /* черный текст */
+  font-size: 14px;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.news-modal__short-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34,139,34,0.08);
+}
+
+/* отображение короткой информации в режиме просмотра (пилюля) */
+.news-modal__short-display {
+  display: block;
+  width: 794px;           /* ширина при просмотре = ширине описания */
+  height: 147px;          /* половина высоты описания */
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;   /* белый фон при просмотре */
+  color: #000;        /* черный текст */
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
 /* Эффект стопки для элемента с классом --stacked */
@@ -435,7 +468,7 @@
   background-color: #fff;
   border-radius: 16px;
   flex: 1; /* Занимает все оставшееся место */
-  padding: 24px;
+  padding: 16px; /* уменьшил padding */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -445,6 +478,11 @@
   font-size: 14px;
   color: #000;
   margin: 0;
+  width: 895px;
+  max-width: 100%;
+  height: 300px;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 /* Футер внутри белого блока */
@@ -480,4 +518,152 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+}
+
+/* обёртка - отступы между галереей и описанием */
+.news-modal__short-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 12px 0 12px;
+  margin-top: 8px !important; /* минимальный отступ сверху */
+}
+
+/* короткий инпут — белый фон, чёрный текст, ширина 50% от основного блока */
+.news-modal__short-input {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  color: #000;
+  box-sizing: border-box;
+  min-height: 40px;
+}
+
+/* отображение короткой информации в режиме просмотра — такой же белый блок */
+.news-modal__short-display {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  box-sizing: border-box;
+  min-height: 40px;
+}
+
+/* grid 3x2 для редактирования (ширина 100% окна, ровные промежутки) */
+.news-modal__grid {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px; /* уменьшил расстояние между ячейками */
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  /* небольшой отступ сверху чтобы не прилипать к галерее */
+  margin-top: 8px;
+}
+
+/* каждый элемент grid */
+.news-modal__grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* общие label */
+.news-modal__label {
+  font-size: 13px;
+  color: rgba(0,0,0,0.7);
+  margin-bottom: 8px;
+}
+
+/* инпуты в сетке — занимают всю ячейку */
+.news-modal__input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  color: #000;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+/* адаптив: на маленьких экранах — 2 колонки или 1 */
+@media (max-width: 980px) {
+  .news-modal__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  .news-modal__grid { grid-template-columns: 1fr; }
+}
+
+/* В режиме редактирования — сдвигаем сетку (категории) и короткий инпут вниз,
+   чтобы они были ниже галереи и не перекрывали фотографии */
+.news-modal--editing .news-modal__gallery {
+  position: relative;
+  z-index: 60; /* галерея над полями */
+}
+
+/* явный отступ сверху для сетки — подгоняй при необходимости */
+.news-modal--editing .news-modal__grid {
+  margin-top: 8px !important; /* минимальный отступ */
+  z-index: 1;
+  background: transparent;
+}
+
+/* короткий инпут тоже опускаем вниз */
+.news-modal--editing .news-modal__short-wrap {
+  margin-top: 8px !important; /* минимальный отступ */
+  z-index: 1;
+  background: transparent;
+}
+
+/* дополнительно гарантия, что поля не поднимаются над галереей */
+.news-modal--editing .news-modal__input,
+.news-modal--editing .news-modal__short-input,
+.news-modal--editing .news-modal__short-display {
+  position: relative;
+  z-index: 1;
+}
+
+/* В режиме редактирования: короткое поле — textarea, текст влево/вверх */
+.news-modal--editing .news-modal__short-input {
+  width: 100%;
+  max-width: 100%;
+  height: 147px;         /* по вашему дизайну */
+  padding: 10px 12px;    /* отступ сверху гарантирует начало сверху */
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  line-height: 1.2;      /* плотный перенос, текст не центрируется по высоте */
+  text-align: left;
+  vertical-align: top;
+  resize: vertical;
+  overflow: auto;
+}
+
+/* placeholder тоже сверху/влево */
+.news-modal--editing .news-modal__short-input::placeholder {
+  color: rgba(0,0,0,0.35);
+  opacity: 1;
+}
+
+/* фокус */
+.news-modal--editing .news-modal__short-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34,139,34,0.06);
+}
+
+/* на случай, если где-то остались input-правила — не применять их в режиме редактирования */
+.news-modal--editing input.news-modal__short-input {
+  /* если input остался — сделаем его скрытым, чтобы не мешал */
+  display: none;
 }
