@@ -3,7 +3,7 @@ using Shared.DataTransferObjects;
 
 namespace DataAccess.Models;
 
-public class LoginRequest : BaseDto
+public class LoginRequest
 {
     [Required(ErrorMessage = "Логин обязателен")]
     [StringLength(50, MinimumLength = 2, ErrorMessage = "Логин от 2 до 50 символов")]

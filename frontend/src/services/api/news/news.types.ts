@@ -1,0 +1,1 @@
+// типы данных лежат в Shared DataTransferObjects или ты можешь посмотреть поля в swagger
