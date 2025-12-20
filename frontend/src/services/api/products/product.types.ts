@@ -1,14 +1,14 @@
 import type { Brand } from "../brands/brands.types";
 
 export interface Product {
-    id: string;
+    id: number;
     title: string;
     description: string;
     price: number;
     brandId: number;
     brand: Brand;
     category: string;
-    // imageLinks?: string[];
+    imageLinks?: string[];
 }
 
 export interface UpdateProductRequest {
@@ -17,7 +17,7 @@ export interface UpdateProductRequest {
     price?: number;
     brandId?: number;
     category?: string;
-    // imageLinks?: string[];
+    imageLinks?: string[];
 }
 
 export interface CreateProductRequest {
@@ -26,7 +26,7 @@ export interface CreateProductRequest {
     price: number;
     brandId?: number;
     category?: string;
-    // imageLinks?: string[];
+    imageLinks?: string[];
 }
 
 export interface ProductsResponse {

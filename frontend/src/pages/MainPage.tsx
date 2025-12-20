@@ -4,25 +4,21 @@ import { FiltersPanel } from '../components/FiltersPanel';
 import { SearchIcon, FilterIcon, SortIcon, ChevronDownIcon, HeartIcon, HeartFilledIcon } from '../components/Icon';
 import PageLayout from '../components/PageLayout';
 import { productsApi } from '../services/api';
+import type { Product } from '../services/api/products/product.types';
 
-const MainPage: React.FC = () => {
+type Props = {
+  mode?: 'admin' | 'user';
+};
+
+const MainPage: React.FC<Props> = ({ mode }) => {
+  const basePath = mode === 'admin' ? '/admin' : mode === 'user' ? '/user' : '';
+
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedSort, setSelectedSort] = useState('popular');
   const [sortOpen, setSortOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true); // надо обыграть
-  const [products, setProducts] = useState<any[]>([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      const data = await productsApi.getAll();
-      setProducts(data.response || []);
-      setLoading(false);
-    };
-
-    fetchProducts();
-  }, []); 
+  const [products, setProducts] = useState<Product[]>([]);
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => {
@@ -47,13 +43,20 @@ const MainPage: React.FC = () => {
     setSortOpen(false);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const data = await productsApi.getAll();
+      setProducts(data.response || []);
+      setLoading(false);
+    };
+    fetchProducts();
     const close = (e: MouseEvent) => {
       if (!(e.target as HTMLElement).closest('.sort-select-box')) setSortOpen(false);
     };
     if (sortOpen) document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
-  }, [sortOpen]);
+  }, [sortOpen]); 
 
   const categories = ['Все', 'Электроника', 'Мебель', 'Аксессуары', 'Одежда'];
 
@@ -116,7 +119,7 @@ const MainPage: React.FC = () => {
               </button>
             </div>
             <div className="card-body">
-              <h3 className="card-title">{p.name}</h3>
+              <h3 className="card-title">{p.title}</h3>
               <p className="card-desc">{p.description}</p>
               <div className="card-price">0.00 ₽</div>
               <button className="card-add">ADD</button>

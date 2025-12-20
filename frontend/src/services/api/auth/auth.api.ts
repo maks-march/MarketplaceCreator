@@ -18,6 +18,12 @@ export const authApi = {
     login: async (credentials: LoginRequest): Promise<BaseResponse> => {
         return await authApi.loginAsync(credentials)
         .then((response) => {
+            if (response.user.isAdmin) {
+                localStorage.setItem('current_role', 'admin');
+            } else {
+                localStorage.setItem('current_role', 'user');
+            }
+
             localStorage.setItem('access_token', response.accessToken);
             localStorage.setItem('refresh_token', response.refreshToken);
             return { success: true, response: null, errors: null };

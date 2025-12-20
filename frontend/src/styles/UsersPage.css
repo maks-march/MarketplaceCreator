@@ -21,25 +21,42 @@
   margin: 40px auto;
 }
 
-/* Заголовок страницы */
+/* Хедер: выровнять содержимое и поместить кнопку в правый край */
 .users-page__header {
   display: flex;
   align-items: center;
   gap: 12px;
-  width: 880px;
-  justify-content: flex-start;
-  margin-bottom: 54px;
+  padding: 12px 16px;
 }
 
-.users-page__icon {
-  width: 28px;
-  height: 28px;
-}
-
+/* заголовок слева */
 .users-page__title {
-  font-size: 38px;
-  font-weight: 600;
   margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* кнопка "Добавить" — в правом краю контейнера */
+.users-page__add-btn {
+  margin-left: auto;
+  margin-right: 65px; /* сдвиг влево от правого края на 100px */
+  background: #1f8a2a; /* зелёный, поменяй при необходимости */
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* состояние фокуса/ховера */
+.users-page__add-btn:focus,
+.users-page__add-btn:active {
+  outline: none;
+  box-shadow: none;
+}
+.users-page__add-btn:hover {
+  filter: brightness(0.95);
 }
 
 /* ТАБЛИЦА */

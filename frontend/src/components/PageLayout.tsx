@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { HomeIcon, NewsIcon, OrdersIcon, TagIcon, GroupsIcon, ListIcon } from './Icon';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { HomeIcon, NewsIcon, TagIcon, GroupsIcon, ListIcon } from './Icon';
+import ordersSvg from '../assets/Orders.svg'; // или путь к иконке, которую используете
 import searchIcon from '../assets/Search.svg';
+import shoppingCartSvg from '../assets/Shopping_cart.svg';
 import CategoryMenu from './CategoryMenu'; // Импортируем меню
 import '../styles/MainPage.css';
 import '../styles/CategoryMenu.css'; // Стили меню
+import { authApi } from '../services/api';
 
 interface PageLayoutProps {
   children?: React.ReactNode;
@@ -12,8 +15,23 @@ interface PageLayoutProps {
 
 const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMainPage = location.pathname === '/';
+  const currentRole = localStorage.getItem('current_role');
+  const isAuthorized = currentRole != null;
+  const isAdmin = currentRole == 'admin';
+  const isUserMain = location.pathname === '/user' || location.pathname === '/user/main';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // общая функция для класса навссылок (добавляет is-active при активном пути)
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `nav-link ${isActive ? 'is-active' : ''}`;
+
+  // Обработчик выхода
+  const handleLogout = () => {
+    authApi.logout();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="app-shell">
@@ -30,36 +48,25 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         position: 'relative'
       }}>
         
-        {/* Кнопка категорий - ТОЛЬКО НА ГЛАВНОЙ */}
-        {isMainPage && (
-          <div 
-            className={`category-trigger ${isMenuOpen ? 'is-open' : ''}`} 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+        {/* Кнопка категорий — только для пользователя на /user или /user/main */}
+        {isAuthorized && !isAdmin && isUserMain && (
+          <div
+            className={`category-trigger ${isMenuOpen ? 'is-open' : ''}`}
+            onClick={() => setIsMenuOpen(o => !o)}
             title="Категории"
-            // Добавляем стили прямо сюда, чтобы гарантировать позиционирование
-            style={{
-                position: 'absolute',
-                left: '32px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                cursor: 'pointer',
-                zIndex: 60 // Поверх всего
-            }}
+            role="button"
+            aria-pressed={isMenuOpen}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="5" width="20" height="2.5" rx="1.25" fill="white"/>
-              <rect x="2" y="10.75" width="20" height="2.5" rx="1.25" fill="white"/>
-              <rect x="2" y="16.5" width="20" height="2.5" rx="1.25" fill="white"/>
+            {/* простой SVG-иконка (три полоски) */}
+            <svg width="20" height="14" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+              <rect x="0" y="1" width="20" height="2" rx="1" fill="#fff" />
+              <rect x="0" y="6" width="20" height="2" rx="1" fill="#fff" />
+              <rect x="0" y="11" width="20" height="2" rx="1" fill="#fff" />
             </svg>
           </div>
         )}
 
         {/* Заголовок: черный цвет, отступ 270px */}
-        {/* Важно: marginLeft работает от левого края контейнера flex, 
-            но если там есть другие элементы, они могут сдвигать. 
-            Лучше использовать абсолютное позиционирование или гарантировать порядок.
-            В данном случае, так как кнопка категорий теперь absolute, она не влияет на поток.
-        */}
         <div style={{ 
           display: 'flex', 
           flexDirection: 'column', 
@@ -112,17 +119,99 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           />
         </div>
 
-        {/* Профиль с отступом 280px от правого края */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginRight: '280px' }}>
-          <div style={{ 
-            width: '36px', height: '36px', borderRadius: '50%', background: '#fff', 
-            color: '#7AC142', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' 
-          }}>
-            U
-          </div>
-          <span style={{ fontWeight: 600, fontSize: '14px' }}>Profile name</span>
+        {/* Кнопка корзины — только для залогиненного user, между поиском и профилем */}
+        {isAuthorized && !isAdmin && (
+          <button
+            type="button"
+            aria-label="Корзина"
+            onClick={() => navigate('/cart')}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 'calc(50% + 168.5px + 131px)', // 50% + половина поиска (168.5) + 131px
+              transform: 'translateY(-50%)',
+              width: 35,
+              height: 35,
+              padding: 0,
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <img src={shoppingCartSvg} alt="" width={35} height={35} style={{ display: 'block' }} />
+          </button>
+        )}
+        
+        {/* Блок действий в хедере: профиль + кнопка Выйти */}
+        <div className="header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isAuthorized && (
+            <>
+              <div
+                className="header-profile-link"
+                role="button"
+                tabIndex={0}
+                onClick={() => isAuthorized ? navigate(`/${currentRole}/profile`) : navigate('/login')}
+                onKeyDown={(e) => { if (e.key === 'Enter') (isAuthorized ? navigate(`/${currentRole}/profile`) : navigate('/login')); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+                aria-label="Открыть профиль"
+              >
+                <div className="header-profile" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div className="profile-avatar" aria-hidden="true" style={{
+                    width: 32, height: 32, borderRadius: '50%', background: '#fff', color: '#7AC142',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
+                  }}>
+                    U
+                  </div>
+                  <span className="profile-name" style={{ color: '#fff', fontWeight: 600 }}>
+                    Profile name
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="header-logout-btn"
+                onClick={handleLogout}
+                title="Выйти"
+                style={{
+                  background: '#111',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '8px 12px',
+                  borderRadius: 8,
+                  cursor: 'pointer'
+                }}
+              >
+                Выйти
+              </button>
+            </>
+          )}
         </div>
+
       </header>
+
+      {/* Адаптивность для кнопки корзины */}
+      <style>{`
+        /* на средних экранах уменьшаем смещение от центра */
+        @media (max-width: 1200px) {
+          .app-header button[aria-label="Корзина"] {
+            left: calc(50% + 168.5px + 80px);
+          }
+        }
+        /* на небольших экранах ставим ближе к профилю и уменьшаем отступ */
+        @media (max-width: 900px) {
+          .app-header button[aria-label="Корзина"] {
+            left: calc(100% - 200px); /* приближение к правой части */
+          }
+        }
+        /* скрываем на очень узких экранах */
+        @media (max-width: 480px) {
+          .app-header button[aria-label="Корзина"] { display: none; }
+        }
+      `}</style>
 
       {/* Вставляем само меню категорий */}
       <CategoryMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
@@ -160,29 +249,54 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
             zIndex: 20,
           }}
         >
-          <NavLink to="/" style={navLinkStyle} title="Главная">
-            <HomeIcon size={28} />
-          </NavLink>
+          {isAdmin ? (
+            <>
+              <NavLink to="/admin/main" className={navClass} title="Главная" end>
+                <HomeIcon size={28} />
+              </NavLink>
 
-          <NavLink to="/news" style={navLinkStyle} title="Новости">
-            <NewsIcon size={24} />
-          </NavLink>
+              <NavLink to="/admin/news" className={navClass} title="Новости (админ)">
+                <NewsIcon size={24} />
+              </NavLink>
 
-          <NavLink to="/orders" style={navLinkStyle} title="Заказы">
-            <OrdersIcon size={26} />
-          </NavLink>
+              <NavLink to="/admin/products" className={navClass} title="Товары (админ)">
+                <img src={ordersSvg} alt="Товары" style={{ width: 22, height: 22 }} />
+              </NavLink>
 
-          <NavLink to="/brands" style={navLinkStyle} title="Бренды">
-            <TagIcon size={26} />
-          </NavLink>
+              <NavLink to="/admin/brands" className={navClass} title="Бренды">
+                <TagIcon size={26} />
+              </NavLink>
 
-          <NavLink to="/groups" style={navLinkStyle} title="Группы">
-            <GroupsIcon size={26} />
-          </NavLink>
+              <NavLink to="/admin/users" className={navClass} title="Пользователи">
+                <GroupsIcon size={26} />
+              </NavLink>
 
-          <NavLink to="/list" style={navLinkStyle} title="Список">
-            <ListIcon size={26} />
-          </NavLink>
+              <NavLink to="/list" className={navClass} title="Список">
+                <ListIcon size={26} />
+              </NavLink>
+            </>
+          ) : (
+            // role === 'user' или неавторизованный пользователь — показываем только 1,2,4,6
+            <>
+              <NavLink to="/user/main" className={navClass} title="Главная" end>
+                <HomeIcon size={28} />
+              </NavLink>
+
+              <NavLink to="/user/news" className={navClass} title="Новости">
+                <NewsIcon size={24} />
+              </NavLink>
+
+              {/* пропускаем "Товары" для user */}
+
+              <NavLink to="/user/brands" className={navClass} title="Бренды">
+                <TagIcon size={26} />
+              </NavLink>
+
+              <NavLink to="/list" className={navClass} title="Список">
+                <ListIcon size={26} />
+              </NavLink>
+            </>
+          )}
         </nav>
 
         {/* контент с учётом фиксированного меню */}

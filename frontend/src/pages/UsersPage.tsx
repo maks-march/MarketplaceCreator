@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import UserEditModal from '../components/UserEditModal'; // Импорт модалки
+import UserEditModal from '../components/UserEditModal';
+import UserAddModal from '../components/UserAddModal';
 import usersIcon from '../assets/Groups.svg';
 import pencilIcon from '../assets/Pencil.svg';
 import '../styles/UsersPage.css';
-import { usersApi } from '../services/api';
 
 type UserRow = {
   id: number;
@@ -13,8 +13,6 @@ type UserRow = {
   email: string;
   date: string;
 };
-
-usersApi.getAll();
 
 const initialUsers: UserRow[] = Array.from({ length: 10 }).map((_, i) => ({
   id: i + 1,
@@ -27,10 +25,20 @@ const initialUsers: UserRow[] = Array.from({ length: 10 }).map((_, i) => ({
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
-  
-  // Новое состояние: открываем ли мы модалку для редактирования?
   const [openInEditMode, setOpenInEditMode] = useState(false);
+
+  // Открыть модалку добавления (отдельная)
+  const handleAddUser = () => {
+    setIsAddModalOpen(true);
+  };
+
+  // Обработчик создания пользователя из UserAddModal
+  const handleCreateUser = (newUser: UserRow) => {
+    setUsers(prev => [...prev, newUser]);
+    setIsAddModalOpen(false);
+  };
 
   // Просмотр (клик по строке)
   const handleViewUser = (user: UserRow) => {
@@ -47,8 +55,15 @@ const UsersPage: React.FC = () => {
   };
 
   const handleSaveUser = (updatedUser: UserRow) => {
-    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
-    // Модалка закроется внутри компонента или здесь setIsModalOpen(false)
+    setUsers(prev => {
+      const exists = prev.some(u => u.id === updatedUser.id);
+      if (exists) {
+        return prev.map(u => u.id === updatedUser.id ? updatedUser : u);
+      } else {
+        return [...prev, updatedUser];
+      }
+    });
+    setIsModalOpen(false);
   };
 
   return (
@@ -57,6 +72,15 @@ const UsersPage: React.FC = () => {
         <div className="users-page__header">
           <img src={usersIcon} alt="" className="users-page__icon" />
           <h1 className="users-page__title">Пользователи</h1>
+
+          {/* кнопка Добавить — открывает отдельную модалку добавления */}
+          <button
+            type="button"
+            className="users-page__add-btn"
+            onClick={handleAddUser}
+          >
+            Добавить
+          </button>
         </div>
 
         <div className="users-table">
@@ -79,9 +103,7 @@ const UsersPage: React.FC = () => {
               return (
                 <div
                   key={user.id}
-                  className={`users-table__row ${
-                    isOdd ? 'users-table__row--odd' : 'users-table__row--even'
-                  }`}
+                  className={`users-table__row ${isOdd ? 'users-table__row--odd' : 'users-table__row--even'}`}
                   onClick={() => handleViewUser(user)} // Клик по строке -> Просмотр
                   style={{ cursor: 'pointer' }}
                 >
@@ -109,14 +131,21 @@ const UsersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Модальное окно */}
+      {/* Модальное окно редактирования */}
       <UserEditModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         user={selectedUser}
         onSave={handleSaveUser}
-        initialEditMode={openInEditMode} // Передаем режим
-        allowEdit={openInEditMode}       // Если открыли для просмотра, редактирование запрещено (кнопки нет)
+        initialEditMode={openInEditMode}
+        allowEdit={openInEditMode}
+      />
+
+      {/* Модальное окно добавления */}
+      <UserAddModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={handleCreateUser}
       />
     </PageLayout>
   );

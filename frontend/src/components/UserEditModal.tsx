@@ -19,6 +19,7 @@ type UserEditModalProps = {
   onSave: (updatedUser: UserData) => void;
   initialEditMode?: boolean; // Сразу открыть в режиме редактирования?
   allowEdit?: boolean;       // Разрешить переключение в режим редактирования?
+  title?: string; // <-- добавлено: опциональный заголовок модалки
 };
 
 const UserEditModal: React.FC<UserEditModalProps> = ({ 
@@ -27,7 +28,8 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
   user, 
   onSave, 
   initialEditMode = false,
-  allowEdit = true 
+  allowEdit = true,
+  title,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserData | null>(null);
@@ -62,7 +64,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
         
         <div className="users-modal__header-row">
           <h2 className="users-modal__title">
-            {isEditing ? 'Редактирование пользователя' : 'Просмотр пользователя'}
+            {title ?? (isEditing ? 'Редактирование пользователя' : 'Просмотр пользователя')}
           </h2>
           <button className="users-modal__close-btn" onClick={onClose}>
             <img src={xIcon} alt="Close" />
