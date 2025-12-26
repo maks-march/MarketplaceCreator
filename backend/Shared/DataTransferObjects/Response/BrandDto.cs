@@ -1,6 +1,6 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class BrandDto: BaseDto
+public class BrandDto: EntityDto
 {
     public string Name { get; set; }
     

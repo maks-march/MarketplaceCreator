@@ -2,7 +2,7 @@ using Shared.DataTransferObjects;
 
 namespace DataAccess.Models;
 
-public class BaseModel: IBaseModel<BaseModel, BaseDto, BaseDto, BaseDto>
+public class BaseModel: IBaseModel<BaseModel, EntityDto, EntityDto, BaseDto>
 {
     public int Id { get; set; }
     public DateTime Created { get; set; }
@@ -15,9 +15,9 @@ public class BaseModel: IBaseModel<BaseModel, BaseDto, BaseDto, BaseDto>
         TrackUpdate();
     }
 
-    public virtual BaseDto GetDto()
+    public virtual EntityDto GetDto()
     {
-        return new BaseDto
+        return new EntityDto
         {
             Id = Id,
             Created = Created,
@@ -30,7 +30,7 @@ public class BaseModel: IBaseModel<BaseModel, BaseDto, BaseDto, BaseDto>
         Updated = DateTime.UtcNow;
     }
     
-    public static BaseModel Create(BaseDto dto)
+    public static BaseModel Create(EntityDto dto)
     {
         return new BaseModel();
     }

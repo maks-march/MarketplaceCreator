@@ -1,6 +1,7 @@
 using BusinessLogic;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Shared.Exceptions;
 using WebApi;
 
@@ -66,5 +67,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider("/staticfiles/uploads"),
+    RequestPath = "/uploads"
+});
 app.Run();

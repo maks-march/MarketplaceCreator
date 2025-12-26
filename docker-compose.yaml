@@ -20,6 +20,8 @@ services:
       - "5089"
     depends_on:
       - postgres
+    volumes:
+      - static:/staticfiles/
   
   frontend:
     build: ./frontend/
