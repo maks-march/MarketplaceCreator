@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace Shared.DataTransferObjects;
 
-public class ProductCreateDto : BaseDto
+public class ProductCreateFormDto : BaseDto
 {
     [Required(ErrorMessage = "Имя для продукта обязательно")]
     [StringLength(50, MinimumLength = 3, ErrorMessage = "Имя от 3 до 50 символов")]
-    public string? Title { get; set; }
+    public string Title { get; set; }
     
     [StringLength(2000, MinimumLength = 5, ErrorMessage = "Описание до 2000 символов")]
     public string Description { get; set; } = string.Empty;
@@ -21,5 +22,5 @@ public class ProductCreateDto : BaseDto
     public int BrandId { get; set; }
     
     [Required(ErrorMessage = "Должна быть хотя бы одна картинка")]
-    public string[] ImageLinks { get; set; }
+    public IFormFile[] ImageFiles { get; set; }
 }

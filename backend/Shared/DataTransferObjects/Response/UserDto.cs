@@ -1,6 +1,6 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class UserDto: BaseDto
+public class UserDto: EntityDto
 {
     public string Username { get; set; }
     

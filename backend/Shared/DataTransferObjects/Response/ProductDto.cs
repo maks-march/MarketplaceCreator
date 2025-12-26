@@ -1,12 +1,14 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class ProductDto: BaseDto
+public class ProductDto: EntityDto
 {
     public string Title { get; set; }
     
     public decimal Price { get; set; }
     
     public string Description { get; set; } = string.Empty;
+    
+    public string[] ImageLinks { get; set; }
     
     public void CopyFrom(ProductDto other)
     {
@@ -16,6 +18,7 @@ public class ProductDto: BaseDto
         Title = other.Title;
         Price = other.Price;
         Description = other.Description;
+        ImageLinks = other.ImageLinks;
     }
 }
 

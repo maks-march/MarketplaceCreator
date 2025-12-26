@@ -18,6 +18,8 @@ public sealed class Product :
     
     public string Description { get; set; } = string.Empty;
     
+    public string[] ImageLinks { get; set; }
+    
     [Required(ErrorMessage = "Цена для продукта обязательна")]
     [Range(0.01, double.MaxValue, ErrorMessage = "Цена должна быть больше 0")]
     [Column(TypeName = "decimal(18,2)")]
@@ -35,6 +37,8 @@ public sealed class Product :
         {
             Title = dto.Title,
             Description = dto.Description,
+            Price = dto.Price,
+            ImageLinks = dto.ImageLinks,
             BrandId = dto.BrandId
         };
         return product;
@@ -45,6 +49,7 @@ public sealed class Product :
         Update((BaseDto)dto);
         Title = dto.Title ?? Title;
         Description = dto.Description ?? Description;
+        Price = dto.Price ?? Price;
     }
 
     public ProductDto GetUnlinkedDto()
@@ -55,7 +60,9 @@ public sealed class Product :
             Created = Created,
             Updated = Updated,
             Title = Title,
-            Description = Description
+            Description = Description,
+            Price = Price,
+            ImageLinks = ImageLinks,
         };
     }
 

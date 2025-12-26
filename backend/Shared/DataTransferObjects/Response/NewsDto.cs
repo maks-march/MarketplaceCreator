@@ -1,6 +1,6 @@
 namespace Shared.DataTransferObjects.Response;
 
-public class NewsDto: BaseDto
+public class NewsDto: EntityDto
 {
     
     public string Title { get; set; }

@@ -16,10 +16,13 @@ services:
 
   backend:
     build: ./backend/
+    user: "root"
     expose:
       - "5089"
     depends_on:
       - postgres
+    volumes:
+      - static:/staticfiles/
   
   frontend:
     build: ./frontend/
