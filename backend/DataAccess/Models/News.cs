@@ -13,6 +13,8 @@ public class News :
     [Required]
     public string Description { get; set; }
     
+    public string[] ImageLinks { get; set; }
+    
     [Required]
     public int BrandId { get; set; }
     

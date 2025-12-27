@@ -5,7 +5,8 @@
 
 
 .idea
-*/.idea
+*.idea
+.idea.backend
 # User-specific files
 *.rsuser
 *.suo

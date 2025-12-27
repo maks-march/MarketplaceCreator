@@ -21,6 +21,7 @@ services:
     depends_on:
       - postgres
     volumes:
+      - ./uploads:/staticfiles/uploads:rw
       - static:/staticfiles/
   
   frontend:

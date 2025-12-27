@@ -12,6 +12,7 @@ public class User : BaseModel, IBaseModel<User, UserLinkedDto, UserCreateDto, Us
     public string Patronymic { get; set; } = string.Empty;
     public string PasswordHash { get; set; }
     
+    public string AvatarLink { get; set; }
     public bool IsAdmin { get; set; } = false;
     
     public ICollection<Brand> Brands { get; set; } = new List<Brand>();
