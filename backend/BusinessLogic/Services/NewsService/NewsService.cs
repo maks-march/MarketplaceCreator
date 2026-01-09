@@ -11,7 +11,7 @@ public class NewsService(INewsRepository newsRepository):
     CrudService<News, NewsLinkedDto, NewsCreateDto, NewsUpdateDto>(newsRepository),
     INewsService
 {
-    protected async override Task<bool> CheckItem(News? item, int userId = -1, params string[] valuesCheck)
+    protected override async Task<bool> CheckItem(News? item, int userId = -1, params string[] valuesCheck)
     {
         base.CheckItem(item, userId, valuesCheck);
         if (item is null)
@@ -23,7 +23,7 @@ public class NewsService(INewsRepository newsRepository):
         return await Task.FromResult(true);
     }
 
-    protected async override Task<News> FillFromUser(News item, User user, CancellationToken cancellationToken)
+    protected override async Task<News> FillFromUser(News item, User user, CancellationToken cancellationToken)
     {
         var brand = user.Brands.FirstOrDefault(b => b.Id == item.BrandId);
         if (brand is null)

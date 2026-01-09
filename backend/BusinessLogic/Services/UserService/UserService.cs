@@ -11,7 +11,7 @@ public class UserService(IUserRepository userRepository) :
     CrudService<User, UserLinkedDto, UserCreateDto, UserUpdateDto>(userRepository),
     IUserService
 {
-    protected async override Task<bool> CheckItem(User? item, int userId = -1, params string[] valuesCheck)
+    protected override async Task<bool> CheckItem(User? item, int userId = -1, params string[] valuesCheck)
     {
         await base.CheckItem(item, userId, valuesCheck);
         if (item is null)
@@ -21,7 +21,7 @@ public class UserService(IUserRepository userRepository) :
         return await Task.FromResult(true);
     }
 
-    protected async override Task<User> FillFromUser(User item, User user, CancellationToken cancellationToken)
+    protected override async Task<User> FillFromUser(User item, User user, CancellationToken cancellationToken)
     {
         if (!user.IsAdmin)
         {
