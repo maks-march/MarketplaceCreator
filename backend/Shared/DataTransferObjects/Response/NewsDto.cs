@@ -2,10 +2,11 @@ namespace Shared.DataTransferObjects.Response;
 
 public class NewsDto: EntityDto
 {
-    
     public string Title { get; set; }
     
     public string Description { get; set; }
+    
+    public string[] ImageLinks { get; set; }
     
     public void CopyFrom(NewsDto other)
     {
@@ -14,6 +15,7 @@ public class NewsDto: EntityDto
         Updated = other.Updated;
         Title = other.Title;
         Description = other.Description;
+        ImageLinks = other.ImageLinks;
     }
 }
 

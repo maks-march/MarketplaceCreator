@@ -1,7 +1,6 @@
 using System.Security.Authentication;
 using DataAccess.Models;
 using DataAccess.Repositories;
-using Microsoft.AspNetCore.Http;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
@@ -14,26 +13,8 @@ internal class ProductService(IProductRepository productRepository) :
 {
     public override async Task CreateAsync(ProductCreateDto createDto, User user, CancellationToken cancellationToken = default)
     {
-        var imageUrls = new List<string>();
-        foreach (var image in createDto.ImageFiles)
-        {
-            string imageUrl = "";
-            if (image != null)
-            {
-                imageUrl = await SaveImageAsync(image, user.Id);
-            }
-            imageUrls.Add(imageUrl);
-        }
-
-        var noImageDto = new ProductCreateImageLinksDto
-        {
-            Title = createDto.Title,
-            Description = createDto.Description,
-            Price = createDto.Price,
-            BrandId = createDto.BrandId,
-            ImageLinks = imageUrls.ToArray()
-        };
-        var item = Product.Create(noImageDto);
+        var item = Product.Create(createDto);
+        item.ImageLinks = await SaveImagesAsync(createDto.ImageFiles, user.Id);
         item = await FillFromUser(item, user, cancellationToken);
         await productRepository.CreateAsync(item, cancellationToken);
     }
@@ -67,28 +48,5 @@ internal class ProductService(IProductRepository productRepository) :
             .Take(searchDto.PageSize)
             .Select(p => p.GetDto())
             .ToList();
-    }
-    
-    private async Task<string> SaveImageAsync(IFormFile file, int userId)
-    {
-        var fileExtension = Path.GetExtension(file.FileName);
-        var fileName = $"{Guid.NewGuid()}_{userId}{fileExtension}";
-    
-        var uploadsPath = Path.Combine("/staticfiles", "uploads");
-    
-        // ЕСЛИ НЕТ ПАПКИ - СОЗДАЕМ
-        if (!Directory.Exists(uploadsPath))
-            Directory.CreateDirectory(uploadsPath);
-    
-        var fullPath = Path.Combine(uploadsPath, fileName);
-    
-        // СОХРАНЯЕМ НА ДИСК
-        using (var stream = new FileStream(fullPath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-    
-        // ВОЗВРАЩАЕМ ОТНОСИТЕЛЬНЫЙ ПУТЬ
-        return $"/uploads/{fileName}";
     }
 }

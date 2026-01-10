@@ -1,7 +1,7 @@
 using System.Security.Authentication;
 using DataAccess.Models;
 using DataAccess.Repositories;
-using Shared.Exceptions;
+using Microsoft.AspNetCore.Http;
 
 namespace BusinessLogic.Services;
 
@@ -51,5 +51,44 @@ public class CrudService<T, TDto, TCreateDto, TUpdateDto>(
     protected virtual async Task<T> FillFromUser(T item, User user, CancellationToken cancellationToken)
     {
         return item;
+    }
+    
+    protected virtual async Task<string[]> SaveImagesAsync(IFormFile[] images, int userId)
+    {
+        var imageUrls = new List<string>();
+        foreach (var image in images)
+        {
+            string imageUrl = "";
+            if (image != null)
+            {
+                imageUrl = await SaveImageAsync(image, userId);
+            }
+            imageUrls.Add(imageUrl);
+        }
+
+        return imageUrls.ToArray();
+    }
+    
+    private async Task<string> SaveImageAsync(IFormFile file, int userId, string path = "uploads")
+    {
+        var fileExtension = Path.GetExtension(file.FileName);
+        var fileName = $"{Guid.NewGuid()}_{userId}{fileExtension}";
+    
+        var uploadsPath = Path.Combine("/staticfiles", path);
+    
+        // ЕСЛИ НЕТ ПАПКИ - СОЗДАЕМ
+        if (!Directory.Exists(uploadsPath))
+            Directory.CreateDirectory(uploadsPath);
+    
+        var fullPath = Path.Combine(uploadsPath, fileName);
+    
+        // СОХРАНЯЕМ НА ДИСК
+        using (var stream = new FileStream(fullPath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+    
+        // ВОЗВРАЩАЕМ ОТНОСИТЕЛЬНЫЙ ПУТЬ
+        return $"/uploads/{fileName}";
     }
 }

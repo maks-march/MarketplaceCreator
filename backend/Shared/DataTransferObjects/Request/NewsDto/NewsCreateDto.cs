@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Shared.DataTransferObjects;
 
@@ -13,4 +14,6 @@ public class NewsCreateDto : BaseDto
     
     [Required(ErrorMessage = "Указание бренда обязательно")]
     public int BrandId { get; set; }
+    
+    public IFormFile[] ImageFiles { get; set; }
 }

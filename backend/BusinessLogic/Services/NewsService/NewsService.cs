@@ -11,6 +11,14 @@ public class NewsService(INewsRepository newsRepository):
     CrudService<News, NewsLinkedDto, NewsCreateDto, NewsUpdateDto>(newsRepository),
     INewsService
 {
+    public override async Task CreateAsync(NewsCreateDto createDto, User user, CancellationToken cancellationToken = default)
+    {
+        var item = News.Create(createDto);
+        item.ImageLinks = await SaveImagesAsync(createDto.ImageFiles, user.Id);
+        item = await FillFromUser(item, user, cancellationToken);
+        await newsRepository.CreateAsync(item, cancellationToken);
+    }
+    
     protected override async Task<bool> CheckItem(News? item, int userId = -1, params string[] valuesCheck)
     {
         base.CheckItem(item, userId, valuesCheck);

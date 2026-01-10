@@ -18,6 +18,8 @@ public class News :
     
     public Brand Brand { get; set; }
     
+    public string[] ImageLinks { get; set; }
+    
     public static News Create(NewsCreateDto dto)
     {
         if (dto == null || dto.Title == null)
@@ -46,7 +48,8 @@ public class News :
             Created = Created,
             Updated = Updated,
             Title = Title,
-            Description = Description
+            Description = Description,
+            ImageLinks = ImageLinks,
         };
     }
     

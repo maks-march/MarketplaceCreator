@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Shared.DataTransferObjects;
@@ -39,22 +38,6 @@ public sealed class Product :
             Description = dto.Description,
             Price = dto.Price,
             BrandId = dto.BrandId
-        };
-        return product;
-    }
-    
-    
-    public static Product Create(ProductCreateImageLinksDto linksDto)
-    {
-        if (linksDto == null || linksDto.Title == null)
-            throw new ArgumentNullException(nameof(linksDto));
-        var product = new Product()
-        {
-            Title = linksDto.Title,
-            Description = linksDto.Description,
-            Price = linksDto.Price,
-            ImageLinks = linksDto.ImageLinks,
-            BrandId = linksDto.BrandId
         };
         return product;
     }
