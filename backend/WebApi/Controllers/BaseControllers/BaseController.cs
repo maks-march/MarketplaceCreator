@@ -2,7 +2,7 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.BaseControllerrs;
 
 public abstract class BaseController() : ControllerBase
 {

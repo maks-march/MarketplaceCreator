@@ -1,11 +1,10 @@
 using System.Security.Authentication;
 using DataAccess.Models;
-using DataAccess.Repositories;
-using Shared.DataTransferObjects;
+using DataAccess.Repositories.BrandRepository;
+using Shared.DataTransferObjects.Request.BrandDto;
 using Shared.DataTransferObjects.Response;
-using Shared.Exceptions;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.BrandService;
 
 public class BrandService(IBrandRepository brandRepository) : 
     CrudService<Brand, BrandLinkedDto, BrandCreateDto, BrandUpdateDto>(brandRepository),

@@ -1,7 +1,7 @@
-using BusinessLogic.Services;
+using BusinessLogic.Services.UserService;
 using DataAccess.Models;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.BaseControllerrs;
 
 public class NeedAuthController(IUserService userService) : BaseController
 {

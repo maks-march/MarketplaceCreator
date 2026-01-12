@@ -1,10 +1,10 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.ProductService;
 
 public interface IProductService : 
-    ICrudService<ProductLinkedDto, ProductCreateDto, ProductUpdateDto>,
+    ICrudService<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>,
     IManyService<Product, ProductLinkedDto, ProductSearchDto>
 { }

@@ -1,17 +1,19 @@
-using BusinessLogic.Services;
 using BusinessLogic.Services.NewsService;
+using BusinessLogic.Services.UserService;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.NewsController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/news")]
 [ApiVersion("1.0")]
 public class NewsController(INewsService newsService, IUserService userService) :
-    BaseCrudController<NewsLinkedDto, NewsCreateDto, NewsUpdateDto>(newsService, userService)
+    BaseCrudController<News, NewsLinkedDto, NewsCreateDto, NewsUpdateDto>(newsService, userService)
 {
     [Authorize]
     [MapToApiVersion("1.0")]

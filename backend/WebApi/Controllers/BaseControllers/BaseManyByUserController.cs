@@ -1,9 +1,9 @@
 using BusinessLogic.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.BaseControllerrs;
 
 [ApiVersion("1.0")]
 public class BaseManyByUserController<T,TDto,TSearchDto>(IManyService<T,TDto,TSearchDto> service) : 

@@ -1,10 +1,13 @@
-using BusinessLogic.Services;
-using DataAccess.Models;
+using BusinessLogic.Services.AuthService;
+using BusinessLogic.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.AuthDto;
+using Shared.DataTransferObjects.Request.UserDto;
+using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.AuthController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/auth")]

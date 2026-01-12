@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DataTransferObjects;
+namespace Shared.DataTransferObjects.Request.NewsDto;
 
 public class NewsUpdateDto : BaseDto
 {

@@ -1,17 +1,19 @@
 using System.Security.Authentication;
-using BusinessLogic.Services;
+using BusinessLogic.Services.UserService;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.UsersController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/users")]
 [ApiVersion("1.0")]
 public class UserController(IUserService userService): 
-    BaseCrudController<UserLinkedDto, UserCreateDto, UserUpdateDto>(userService, userService)
+    BaseCrudController<User, UserLinkedDto, UserCreateDto, UserUpdateDto>(userService, userService)
 {
     [Authorize]
     [HttpDelete("{id:int}")]

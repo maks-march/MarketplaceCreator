@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 
-namespace Shared.DataTransferObjects;
+namespace Shared.DataTransferObjects.Request.NewsDto;
 
 public class NewsCreateDto : BaseDto
 {

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DataTransferObjects;
+namespace Shared.DataTransferObjects.Request.BrandDto;
 
 public class BrandUpdateDto : BaseDto
 {

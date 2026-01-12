@@ -1,9 +1,9 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.UserRepository;
 
 public class UserRepository(AppContext context) : IUserRepository
 {

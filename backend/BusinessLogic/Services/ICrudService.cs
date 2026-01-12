@@ -2,9 +2,10 @@ using DataAccess.Models;
 
 namespace BusinessLogic.Services;
 
-public interface ICrudService<TDto, TCreateDto, TUpdateDto>
+public interface ICrudService<T, TDto, TCreateDto, TUpdateDto>
 {
     Task<TDto> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<T> GetByIdModelAsync(int id, CancellationToken cancellationToken = default);
     
     Task CreateAsync(TCreateDto createDto, User user, CancellationToken cancellationToken = default);
     

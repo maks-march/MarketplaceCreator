@@ -1,12 +1,13 @@
 using BusinessLogic.Services;
+using BusinessLogic.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.BaseControllerrs;
 
 [ApiVersion("1.0")]
-public class BaseCrudController<TDto, TCreateDto, TUpdateDto>(
-        ICrudService<TDto, TCreateDto, TUpdateDto> service, 
+public class BaseCrudController<T, TDto, TCreateDto, TUpdateDto>(
+        ICrudService<T, TDto, TCreateDto, TUpdateDto> service, 
         IUserService userService) : 
     NeedAuthController(userService)
 {

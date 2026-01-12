@@ -1,6 +1,6 @@
 using DataAccess.Models;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.RefreshtokenRepository;
 
 public interface IRefreshTokenRepository
 {

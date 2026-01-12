@@ -1,7 +1,8 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
+using DataAccess.Repositories.CrudRepository;
+using Shared.DataTransferObjects.Request.BrandDto;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.BrandRepository;
 
 public interface IBrandRepository : ICrudRepository<Brand, BrandUpdateDto>
 {

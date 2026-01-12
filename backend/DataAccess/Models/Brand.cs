@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.BrandDto;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;

@@ -1,11 +1,11 @@
 using System.Security.Authentication;
 using DataAccess.Models;
-using DataAccess.Repositories;
-using Shared.DataTransferObjects;
+using DataAccess.Repositories.UserRepository;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.UserService;
 
 public class UserService(IUserRepository userRepository) : 
     CrudService<User, UserLinkedDto, UserCreateDto, UserUpdateDto>(userRepository),

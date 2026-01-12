@@ -1,7 +1,13 @@
 using DataAccess.Repositories;
+using DataAccess.Repositories.BrandRepository;
+using DataAccess.Repositories.CartRepository;
 using DataAccess.Repositories.NewsRepository;
+using DataAccess.Repositories.ProductRepository;
+using DataAccess.Repositories.RefreshtokenRepository;
+using DataAccess.Repositories.UserRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using WebApi.Controllers.CartsController;
 
 namespace DataAccess;
 
@@ -14,6 +20,7 @@ public static class Extensions
         serviceCollection.AddScoped<IBrandRepository, BrandRepository>();
         serviceCollection.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         serviceCollection.AddScoped<INewsRepository, NewsRepository>();
+        serviceCollection.AddScoped<ICartRepository, CartRepository>();
         
         serviceCollection.AddDbContext<AppContext>(x =>
         {

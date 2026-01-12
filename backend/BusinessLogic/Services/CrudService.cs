@@ -1,23 +1,29 @@
 using System.Security.Authentication;
 using DataAccess.Models;
-using DataAccess.Repositories;
+using DataAccess.Repositories.CrudRepository;
 using Microsoft.AspNetCore.Http;
+using Shared.Exceptions;
 
 namespace BusinessLogic.Services;
 
 public class CrudService<T, TDto, TCreateDto, TUpdateDto>(
         ICrudRepository<T, TUpdateDto> repository
     ) : 
-    ICrudService<TDto, TCreateDto, TUpdateDto> 
+    ICrudService<T, TDto, TCreateDto, TUpdateDto> 
     where T : IBaseModel<T, TDto, TCreateDto, TUpdateDto>
 {
     public virtual async Task<TDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        var item = await repository.GetByIdAsync(id, cancellationToken);
-        await CheckItem(item);
-        return item!.GetDto();
+        var item = await GetByIdModelAsync(id, cancellationToken);
+        return item.GetDto();
     }
 
+    public async Task<T> GetByIdModelAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var item = await repository.GetByIdAsync(id, cancellationToken);
+        await CheckItem(item);
+        return item!;
+    }
 
     public virtual async Task CreateAsync(TCreateDto createDto, User user, CancellationToken cancellationToken = default)
     {
@@ -25,7 +31,6 @@ public class CrudService<T, TDto, TCreateDto, TUpdateDto>(
         item = await FillFromUser(item, user, cancellationToken);
         await repository.CreateAsync(item, cancellationToken);
     }
-
 
     public virtual async Task UpdateByIdAsync(int id, TUpdateDto updateDto, int userId, CancellationToken cancellationToken = default)
     {        
@@ -43,8 +48,10 @@ public class CrudService<T, TDto, TCreateDto, TUpdateDto>(
     
     protected virtual async Task<bool> CheckItem(T? item, int userId = -1, params string[] valuesCheck)
     {
+        if (item is null)
+            throw new NotFoundException("Данный ресурс не найден");
         if (userId == 0)
-            throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
+            throw new AuthenticationException("Данный пользователь не может редактировать этот ресурс");
         return await Task.FromResult(true);
     }
     

@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Shared.DataTransferObjects;
 
-namespace DataAccess.Models;
+namespace Shared.DataTransferObjects.Request.AuthDto;
 
 public class RefreshRequest : BaseDto
 {

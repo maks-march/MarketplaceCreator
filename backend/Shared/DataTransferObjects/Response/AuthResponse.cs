@@ -1,6 +1,4 @@
-using Shared.DataTransferObjects.Response;
-
-namespace DataAccess.Models;
+namespace Shared.DataTransferObjects.Response;
 
 public class AuthResponse
 {

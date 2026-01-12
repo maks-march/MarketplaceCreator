@@ -7,6 +7,8 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
 {
     public DbSet<Product> Products { get; set; }
     public DbSet<User> Users { get; set; }
+    
+    public DbSet<Cart> Carts { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<News> News { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -51,6 +53,7 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
         modelBuilder.Entity<User>().Property(n => n.Username).IsRequired();
         modelBuilder.Entity<User>().Property(n => n.PasswordHash).IsRequired();
         
+        // Брэнд
         modelBuilder.Entity<Brand>().HasKey(n => n.Id);
         modelBuilder.Entity<Brand>().Property(n => n.Name).IsRequired();
         
@@ -58,6 +61,17 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
             .HasMany(u => u.Brands)
             .WithMany(b => b.Users)
             .UsingEntity(j => j.ToTable("UserBrands"));
+        
+        // Корзина
+        modelBuilder.Entity<Cart>().HasKey(n => n.Id);
+        modelBuilder.Entity<Cart>()
+            .HasMany(c => c.Products)
+            .WithOne();
+        modelBuilder.Entity<Cart>()
+            .HasOne(c => c.User)
+            .WithOne(u => u.Cart)
+            .HasForeignKey<Cart>(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         
         base.OnModelCreating(modelBuilder);
     }

@@ -1,8 +1,9 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.AuthDto;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.AuthService;
 
 public interface IAuthService
 {

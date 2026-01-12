@@ -1,7 +1,7 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.RefreshtokenRepository;
 
 internal class RefreshTokenRepository(AppContext context) : IRefreshTokenRepository
 {

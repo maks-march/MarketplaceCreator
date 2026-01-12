@@ -1,8 +1,8 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
-using Shared.DataTransferObjects.Response;
+using DataAccess.Repositories.CrudRepository;
+using Shared.DataTransferObjects.Request.ProductDto;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.ProductRepository;
 
 public interface IProductRepository : ICrudRepository<Product, ProductUpdateDto>
 {

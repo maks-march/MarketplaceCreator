@@ -1,8 +1,7 @@
 using DataAccess.Models;
 using Microsoft.EntityFrameworkCore;
-using Shared.DataTransferObjects;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.CrudRepository;
 
 public class CrudRepository<T, TDto, TCreateDto, TUpdateDto>(AppContext context) : ICrudRepository<T, TUpdateDto> 
     where T : BaseModel, IBaseModel<T, TDto, TCreateDto, TUpdateDto>

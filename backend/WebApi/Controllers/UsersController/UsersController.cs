@@ -1,10 +1,11 @@
-using BusinessLogic.Services;
+using BusinessLogic.Services.UserService;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.UsersController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/users")]

@@ -1,16 +1,19 @@
-using BusinessLogic.Services;
+using BusinessLogic.Services.ProductService;
+using BusinessLogic.Services.UserService;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.ProductsController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/products")]
 [ApiVersion("1.0")]
 public class ProductController(IProductService productService, IUserService userService) :
-    BaseCrudController<ProductLinkedDto, ProductCreateDto, ProductUpdateDto>(productService, userService)
+    BaseCrudController<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>(productService, userService)
 {
     [Authorize]
     [MapToApiVersion("1.0")]

@@ -1,7 +1,4 @@
-using DataAccess.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.CrudRepository;
 
 public interface ICrudRepository<T, TUpdateDto>
 {

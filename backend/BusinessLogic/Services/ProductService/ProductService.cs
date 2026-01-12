@@ -1,11 +1,11 @@
 using System.Security.Authentication;
 using DataAccess.Models;
-using DataAccess.Repositories;
-using Shared.DataTransferObjects;
+using DataAccess.Repositories.ProductRepository;
+using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.ProductService;
 
 internal class ProductService(IProductRepository productRepository) : 
     CrudService<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>(productRepository),

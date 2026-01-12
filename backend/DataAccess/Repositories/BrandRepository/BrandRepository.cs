@@ -1,9 +1,10 @@
 using DataAccess.Models;
+using DataAccess.Repositories.CrudRepository;
 using Microsoft.EntityFrameworkCore;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.BrandDto;
 using Shared.DataTransferObjects.Response;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.BrandRepository;
 
 public class BrandRepository(AppContext context) : 
     CrudRepository<Brand, BrandLinkedDto, BrandCreateDto, BrandUpdateDto>(context),

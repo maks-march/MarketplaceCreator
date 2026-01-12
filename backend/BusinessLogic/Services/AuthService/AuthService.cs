@@ -3,14 +3,16 @@ using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using DataAccess.Models;
-using DataAccess.Repositories;
+using DataAccess.Repositories.RefreshtokenRepository;
+using DataAccess.Repositories.UserRepository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.AuthDto;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
-namespace BusinessLogic.Services;
+namespace BusinessLogic.Services.AuthService;
 
 public class AuthService(IUserRepository userRepository, IRefreshTokenRepository tokenRepository, IConfiguration configuration) : IAuthService
 {

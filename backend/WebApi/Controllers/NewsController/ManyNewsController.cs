@@ -1,10 +1,11 @@
 using BusinessLogic.Services.NewsService;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.NewsController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/news")]

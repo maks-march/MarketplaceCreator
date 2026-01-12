@@ -1,6 +1,8 @@
 using DataAccess.Models;
+using DataAccess.Repositories.CrudRepository;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories.NewsRepository;

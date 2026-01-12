@@ -1,8 +1,9 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
+using DataAccess.Repositories.CrudRepository;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.UserRepository;
 
 public interface IUserRepository : ICrudRepository<User, UserUpdateDto>
 {

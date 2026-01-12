@@ -1,10 +1,11 @@
-using BusinessLogic.Services;
+using BusinessLogic.Services.ProductService;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.ProductsController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/products")]

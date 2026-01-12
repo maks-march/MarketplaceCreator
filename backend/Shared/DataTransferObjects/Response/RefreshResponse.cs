@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace DataAccess.Models;
+namespace Shared.DataTransferObjects.Response;
 
 public class RefreshResponse
 {

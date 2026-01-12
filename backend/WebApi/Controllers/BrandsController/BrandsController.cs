@@ -1,10 +1,11 @@
-using BusinessLogic.Services;
+using BusinessLogic.Services.BrandService;
 using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.BrandDto;
 using Shared.DataTransferObjects.Response;
+using WebApi.Controllers.BaseControllerrs;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.BrandsController;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/brands")]

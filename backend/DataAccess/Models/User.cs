@@ -1,4 +1,5 @@
 using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Models;
@@ -15,6 +16,8 @@ public class User : BaseModel, IBaseModel<User, UserLinkedDto, UserCreateDto, Us
     public bool IsAdmin { get; set; } = false;
     
     public ICollection<Brand> Brands { get; set; } = new List<Brand>();
+    
+    public Cart Cart { get; set; }
     
     public int RefreshTokenId { get; set; }
     public RefreshToken RefreshToken { get; set; }

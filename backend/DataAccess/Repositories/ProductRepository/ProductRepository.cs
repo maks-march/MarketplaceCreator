@@ -1,9 +1,10 @@
 using DataAccess.Models;
+using DataAccess.Repositories.CrudRepository;
 using Microsoft.EntityFrameworkCore;
-using Shared.DataTransferObjects;
+using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
 
-namespace DataAccess.Repositories;
+namespace DataAccess.Repositories.ProductRepository;
 
 internal class ProductRepository(AppContext context) : 
     CrudRepository<Product, ProductLinkedDto, ProductCreateDto, ProductUpdateDto>(context),
