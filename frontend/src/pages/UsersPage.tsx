@@ -3,7 +3,7 @@ import PageLayout from '../components/PageLayout';
 import UserEditModal from '../components/UserEditModal';
 import UserAddModal from '../components/UserAddModal';
 import usersIcon from '../assets/Groups.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/UsersPage.css';
 
 type UserRow = {

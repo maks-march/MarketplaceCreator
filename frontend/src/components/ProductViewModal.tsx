@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import xIcon from '../assets/X.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/NewsPage.css';
 import { normalizeProductImageUrls } from '../utils/productImages';
 

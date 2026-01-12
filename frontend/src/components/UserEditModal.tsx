@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import xIcon from '../assets/X.svg';
-import pencilIcon from '../assets/pencil.svg';
+import pencilIcon from '../assets/Pencil.svg';
 import '../styles/UsersPage.css';
 
 type UserData = {
