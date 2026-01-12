@@ -1,5 +1,4 @@
 using BusinessLogic.Services.ProductService;
-using BusinessLogic.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request.CartDto;

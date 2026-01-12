@@ -30,7 +30,7 @@ export interface CreateProductRequest {
 }
 
 export interface ProductsResponse {
-    users: Product[];
+    products: Product[];
     page: number;
     pageSize: number;
     // nextPage?: string;

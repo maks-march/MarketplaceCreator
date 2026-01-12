@@ -107,8 +107,8 @@
 }
 
 .brands-page__title {
-  font-size: 36px;   /* размер оставляем как раньше */
-  font-weight: 400;  /* убрали сильное жирное начертание */
+  font-size: 3.2em !important; /* Увеличили */
+  font-weight: 700 !important; /* Жирный */
   margin: 0;
 }
 
@@ -120,6 +120,23 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* Обёртка, чтобы выровнять кнопку по правой грани таблицы */
+.brands-table-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* таблица по центру как и была */
+}
+
+/* Полоса для кнопки над таблицей — той же ширины, что таблица */
+.brands-table-actions {
+  display: flex;
+  justify-content: flex-end; /* Прижимаем вправо */
+  margin-bottom: 10px;
+  width: 100%; /* Ширина как у таблицы */
+  margin-top: 18px;       /* отступ сверху (как у блока заголовка) */
+  margin-bottom: 18px;    /* отступ до таблицы */
+}
+
 /* Шапка таблицы */
 .brands-table__header {
   display: grid;
@@ -129,6 +146,23 @@
   font-weight: 400;      /* как в макете */
   font-size: 24px;       /* ← размер текста шапки */
   height: 76px;
+}
+
+/* Кнопка "Добавить" в шапке таблицы брендов (как на новостях) */
+.brands-table__add-btn {
+  margin-left: auto;
+  background: #54AC34;
+  color: #000 !important; /* Был белый, стал черный */
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.brands-table__add-btn:hover {
+  filter: brightness(0.95);
 }
 
 /* ячейки шапки */
@@ -260,20 +294,27 @@
   font-weight: 700;
 }
 
+/* Миниатюра логотипа как в новостях: картинка вписывается в фиксированный блок */
 .brands-table__img-placeholder {
-  display: inline-flex;
+  width: 64px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 32px;
-  border-radius: 6px;
-  background-color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
+  background: rgba(255,255,255,0.7);
+}
+
+.brands-table__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .brands-table__cell--name { justify-content: center; }
-.brands-table__name { font-size: 16px; }
+.brands-table__name { font-size: 24px; }
 .brands-table__cell--country,
 .brands-table__cell--category { justify-content: center; }
 .brands-table__cell--actions { justify-content: center; }

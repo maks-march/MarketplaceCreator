@@ -32,7 +32,7 @@
 /* заголовок слева */
 .users-page__title {
   margin: 0;
-  font-size: 20px;
+  font-size: 3.2em !important;
   font-weight: 700;
 }
 
@@ -40,8 +40,8 @@
 .users-page__add-btn {
   margin-left: auto;
   margin-right: 65px; /* сдвиг влево от правого края на 100px */
-  background: #1f8a2a; /* зелёный, поменяй при необходимости */
-  color: #fff;
+  background: #7AC142 !important; /* зелёный, поменяй при необходимости */
+  color: #000 !important;
   border: none;
   padding: 8px 14px;
   border-radius: 8px;
@@ -249,13 +249,34 @@
   border-radius: 8px;
   font-size: 16px;
   box-sizing: border-box;
-  background-color: #fff; /* Белый фон */
-  color: #000;            /* Черный текст */
+  background-color: #fff !important; /* Белый фон */
+  color: #111 !important;            /* Черный текст */
+  caret-color: #111 !important;
 }
 
 .users-modal__input:focus {
   outline: none;
   border-color: #54AC34;
+}
+
+.users-modal__input,
+.users-modal__input input,
+.users-modal__input textarea,
+.users-modal__input select,
+.users-modal__content-area input,
+.users-modal__content-area textarea,
+.users-modal__content-area select {
+  color: #111 !important;
+  caret-color: #111 !important;
+  background: #fff !important;
+}
+
+/* Chrome autofill */
+.users-modal__content-area input:-webkit-autofill,
+.users-modal__content-area input:-webkit-autofill:hover,
+.users-modal__content-area input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #111 !important;
+  -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
 }
 
 /* Футер с кнопками */

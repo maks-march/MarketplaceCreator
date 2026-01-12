@@ -1,0 +1,264 @@
+.pe-page{
+  width: 100%;
+  padding: 24px 0 40px;
+}
+
+.pe-shell{
+  width: min(1280px, 96vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.pe-shell.pe-shell--stack{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* было stretch */
+  gap: 26px;
+  width: min(1280px, 96vw);
+}
+
+/* ✅ Сдвиг всего контента влево в пределах оболочки */
+.pe-shell.pe-shell--left{
+  margin-left: 0;
+  margin-right: 0;
+  width: min(1280px, 96vw);
+}
+
+.pe-left{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.pe-left.pe-left--top{
+  align-items: flex-start; /* было center */
+}
+
+/* ✅ Левый блок тоже прижимаем */
+.pe-left.pe-left--top.pe-left--flush{
+  align-items: flex-start;
+}
+
+.pe-avatar{
+  width: 220px;
+  height: 220px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eee;
+}
+
+/* ✅ Аватар кликабельный (вместо кнопки) */
+.pe-avatar--click{
+  cursor: pointer;
+}
+.pe-avatar--click:focus,
+.pe-avatar--click:active,
+.pe-avatar--click:focus-visible{
+  outline: none;
+  box-shadow: none;
+}
+
+.pe-avatar-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pe-avatar-empty{
+  width: 100%;
+  height: 100%;
+  background: #e6e6e6;
+}
+
+.pe-avatar-btn{
+  background: #eaf6c7;
+  border: 1px solid #7AC142;
+  color: #111;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-weight: 700;
+}
+
+.pe-avatar-btn:focus,
+.pe-avatar-btn:active,
+.pe-avatar-btn:focus-visible{
+  outline: none;
+  box-shadow: none;
+}
+
+.pe-right{
+  padding-top: 10px;
+}
+
+.pe-right.pe-right--below{
+  width: 100%;
+  max-width: none;    /* снимаем ограничение, чтобы не было разных "внутренних центров" */
+  margin: 0;          /* было 0 auto */
+}
+
+/* ✅ Убираем авто-центрирование формы, когда хотим “прижать к левому краю” */
+.pe-right.pe-right--below.pe-right--flush{
+  margin: 0;          /* было auto */
+  max-width: 980px;   /* оставляем ограничение, но без центрирования */
+}
+
+.pe-error{
+  background: #fee;
+  color: #c33;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.pe-row{
+  margin-bottom: 20px;
+  width: min(980px, 96vw);
+}
+
+/* Поля ввода: Сетка с фиксированной правой колонкой (360px для "Текущий...") */
+.pe-rowline{
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: center;
+  width: 100%;
+}
+
+.pe-label{
+  font-size: 28px;
+  font-weight: 900;
+  color: #111;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.pe-input{
+  width: 100%;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.10);
+  padding: 0 18px;
+  background: #f3f3f3;
+  color: #111;
+  caret-color: #111;
+}
+
+.pe-current{
+  margin-top: 10px;
+  color: #777;
+  font-size: 18px;
+}
+
+.pe-current.pe-current--side{
+  margin-top: 0;
+  white-space: nowrap;
+  color: #777;
+  font-size: 18px;
+}
+
+/* ✅ Убираем горизонтальный скролл на узких ширинах:
+   справа "Текущий: ..." не должен распирать строку */
+@media (max-width: 1180px){
+  .pe-current.pe-current--side{
+    white-space: normal;   /* вместо nowrap */
+    max-width: 280px;
+    text-align: left;
+  }
+}
+
+.pe-actions{
+  margin-top: 28px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.pe-btn{
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-weight: 800;
+}
+
+.pe-btn-primary{
+  background: #95DA46;
+  border: none;
+  color: #111;
+}
+
+.pe-btn-secondary{
+  background: transparent;
+  border: none;
+  color: #777;
+  text-decoration: underline;
+}
+
+.pe-btn-outline{
+  background: #eaf6c7;
+  border: 1px solid #7AC142;
+  color: #111;
+  justify-self: start;
+}
+
+.pe-btn:focus,
+.pe-btn:active,
+.pe-btn:focus-visible{
+  outline: none;
+  box-shadow: none;
+}
+
+.pe-password-area{
+  margin-top: 18px;
+}
+
+/* ✅ Нижняя панель кнопок */
+.pe-footerbar{
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 360px; /* Та же ширина правой колонки */
+  gap: 24px;
+  align-items: center;
+}
+
+.pe-footer-actions{
+  display: flex;
+  justify-content: flex-end; /* Прижимаем вправо внутри своей колонки */
+  gap: 12px;
+  width: 100%;
+}
+
+/* На узких экранах оставляем столбиком */
+@media (max-width: 980px){
+  .pe-shell{
+    grid-template-columns: 1fr;
+  }
+  .pe-actions{
+    justify-content: space-between;
+  }
+  .pe-rowline{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .pe-current.pe-current--side{
+    white-space: normal;
+  }
+  .pe-footerbar{
+    grid-template-columns: 1fr;
+    gap: 16px;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .pe-footer-actions{
+    width: 100%;
+    justify-content: flex-end; /* Или space-between */
+  }
+  .pe-row{
+    width: 96vw;
+  }
+}

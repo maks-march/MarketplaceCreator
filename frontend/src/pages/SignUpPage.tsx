@@ -1,52 +1,45 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import '../styles/SignUpPage.css';
 import '../styles/AuthShell.css';
+// ИСПРАВЛЕНИЕ: Подключаем существующий файл стилей
 import '../styles/LoginPage.css'; 
-import type { RegisterRequest } from '../services/api/auth/auth.types';
-import { authApi } from '../services/api';
 
 const SignUpPage: React.FC = () => {
-  const [error, setError] = useState<string[]>([]);
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
-    name: '',
-    surname: '',
+    lastName: '',
+    firstName: '',
     patronymic: '',
-    username: '',
+    login: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
+  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-
     if (formData.password !== formData.confirmPassword) {
-      setError(['Пароли не совпадают']);
+      setError('Пароли не совпадают');
       return;
     }
-    const registerRequest: RegisterRequest = {
-      email: formData.email,
-      name: formData.name,
-      surname: formData.surname,
-      username: formData.username,
-      password: formData.password,
-      patronymic: formData.patronymic || undefined,
-    };
-    const result = await authApi.register(registerRequest)
-      
-    if (result.success) {
-      navigate('/login');
-    } else {
-      setError(result.errors ?? ['Неизвестная ошибка']);
-    }
-    return;
+    const ok = signup(
+      formData.email,
+      formData.lastName,
+      formData.firstName,
+      formData.patronymic,
+      formData.login,
+      formData.password
+    );
+    if (!ok) setError('Логин или email уже заняты');
+    else navigate('/login');
   };
 
   return (
@@ -63,18 +56,7 @@ const SignUpPage: React.FC = () => {
           <h2 className="signup-title">Регистрация</h2>
           <div className="signup-card">
             <form onSubmit={handleSubmit} className="signup-form">
-              {error && (
-                <div>
-                  {Array.isArray(error) 
-                    ? error.map((err, index) => (
-                        <div className="signup-error" key={index}>
-                          {err}
-                          {index < error.length - 1 && <br />}
-                        </div>
-                      ))
-                    : error}
-                </div>
-              )}
+              {error && <div className="signup-error">{error}</div>}
 
               <label className="signup-label">Email:</label>
               <input
@@ -90,8 +72,8 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="surname"
-                value={formData.surname}
+                name="lastName"
+                value={formData.lastName}
                 onChange={handleChange}
                 placeholder="Иванов"
               />
@@ -100,8 +82,8 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="name"
-                value={formData.name}
+                name="firstName"
+                value={formData.firstName}
                 onChange={handleChange}
                 placeholder="Иван"
               />
@@ -120,10 +102,10 @@ const SignUpPage: React.FC = () => {
               <input
                 className="signup-input"
                 type="text"
-                name="username"
-                value={formData.username}
+                name="login"
+                value={formData.login}
                 onChange={handleChange}
-                placeholder="Логин"
+                placeholder="login"
               />
 
               <label className="signup-label">Пароль:</label>
@@ -133,7 +115,7 @@ const SignUpPage: React.FC = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Пароль"
+                placeholder="******"
               />
 
               <label className="signup-label">Повторите пароль:</label>
@@ -143,13 +125,13 @@ const SignUpPage: React.FC = () => {
                 name="confirmPassword"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="Повторите пароль"
+                placeholder="******"
               />
 
               <button type="submit" className="signup-btn">Зарегистрироваться</button>
               <div className="signup-link">
                 Уже есть аккаунт?{' '}
-                <button className="signup-link-btn" onClick={() => navigate('/login')}>
+                <button type="button" className="signup-link-btn" onClick={() => navigate('/login')}>
                   Войти
                 </button>
               </div>

@@ -3,14 +3,40 @@ import ReactDOM from 'react-dom';
 import xIcon from '../assets/X.svg';
 import pencilIcon from '../assets/Pencil.svg';
 import '../styles/NewsPage.css';
-import type { Product } from '../services/api/products/product.types';
+import { normalizeProductImageUrls } from '../utils/productImages';
 
 // helper глубокого клонирования
 const clone = <T,>(v: T): T => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  if (typeof (globalThis as any).structuredClone === 'function') return (globalThis as any).structuredClone(v);
+  if (typeof globalThis.structuredClone === 'function') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return globalThis.structuredClone(v);
+  }
   return JSON.parse(JSON.stringify(v));
+};
+
+const normalizeImages = (imgs: (number | string)[] | undefined): string[] => {
+  if (!Array.isArray(imgs)) return [];
+  return imgs
+    .filter((x): x is string => typeof x === 'string')
+    .map(s => s.trim())
+    .filter(Boolean);
+};
+
+type Product = {
+  id: number;
+  name?: string;
+  description?: string;
+  category?: string;
+  price?: number;
+  images?: (number | string)[];
+  shortInfo?: string; // новое поле для маленького инпута
+  brand?: string;
+  subcategory?: string;
+  color?: string;
+  quantity?: number;
 };
 
 type Props = {
@@ -34,41 +60,60 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
   const [isEditing, setIsEditing] = useState(false);
 
   // локальная копия продукта — чтобы сразу отображать изменения после Save
-  const [localProduct, setLocalProduct] = useState(product);
-  
+  const [localProduct, setLocalProduct] = useState<Product | null>(product ?? null);
+
   // количество удалённых (скрытых) заглушек — влияет только на число placeholder'ов в галерее
   const [removedPlaceholdersCount, setRemovedPlaceholdersCount] = useState(0);
 
   useEffect(() => {
-    setLocalProduct(product);
+    // при смене товара — сброс локального состояния под новый товар
+    setLocalProduct(product ? clone(product) : null);
+    setIsEditing(false);
+    setRemovedPlaceholdersCount(0);
   }, [product]);
 
   useEffect(() => {
-    if (open) {
-      setIsEditing(false);
-      document.body.style.overflow = 'hidden';
-    }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    if (open) window.addEventListener('keydown', onKey);
+    if (!open) return;
+
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      // ВАЖНО: никаких сохранений по клавишам
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+
     return () => {
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKey);
-      createdUrlsRef.current.forEach(u => URL.revokeObjectURL(u));
-      createdUrlsRef.current = [];
+      window.removeEventListener('keydown', onKeyDown, true);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, onClose]);
 
-  if (!open || !product) return null;
+  if (!open || !localProduct) return null;
 
-  // формируем вид галереи: реальные картинки располагаются слева, затем placeholders (с учётом
-  // того, что пользователь мог удалить часть заглушек — removedPlaceholdersCount)
-  const realImages = localProduct?.imageLinks ?? [];
+  // ✅ ЕДИНЫЙ источник картинок: localProduct.images
+  // product?.images может отставать/меняться иначе, из-за этого и появлялись рассинхроны
+  const imageUrls = normalizeProductImageUrls(localProduct?.images);
+
+  // формируем вид галереи: реальные картинки располагаются слева, затем placeholders
+  // ✅ реальные = нормализованные url
+  const realImages = imageUrls;
+
   const realCount = Math.min(realImages.length, 8);
   const extraCount = Math.max(0, realImages.length - 8);
-  const placeholdersToShow = Math.max(0, 8 - realCount - removedPlaceholdersCount);
+
   const visibleImages = realImages.slice(0, realCount);
-  // visibleImages — реальные изображения для рендера слева; placeholdersToShow — сколько пустых слотов рисовать
+
+  // ✅ Вернуть "удаление заглушек":
+  // базово плейсхолдеров = 8 - реальных картинок
+  // но пользователь может "удалить" часть пустых слотов -> уменьшаем их на removedPlaceholdersCount
+  const basePlaceholders = Math.max(0, 8 - visibleImages.length);
+  const placeholdersToShow = Math.max(0, basePlaceholders - removedPlaceholdersCount);
 
   // --- drag-to-scroll handlers ---
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -106,7 +151,7 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
   const handleFiles = (files: FileList | null) => {
     if (!files || files.length === 0) { addTargetIndexRef.current = null; return; }
 
-    const next = [...(localProduct?.imageLinks || [])];
+    const next = [...(localProduct?.images || [])];
     const realCount = next.filter(i => typeof i === 'string').length;
     const maxAllowed = Math.max(0, 10 - realCount);
     if (maxAllowed === 0) { addTargetIndexRef.current = null; return; }
@@ -131,10 +176,7 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
     }
 
     // сохраняем и сбрасываем target
-    setLocalProduct(prev => ({ 
-      ...(prev ?? {} as Product), 
-      imageLinks: next 
-    }));
+    setLocalProduct(prev => ({ ...(prev ?? {}), images: next }));
     addTargetIndexRef.current = null;
   };
 
@@ -145,10 +187,10 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
 
   // --- удаление реальной картинки (по индексу в realImages) ---
   const handleDeleteReal = (realIndex: number) => {
-    if (!localProduct?.imageLinks) return;
-    if (realIndex < 0 || realIndex >= localProduct.imageLinks.length) return;
+    if (!localProduct?.images) return;
+    if (realIndex < 0 || realIndex >= localProduct.images.length) return;
 
-    const img = localProduct.imageLinks[realIndex];
+    const img = localProduct.images[realIndex];
     if (typeof img === 'string') {
       // remove objectURL and file mapping if exists
       if (createdUrlsRef.current.includes(img)) {
@@ -160,19 +202,16 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
       }
     }
 
-    const next = localProduct.imageLinks.slice();
+    const next = localProduct.images.slice();
     next.splice(realIndex, 1);
-    setLocalProduct(prev => ({ 
-      ...(prev ?? {} as Product), 
-      imageLinks: next 
-    }));
+    setLocalProduct(prev => ({ ...(prev ?? {}), images: next }));
   };
 
   // --- удаление заглушки (только UI): уменьшаем число отображаемых заглушек,
   // реальные картинки при этом всегда остаются слева и будут занимать место ---
   const handleDeletePlaceholder = () => {
     setRemovedPlaceholdersCount(prev => {
-      const maxRemovable = Math.max(0, 8 - Math.min((localProduct?.imageLinks?.length ?? 0), 8));
+      const maxRemovable = Math.max(0, 8 - Math.min((localProduct?.images?.length ?? 0), 8));
       return Math.min(prev + 1, maxRemovable);
     });
   };
@@ -183,38 +222,57 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
     setIsEditing(false);
     setLocalProduct(product);
   };
-  const handleSave = () => {
+  const handleSave = (ev?: React.MouseEvent) => {
+    ev?.preventDefault();
+    ev?.stopPropagation();
+
     if (!localProduct) return;
 
-    // Пример: realImagesUrls — массив строк (objectURL или уже существующие url/id)
-    const imagesToSave = (localProduct.imageLinks || []).filter(i => typeof i === 'string') as string[];
+    const payload: Product = {
+      ...localProduct,
+      images: normalizeImages(localProduct.images),
+      name: (localProduct.name ?? '').toString(),
+      category: (localProduct.category ?? '').toString(),
+      shortInfo: (localProduct.shortInfo ?? '').toString(),
+      description: (localProduct.description ?? '').toString(),
+      brand: (localProduct.brand ?? '').toString(),
+      subcategory: (localProduct.subcategory ?? '').toString(),
+      color: (localProduct.color ?? '').toString(),
+      price: Number(localProduct.price ?? 0),
+      quantity: Number(localProduct.quantity ?? 0),
+    };
 
-    // Здесь нужно загрузить файлы filesMapRef.current на сервер и получить реальные URL.
-    // Пока — логируем файлы, которые нужно отправить.
-    const filesToUpload = Object.entries(filesMapRef.current).map(([url, file]) => ({ url, file }));
-    if (filesToUpload.length > 0) {
-      console.log('Файлы для загрузки на сервер:', filesToUpload);
-      // TODO: выполнить upload и заменить temporary objectURL на серверные URL в imagesToSave
-    }
-
-    // Передаём на верхний уровень localProduct — при необходимости замените на результат после upload
-    if (onSave) onSave({ ...(localProduct as Product), imageLinks: imagesToSave });
-    setIsEditing(false);
+    onSave?.(payload);
+    onClose(); // закрываем ТОЛЬКО после нажатия "Сохранить"
   };
 
-  // при изменении полей обновляем локальную копию и сразу оповещаем родителя (чтобы карточка на главной обновлялась)
+  // ❗️ВАЖНО: Никакого onSave тут быть не должно.
+  // Иначе родитель (MainPageAdmin) закроет модалку после любого ввода.
   const setField = (field: keyof Product, value: any) => {
     setLocalProduct(prev => {
-      const next = { ...(prev as Product), [field]: value };
-      // обновляем внешний список — родитель должен обновить products иммутабельно в onSave
-      if (onSave) onSave(clone(next));
+      const next = { ...(prev ?? {}), [field]: value } as Product;
       return next;
     });
   };
 
   return ReactDOM.createPortal(
-    <div className="news-modal__backdrop" onClick={onClose}>
-      <div className={`news-modal ${isEditing ? 'news-modal--editing' : ''}`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="news-modal__backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="news-modal"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDownCapture={(e) => {
+          // не даём событиям клавиатуры всплывать наружу
+          e.stopPropagation();
+        }}
+        role="dialog"
+        aria-modal="true"
+      >
         <div className="news-modal__header-row">
           <h2 className="news-modal__title" style={{ flex: 1, textAlign: 'center' }}>
             Просмотр товара
@@ -230,13 +288,13 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
             {isEditing ? (
               <input
                 className="news-modal__title-input"
-                value={localProduct?.title ?? ''}
-                onChange={(e) => setField('title', e.target.value)}
+                value={localProduct?.name ?? ''}
+                onChange={(e) => setField('name', e.target.value)}
                 placeholder="Название товара"
                 style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.08)', background: '#fff', color: '#000' }}
               />
             ) : (
-              <span>{localProduct?.title || 'Без названия'}</span>
+              <span>{localProduct?.name || 'Без названия'}</span>
             )}
           </div>
 
@@ -290,7 +348,7 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
           ))}
 
           {/* глобальная кнопка добавления — добавляет реальные картинки (append) */}
-          {(isEditing && ((localProduct?.imageLinks?.length || 0) < 10)) && (
+          {(isEditing && ((localProduct?.images?.length || 0) < 10)) && (
             <div className="news-modal__add-img-placeholder" onClick={(e) => { e.stopPropagation(); handleAddClick(e, null); }} title="Добавить изображение">
               <div className="news-modal__add-inner">+</div>
             </div>
@@ -324,31 +382,77 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
                 <option value="Одежда">Одежда</option>
               </select>
             </div>
-            {/* <div className="news-modal__grid-item">
+            <div className="news-modal__grid-item">
               <label className="news-modal__label">Бренд</label>
               <input value={localProduct?.brand ?? ''} onChange={(e) => setField('brand', e.target.value)} className="news-modal__input" />
-            </div> тут надо получить список брэндов пользователя и делать выбор из них, так как для создания продукта нужно передать barndId*/}
+            </div>
             <div className="news-modal__grid-item">
               <label className="news-modal__label">Цена</label>
               <input value={localProduct?.price?.toString() ?? ''} onChange={(e) => setField('price', e.target.value)} className="news-modal__input" />
             </div>
+
+            <div className="news-modal__grid-item">
+              <label className="news-modal__label">Подкатегория</label>
+              <input value={localProduct?.subcategory ?? ''} onChange={(e) => setField('subcategory', e.target.value)} className="news-modal__input" />
+            </div>
+            <div className="news-modal__grid-item">
+              <label className="news-modal__label">Цвет</label>
+              <select
+                value={localProduct?.color ?? ''}
+                onChange={(e) => setField('color', e.target.value)}
+                className="news-modal__input"
+                style={{ appearance: 'auto' }}
+              >
+                <option value="">Цвет...</option>
+                <option value="Белый">Белый</option>
+                <option value="Черный">Черный</option>
+                <option value="Серый">Серый</option>
+                <option value="Зеленый">Зеленый</option>
+                <option value="Красный">Красный</option>
+                <option value="Синий">Синий</option>
+                <option value="Желтый">Желтый</option>
+                <option value="Коричневый">Коричневый</option>
+              </select>
+            </div>
+            <div className="news-modal__grid-item">
+              <label className="news-modal__label">Количество</label>
+              <input value={localProduct?.quantity?.toString() ?? ''} onChange={(e) => setField('quantity', e.target.value)} className="news-modal__input" />
+            </div>
           </div>
         )}
 
-        {/* Описание */}
-        <div className="news-modal__content-area">
+        {/* Короткая информация / характеристики */}
+        <div className="news-modal__short-wrap">
           {isEditing ? (
             <textarea
-              className="news-modal__textarea"
-              placeholder="Описание товара"
-              value={localProduct?.description ?? ''}
-              onChange={(e) => setField('description', e.target.value)}
+              className="news-modal__short-input"
+              placeholder="Характеристики товара"
+              value={localProduct?.shortInfo ?? ''}
+              onChange={(e) => setField('shortInfo', e.target.value)}
             />
           ) : (
-            <p className="news-modal__text">
-              {localProduct?.description && localProduct.description.trim() ? localProduct.description : 'Описание товара'}
-            </p>
+            <div className="news-modal__short-display">
+              {localProduct?.shortInfo && localProduct.shortInfo.trim() ? localProduct.shortInfo : 'Характеристики товара'}
+            </div>
           )}
+        </div>
+
+        {/* Описание */}
+        <div className="news-modal__content-area">
+          <form onSubmit={(e) => e.preventDefault()}>
+            {isEditing ? (
+              <textarea
+                className="news-modal__textarea"
+                placeholder="Описание товара"
+                value={localProduct?.description ?? ''}
+                onChange={(e) => setField('description', e.target.value)}
+              />
+            ) : (
+              <p className="news-modal__text">
+                {localProduct?.description && localProduct.description.trim() ? localProduct.description : 'Описание товара'}
+              </p>
+            )}
+          </form>
 
           {/* кнопки: заменить обработчик Сохранить на handleSave */}
           <div className="news-modal__actions" style={{ alignItems: 'center' }}>
@@ -375,7 +479,7 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
 
             {/* right button: Сохранить (в режиме ред.) или Готово (в просмотре) — используем класс btn-done для правой зеленой кнопки */}
             {isEditing ? (
-              <button className="news-modal__btn-done" onClick={handleSave} type="button">
+              <button type="button" onClick={handleSave}>
                 Сохранить
               </button>
             ) : (

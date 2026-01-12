@@ -1,0 +1,4 @@
+/* Локальный скоуп — чтобы не ломать user */
+.admin-profile-page {
+  padding-bottom: 40px;
+}

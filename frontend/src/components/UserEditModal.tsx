@@ -22,6 +22,8 @@ type UserEditModalProps = {
   title?: string; // <-- добавлено: опциональный заголовок модалки
 };
 
+const isValidEmail = (s: string) => s.includes('@');
+
 const UserEditModal: React.FC<UserEditModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -33,6 +35,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UserData | null>(null);
+  const [error, setError] = useState(''); // ✅ добавили
 
   useEffect(() => {
     if (isOpen && user) {
@@ -41,6 +44,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
         fio: user.fio || 'Фамилия Имя Отчество'
       });
       setIsEditing(initialEditMode);
+      setError(''); // ✅ сброс ошибки при открытии
     }
   }, [isOpen, user, initialEditMode]);
 
@@ -50,12 +54,31 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
+  const validate = () => {
+    const login = (formData.login ?? '').trim();
+    const fio = (formData.fio ?? '').trim();
+    const role = (formData.role ?? '').trim();
+    const email = (formData.email ?? '').trim();
+
+    if (!login) return 'Введите логин';
+    if (!fio) return 'Введите ФИО';
+    if (!role) return 'Выберите роль';
+    if (!email) return 'Введите email';
+    if (!isValidEmail(email)) return 'Email должен содержать символ @';
+
+    return '';
+  };
+
   const handleSave = () => {
-    if (formData) {
-      onSave(formData);
-      setIsEditing(false);
-      onClose(); // Закрываем после сохранения
+    const msg = validate();
+    if (msg) {
+      setError(msg);
+      return;
     }
+
+    onSave(formData);
+    setIsEditing(false);
+    onClose();
   };
 
   return (
@@ -73,14 +96,17 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
 
         <div className="users-modal__content-area">
           
+          {/* ✅ показываем ошибку */}
+          {error && <div className="users-modal__error">{error}</div>}
+
           {!isEditing && (
             <div className="users-modal__view-mode">
-              <p className="users-modal__view-row"><strong>Логин:</strong> {formData.login}</p>
-              <p className="users-modal__view-row"><strong>id:</strong> {formData.id}</p>
-              <p className="users-modal__view-row"><strong>ФИО:</strong> {formData.fio}</p>
-              <p className="users-modal__view-row"><strong>Email:</strong> {formData.email}</p>
-              <p className="users-modal__view-row"><strong>Дата создания:</strong> {formData.date}</p>
-              <p className="users-modal__view-row"><strong>Роль:</strong> {formData.role}</p>
+              <p className="users-modal__view-row"><strong>Логин:</strong>&nbsp;{formData.login}</p>
+              <p className="users-modal__view-row"><strong>id:</strong>&nbsp;{formData.id}</p>
+              <p className="users-modal__view-row"><strong>ФИО:</strong>&nbsp;{formData.fio ?? '—'}</p>
+              <p className="users-modal__view-row"><strong>Email:</strong>&nbsp;{formData.email}</p>
+              <p className="users-modal__view-row"><strong>Дата создания:</strong>&nbsp;{formData.date}</p>
+              <p className="users-modal__view-row"><strong>Роль:</strong>&nbsp;{formData.role}</p>
             </div>
           )}
 
@@ -98,7 +124,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
                 <label className="users-modal__label">ФИО</label>
                 <input 
                   className="users-modal__input"
-                  value={formData.fio}
+                  value={formData.fio ?? ''}
                   onChange={(e) => handleChange('fio', e.target.value)}
                 />
               </div>
@@ -112,11 +138,14 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
               </div>
               <div>
                 <label className="users-modal__label">Роль</label>
-                <input 
+                <select 
                   className="users-modal__input"
                   value={formData.role}
                   onChange={(e) => handleChange('role', e.target.value)}
-                />
+                >
+                  <option value="admin">admin</option>
+                  <option value="user">user</option>
+                </select>
               </div>
             </div>
           )}
@@ -128,7 +157,7 @@ const UserEditModal: React.FC<UserEditModalProps> = ({
                 {allowEdit && (
                   <button 
                     className="users-modal__btn-edit" 
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => { if (allowEdit) { setIsEditing(true); setError(''); } }}
                     style={{ marginRight: 'auto' }}
                   >
                     <img src={pencilIcon} alt="" style={{ width: 14, height: 14, marginRight: 8 }} />

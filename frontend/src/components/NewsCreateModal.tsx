@@ -1,16 +1,24 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import xIcon from '../assets/X.svg';
 import pencilIcon from '../assets/Pencil.svg';
 import '../styles/NewsPage.css';
 
+export type NewsModalData = {
+  title: string;
+  date: string;
+  text: string;
+  images: (number | string)[];
+};
+
 type NewsCreateModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  // Обновим тип onSave, чтобы передавать все данные, включая картинки
-  onSave: (data: { title: string; date: string; text: string; images: (number | string)[] }) => void;
+  onSave: (data: NewsModalData) => void;
+  initialData?: Partial<NewsModalData> | null;
 };
 
-const NewsCreateModal: React.FC<NewsCreateModalProps> = ({ isOpen, onClose, onSave }) => {
+const NewsCreateModal: React.FC<NewsCreateModalProps> = ({ isOpen, onClose, onSave, initialData }) => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -31,10 +39,18 @@ const NewsCreateModal: React.FC<NewsCreateModalProps> = ({ isOpen, onClose, onSa
   const [images, setImages] = useState<(number | string)[]>([1, 2, 3, 4, 5, 6]);
 
   useEffect(() => {
-    if (isOpen) {
-      setIsEditing(false);
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
+
+    // при каждом открытии — сбрасываем режим редактирования + подставляем данные выбранной новости
+    setIsEditing(false);
+
+    setTitle(initialData?.title ?? 'Заголовок новости');
+    setDate(initialData?.date ?? '01.01.2001 11:00');
+    setText(initialData?.text ?? 'Текст новости');
+    setImages(initialData?.images ?? [1, 2, 3, 4, 5, 6]);
+
+    // если у вас ещё есть логика overflow/esc — оставьте как было
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
@@ -125,12 +141,15 @@ const NewsCreateModal: React.FC<NewsCreateModalProps> = ({ isOpen, onClose, onSa
   };
 
   const handleSave = () => {
-    // Передаем все данные наверх
-    onSave({ title, date, text, images });
-    setIsEditing(false);
+    onSave({
+      title,
+      date,
+      text,
+      images,
+    });
   };
 
-  return (
+  return ReactDOM.createPortal(
     <div className="news-modal__backdrop" onClick={onClose}>
       <div className="news-modal" onClick={(e) => e.stopPropagation()}>
         
@@ -286,7 +305,8 @@ const NewsCreateModal: React.FC<NewsCreateModalProps> = ({ isOpen, onClose, onSa
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

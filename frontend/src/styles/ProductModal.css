@@ -1,0 +1,588 @@
+.pm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+/* Глобальный button:outline из index.css перебиваем только внутри модалки */
+.pm-overlay button:focus,
+.pm-overlay button:active,
+.pm-overlay button:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.pm-wrap {
+  width: min(1180px, 96vw);
+  max-height: 92vh;
+  background: #f2f6ee;
+  border-radius: 22px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+  padding-right: 72px; /* ✅ не ломает, но освобождает зону справа сверху */
+  --pm-left-h: 430px; /* ✅ можно чуть подправить (420-460) под точное совпадение */
+}
+
+.pm-wrap--big {
+  width: min(1480px, 96vw);
+  max-height: 92vh;
+  padding: 30px 80px 30px 30px !important;
+
+  /* высота по контенту */
+  height: fit-content !important;
+  min-height: 0 !important;
+
+  /* ограничение по viewport с учётом padding у .pm-overlay (24px сверху + 24px снизу) */
+  max-height: calc(100vh - 48px);
+
+  /* если контента больше — скроллим внутри модалки, а не получаем “воздух” */
+  overflow: auto;
+
+  /* Высота строго по контенту */
+  display: block; /* Сброс возможных флексов оболочки (если были) */
+
+  /* 1. Внешние отступы сверху и снизу по 60px */
+  padding-top: 80px !important;
+  padding-bottom: 80px !important;
+}
+
+/* Убираем любые внутренние отступы сетки, которые могли создавать пустоту снизу */
+.pm-grid {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  height: auto !important; /* Сетка тоже поджимается */
+  min-height: 0 !important;
+}
+
+.pm-close {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.7);
+  color: #111;
+  font-size: 20px;
+  line-height: 1;
+
+  /* 2. Центровка крестика (закрытия) в его квадрате */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding-bottom: 2px; /* Визуальная компенсация, чтобы крестик был ровно в центре */
+}
+.pm-close{
+  font-size: 56px !important; /* x2 */
+  color: #000 !important;
+  background: transparent !important;
+  border: none !important;
+  line-height: 1;
+  padding: 6px 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pm-close:focus,
+.pm-close:active,
+.pm-close:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.pm-close:focus,
+.pm-close:active,
+.pm-close:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.pm-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 14px;
+}
+
+.pm-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 800;
+  color: #111;
+}
+
+.pm-top-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 0 8px 16px;
+}
+
+.pm-product-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #111;
+}
+
+.pm-product-category {
+  justify-self: end;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  opacity: 0.7;
+}
+
+.pm-images {
+  display: grid;
+  grid-template-columns: 520px 1fr;
+  gap: 22px;
+  padding: 0 8px 18px;
+}
+
+.pm-images-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.pm-thumb {
+  width: 520px;
+  height: 420px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  overflow: hidden;
+}
+.pm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* миниатюры снизу (используем pm-more-stack как “галерею”, если потом расширим) */
+.pm-more-stack {
+  display: none; /* пока скроем, чтобы не ломать: в текущем ProductModal visible=до 4 */
+}
+
+/* белые блоки справа */
+.pm-box {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  padding: 18px 18px;
+  margin-bottom: 14px;
+}
+
+.pm-box-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111;
+  margin-bottom: 12px;
+}
+
+.pm-box-body {
+  font-size: 15px;
+  color: #333;
+  line-height: 1.35;
+  min-height: 110px;
+}
+
+/* футер кнопок справа */
+.pm-footer {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+
+.pm-btn {
+  height: 44px;
+  border-radius: 999px;
+  padding: 0 22px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: #eaf6d8;
+  color: #111;
+}
+.pm-btn:focus,
+.pm-btn:active,
+.pm-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.pm-btn.pm-done {
+  background: #eaf6d8;
+  border-color: #7ac142;
+}
+
+.pm-btn.pm-edit {
+  background: #7ac142;
+  border: none;
+  color: #fff;
+}
+
+.pm-btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+  filter: grayscale(0.1);
+}
+
+/* двухколоночная сетка как на макете */
+.pm-grid {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.25fr) minmax(320px, 0.95fr) minmax(240px, 0.55fr);
+  gap: 22px;
+  height: calc(92vh - 36px); /* чтобы правая часть могла скроллиться */
+  align-items: start;      /* ✅ не растягивать по высоте */
+  align-content: start;
+
+  /* Сетка не должна растягиваться и создавать лишнюю высоту */
+  grid-auto-rows: min-content;
+  align-content: start;
+
+  /* Убираем возможные внутренние отступы сетки, чтобы низ был ровным */
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.pm-left, .pm-right {
+  min-height: 0;
+  align-self: start;
+}
+
+/* левая часть */
+.pm-main-photo {
+  width: 100%;
+  height: 560px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-height: 0; /* важно для flex */
+}
+.pm-main-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pm-main-photo__placeholder {
+  width: 100%;
+  height: 100%;
+  background: repeating-conic-gradient(#f2f2f2 0% 25%, #fafafa 0% 50%) 50% / 30px 30px;
+}
+
+.pm-thumbs-bar {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  gap: 12px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.pm-thumbs {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 6px 2px;
+  scroll-behavior: smooth;
+  scrollbar-width: none;           /* Firefox */
+}
+.pm-thumbs::-webkit-scrollbar {
+  display: none;                   /* Chrome/Safari */
+}
+.pm-thumbs::-webkit-scrollbar { height: 8px; }
+.pm-thumbs::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 8px; }
+
+.pm-thumbs-nav {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: none;
+  background: rgba(255,255,255,0.75);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+  cursor: pointer;
+  font-size: 28px;
+  line-height: 1;
+  color: rgba(0,0,0,0.55);
+
+  /* 3. Центровка стрелочек (< >) внутри их квадратов в галерее */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.pm-thumbs-nav:focus,
+.pm-thumbs-nav:active,
+.pm-thumbs-nav:focus-visible {
+  outline: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+}
+
+.pm-thumb-tile {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  background: #fff;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+.pm-thumb-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pm-thumb-tile.is-active {
+  border-color: #7ac142;
+}
+.pm-thumb-tile:focus,
+.pm-thumb-tile:active,
+.pm-thumb-tile:focus-visible,
+.pm-thumbs-nav:focus,
+.pm-thumbs-nav:active,
+.pm-thumbs-nav:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* правая часть */
+.pm-right {
+  overflow: auto;
+  padding-right: 6px;
+  max-width: 520px;
+  min-height: 0;
+}
+
+.pm-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 6px 6px 14px;
+}
+
+.pm-title-xl {
+  font-size: 38px;
+  font-weight: 900;
+  color: #111;
+}
+
+.pm-price-xl {
+  font-size: 30px;
+  font-weight: 900;
+  color: #111;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+
+.pm-block {
+  background: transparent;
+  padding: 6px 6px 12px;
+}
+
+.pm-block__title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.pm-block__text {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  padding: 14px 16px;
+  color: #333;
+  min-height: 92px;
+  line-height: 1.4;
+}
+
+.pm-specs {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  padding: 12px 16px;
+}
+.pm-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  color: #333;
+}
+.pm-spec-row:last-child { border-bottom: none; }
+.pm-spec-row span:first-child { color: #666; font-weight: 700; }
+.pm-spec-row span:last-child { color: #111; font-weight: 800; }
+
+.pm-block--meta {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  column-gap: 14px;
+  row-gap: 10px;
+  align-items: center;
+}
+.pm-meta-label {
+  color: #666;
+  font-weight: 800;
+}
+.pm-meta-value {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.10);
+  padding: 10px 14px;
+  font-weight: 800;
+  color: #111;
+}
+
+.pm-actions {
+  padding: 10px 6px 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  justify-items: end;
+}
+
+.pm-action-btn {
+  width: min(320px, 100%);
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-weight: 900;
+  cursor: pointer;
+}
+.pm-action-btn:focus,
+.pm-action-btn:active,
+.pm-action-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.pm-action-btn--primary {
+  background: #a7ef3f;
+  color: #111;
+  border: none;
+}
+.pm-action-btn--primary.is-in-cart {
+  background: #d7f7a8; /* светлее как ты просил */
+  color: #111;
+}
+
+.pm-action-btn--ghost {
+  background: #eaf6d8;
+  border: 1px solid #7ac142;
+  color: #111;
+}
+.pm-action-btn--ghost.is-in-fav {
+  background: #dfeec8; /* чуть тусклее, как “включено” */
+  opacity: 0.95;
+}
+
+.pm-action-btn[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pm-footer-spacer { height: 0 !important; margin: 0 !important; padding: 0 !important; }
+
+/* правая колонка с ценой и кнопками */
+.pm-side{
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  /* визуально как отдельный блок без изменения старых */
+  padding: 10px 6px;
+  margin-top: 62px; /* ✅ подстройка под твой текущий макет */
+  padding-right: 6px;
+
+  /* На всякий случай проверяем правую колонку, чтобы она не тянула высоту */
+  margin-bottom: 0 !important;
+
+  /* 4. Центровка цены и кнопок в правом блоке (pm-side) */
+  align-items: center !important; /* Центрируем содержимое колонки по горизонтали */
+}
+
+.pm-side__price{
+  font-size: 22px;
+  font-weight: 900;
+  color: #111;
+  text-align: right;
+
+  /* Текст цены по центру */
+  text-align: center !important;  
+  width: 100%;
+}
+
+.pm-side__actions{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  /* Кнопки по центру контейнера действий */
+  align-items: center !important; 
+  width: 100%;       
+}
+
+.pm-action-btn {
+  margin: 0 auto; 
+}
+
+@media (max-width: 980px) {
+  .pm-images {
+    grid-template-columns: 1fr;
+  }
+  .pm-thumb {
+    width: 100%;
+    height: 360px;
+  }
+  .pm-top-meta {
+    grid-template-columns: 1fr;
+  }
+  .pm-product-category {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 1080px) {
+  .pm-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .pm-main-photo { height: 420px; }
+  .pm-actions { justify-items: stretch; }
+  .pm-action-btn { width: 100%; }
+  .pm-right{
+    max-width: none;
+  }
+  .pm-side__price{
+    text-align: left;
+  }
+}
+
+/* 3) Срезать лишнее пространство снизу: убираем любые “внутренние растягивания” */
+.pm-block:last-child{
+  margin-bottom: 0;
+}

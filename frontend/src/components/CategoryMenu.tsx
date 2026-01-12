@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import '../styles/CategoryMenu.css';
+import { useCategories } from '../contexts/CategoriesContext';
 
-// Импорт иконок из папки assets
+// Импорт иконок из assets (оставляем как было)
 import percentIcon from '../assets/Percent.svg';
 import treeIcon from '../assets/Tree.svg';
 import clothesIcon from '../assets/Clothes.svg';
@@ -13,18 +14,18 @@ import electronicsIcon from '../assets/Electronics.svg';
 import healthIcon from '../assets/Health.svg';
 import hobbyIcon from '../assets/Hobby.svg';
 
-const categories = [
-  { id: 1, name: 'Акции', icon: percentIcon, sub: [] },
-  { id: 2, name: 'Новый год', icon: treeIcon, sub: ['Ёлки', 'Игрушки', 'Гирлянды', 'Украшения', 'Упаковки', 'Подарки', 'Фейерверки', 'Открытки', 'Костюмы', 'Символ года'] },
-  { id: 3, name: 'Одежда', icon: clothesIcon, sub: ['Мужская', 'Женская', 'Детская'] },
-  { id: 4, name: 'Обувь', icon: shoeIcon, sub: ['Кроссовки', 'Ботинки', 'Туфли'] },
-  { id: 5, name: 'Женщинам', icon: womanIcon, sub: [] },
-  { id: 6, name: 'Мужчинам', icon: manIcon, sub: [] },
-  { id: 7, name: 'Детям', icon: childIcon, sub: [] },
-  { id: 8, name: 'Электроника', icon: electronicsIcon, sub: [] },
-  { id: 9, name: 'Здоровье', icon: healthIcon, sub: [] },
-  { id: 10, name: 'Хобби', icon: hobbyIcon, sub: [] },
-];
+const iconsById: Record<number, string> = {
+  1: percentIcon,
+  2: treeIcon,
+  3: clothesIcon,
+  4: shoeIcon,
+  5: womanIcon,
+  6: manIcon,
+  7: childIcon,
+  8: electronicsIcon,
+  9: healthIcon,
+  10: hobbyIcon,
+};
 
 type CategoryMenuProps = {
   isOpen: boolean;
@@ -33,28 +34,33 @@ type CategoryMenuProps = {
 
 const CategoryMenu: React.FC<CategoryMenuProps> = ({ isOpen, onClose }) => {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const { categories, subcategories } = useCategories();
+
+  const menuCategories = useMemo(() => {
+    return categories.map(c => ({
+      id: c.id,
+      name: c.name,
+      icon: iconsById[c.id],
+      sub: subcategories.filter(s => s.categoryId === c.id).map(s => s.name),
+    }));
+  }, [categories, subcategories]);
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Оверлей для закрытия при клике вне меню */}
       <div className="menu-overlay" onClick={onClose} />
 
-      {/* Основное меню */}
       <div className="category-dropdown">
-        {categories.map((cat) => (
-          <div 
+        {menuCategories.map((cat) => (
+          <div
             key={cat.id}
             className={`category-item ${hoveredId === cat.id ? 'active' : ''}`}
             onMouseEnter={() => setHoveredId(cat.id)}
           >
-            {/* Иконка через img */}
             <img src={cat.icon} alt={cat.name} className="category-icon" />
-            
             <span>{cat.name}</span>
 
-            {/* Подменю (показываем, если навели и есть подкатегории) */}
             {hoveredId === cat.id && cat.sub.length > 0 && (
               <div className="subcategory-menu">
                 {cat.sub.map((subName) => (

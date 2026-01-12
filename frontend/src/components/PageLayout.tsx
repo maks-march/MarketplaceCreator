@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { HomeIcon, NewsIcon, TagIcon, GroupsIcon, ListIcon } from './Icon';
 import ordersSvg from '../assets/Orders.svg'; // или путь к иконке, которую используете
 import searchIcon from '../assets/Search.svg';
@@ -7,7 +8,6 @@ import shoppingCartSvg from '../assets/Shopping_cart.svg';
 import CategoryMenu from './CategoryMenu'; // Импортируем меню
 import '../styles/MainPage.css';
 import '../styles/CategoryMenu.css'; // Стили меню
-import { authApi } from '../services/api';
 
 interface PageLayoutProps {
   children?: React.ReactNode;
@@ -16,10 +16,21 @@ interface PageLayoutProps {
 const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  // ✅ Логика: если есть auth.user.login, показываем его.
+  // После фикса updateProfile в AuthContext, auth.user обновится сразу же после сохранения.
+  const headerName = auth.user?.login?.trim() || auth.user?.name?.trim() || 'Profile name';
+  
+  // Аватарка тоже берется из user
+  const headerAvatar = auth.user?.avatarUrl || '/vite.svg';
+
+  const goToProfile = () => {
+    if (!auth.isAuthenticated) return;
+    navigate(auth.role === 'admin' ? '/admin/profile' : '/user/profile');
+  };
+
   const isMainPage = location.pathname === '/';
-  const currentRole = localStorage.getItem('current_role');
-  const isAuthorized = currentRole != null;
-  const isAdmin = currentRole == 'admin';
   const isUserMain = location.pathname === '/user' || location.pathname === '/user/main';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -29,8 +40,9 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
 
   // Обработчик выхода
   const handleLogout = () => {
-    authApi.logout();
-    navigate('/login', { replace: true });
+    auth.logout();
+    const loginPath = auth.role === 'admin' ? '/admin/login' : '/login';
+    navigate(loginPath, { replace: true });
   };
 
   return (
@@ -48,8 +60,22 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         position: 'relative'
       }}>
         
+        {/* ✅ БРЕНД СЛЕВА (возвращаем как было) */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            fontWeight: 800,
+            lineHeight: 1.05,
+            color: '#111',
+          }}
+        >
+          <div>Marketplace</div>
+          <div>creator</div>
+        </div>
+
         {/* Кнопка категорий — только для пользователя на /user или /user/main */}
-        {isAuthorized && !isAdmin && isUserMain && (
+        {auth?.role === 'user' && isUserMain && (
           <div
             className={`category-trigger ${isMenuOpen ? 'is-open' : ''}`}
             onClick={() => setIsMenuOpen(o => !o)}
@@ -65,20 +91,6 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
             </svg>
           </div>
         )}
-
-        {/* Заголовок: черный цвет, отступ 270px */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          lineHeight: '1', 
-          fontWeight: 800, 
-          fontSize: '18px',
-          color: '#000',       
-          marginLeft: '270px' // Это должно работать, если слева в потоке ничего нет
-        }}>
-          <span>Marketplace</span>
-          <span>creator</span>
-        </div>
 
         {/* Поиск: 337x44 px, АБСОЛЮТНО ПО ЦЕНТРУ */}
         <div style={{ 
@@ -120,77 +132,64 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
         </div>
 
         {/* Кнопка корзины — только для залогиненного user, между поиском и профилем */}
-        {isAuthorized && !isAdmin && (
+        {auth?.isAuthenticated && auth?.role === 'user' && (
           <button
             type="button"
+            onClick={() => navigate('/user/cart')}
             aria-label="Корзина"
-            onClick={() => navigate('/cart')}
             style={{
-              position: 'absolute',
-              top: '50%',
-              left: 'calc(50% + 168.5px + 131px)', // 50% + половина поиска (168.5) + 131px
-              transform: 'translateY(-50%)',
-              width: 35,
-              height: 35,
-              padding: 0,
-              border: 'none',
               background: 'transparent',
+              border: 'none',
+              padding: 0,
               cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
             }}
           >
             <img src={shoppingCartSvg} alt="" width={35} height={35} style={{ display: 'block' }} />
           </button>
         )}
         
-        {/* Блок действий в хедере: профиль + кнопка Выйти */}
-        <div className="header-actions" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
-          {isAuthorized && (
-            <>
-              <div
-                className="header-profile-link"
-                role="button"
-                tabIndex={0}
-                onClick={() => isAuthorized ? navigate(`/${currentRole}/profile`) : navigate('/login')}
-                onKeyDown={(e) => { if (e.key === 'Enter') (isAuthorized ? navigate(`/${currentRole}/profile`) : navigate('/login')); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
-                aria-label="Открыть профиль"
-              >
-                <div className="header-profile" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div className="profile-avatar" aria-hidden="true" style={{
-                    width: 32, height: 32, borderRadius: '50%', background: '#fff', color: '#7AC142',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
-                  }}>
-                    U
-                  </div>
-                  <span className="profile-name" style={{ color: '#fff', fontWeight: 600 }}>
-                    Profile name
-                  </span>
-                </div>
-              </div>
+        {/* ✅ ПРАВЫЙ БЛОК: профиль кликабельный -> переход в профиль */}
+        <div
+          className="header-actions"
+          style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}
+        >
+          <button
+            type="button"
+            onClick={goToProfile}
+            aria-label="Профиль"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+            }}
+          >
+            <img
+              src={headerAvatar}
+              alt="avatar"
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 999,
+                objectFit: 'cover',
+                background: '#fff',
+                display: 'block',
+              }}
+            />
+            <div style={{ fontWeight: 800, fontSize: 18, color: '#000' }}>
+              {headerName}
+            </div>
+          </button>
 
-              <button
-                type="button"
-                className="header-logout-btn"
-                onClick={handleLogout}
-                title="Выйти"
-                style={{
-                  background: '#111',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  cursor: 'pointer'
-                }}
-              >
-                Выйти
-              </button>
-            </>
+          {auth.isAuthenticated && (
+            <button type="button" onClick={handleLogout}>
+              Выйти
+            </button>
           )}
         </div>
-
       </header>
 
       {/* Адаптивность для кнопки корзины */}
@@ -223,7 +222,8 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
           flex: 1,
           padding: '0 24px 24px',
           gap: '24px',
-          overflow: 'hidden',
+          overflowX: 'hidden',
+          overflowY: 'auto', // ✅ было overflow:'hidden'
         }}
       >
         {/* ЛЕВОЕ МЕНЮ */}
@@ -249,7 +249,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
             zIndex: 20,
           }}
         >
-          {isAdmin ? (
+          {auth?.role === 'admin' ? (
             <>
               <NavLink to="/admin/main" className={navClass} title="Главная" end>
                 <HomeIcon size={28} />
@@ -271,7 +271,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 <GroupsIcon size={26} />
               </NavLink>
 
-              <NavLink to="/list" className={navClass} title="Список">
+              <NavLink to="/admin/lists" className={navClass} title="Список">
                 <ListIcon size={26} />
               </NavLink>
             </>

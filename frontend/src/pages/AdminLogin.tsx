@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../context/useAuth';
 import '../styles/LoginPage.css';
 
 const AdminLogin: React.FC = () => {
@@ -14,8 +14,14 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // выполнить реальную проверку учётных данных...
-    auth.login('admin'); // пометить как admin
+
+    // ✅ реальный логин админа
+    const ok = auth.login(loginValue.trim(), password, 'admin');
+    if (!ok) {
+      setError('Неверный логин/email или пароль');
+      return;
+    }
+
     navigate(from, { replace: true });
   };
 
