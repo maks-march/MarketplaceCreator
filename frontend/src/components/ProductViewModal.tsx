@@ -3,13 +3,26 @@ import ReactDOM from 'react-dom';
 import xIcon from '../assets/X.svg';
 import pencilIcon from '../assets/pencil.svg';
 import '../styles/NewsPage.css';
+import { normalizeProductImageUrls } from '../utils/productImages';
 
 // helper глубокого клонирования
 const clone = <T,>(v: T): T => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  if (typeof (globalThis as any).structuredClone === 'function') return (globalThis as any).structuredClone(v);
+  if (typeof globalThis.structuredClone === 'function') {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return globalThis.structuredClone(v);
+  }
   return JSON.parse(JSON.stringify(v));
+};
+
+const normalizeImages = (imgs: (number | string)[] | undefined): string[] => {
+  if (!Array.isArray(imgs)) return [];
+  return imgs
+    .filter((x): x is string => typeof x === 'string')
+    .map(s => s.trim())
+    .filter(Boolean);
 };
 
 type Product = {
@@ -47,41 +60,60 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
   const [isEditing, setIsEditing] = useState(false);
 
   // локальная копия продукта — чтобы сразу отображать изменения после Save
-  const [localProduct, setLocalProduct] = useState(product);
+  const [localProduct, setLocalProduct] = useState<Product | null>(product ?? null);
 
   // количество удалённых (скрытых) заглушек — влияет только на число placeholder'ов в галерее
   const [removedPlaceholdersCount, setRemovedPlaceholdersCount] = useState(0);
 
   useEffect(() => {
-    setLocalProduct(product);
+    // при смене товара — сброс локального состояния под новый товар
+    setLocalProduct(product ? clone(product) : null);
+    setIsEditing(false);
+    setRemovedPlaceholdersCount(0);
   }, [product]);
 
   useEffect(() => {
-    if (open) {
-      setIsEditing(false);
-      document.body.style.overflow = 'hidden';
-    }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    if (open) window.addEventListener('keydown', onKey);
+    if (!open) return;
+
+    document.body.style.overflow = 'hidden';
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      // ВАЖНО: никаких сохранений по клавишам
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+
     return () => {
       document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKey);
-      createdUrlsRef.current.forEach(u => URL.revokeObjectURL(u));
-      createdUrlsRef.current = [];
+      window.removeEventListener('keydown', onKeyDown, true);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, onClose]);
 
-  if (!open || !product) return null;
+  if (!open || !localProduct) return null;
 
-  // формируем вид галереи: реальные картинки располагаются слева, затем placeholders (с учётом
-  // того, что пользователь мог удалить часть заглушек — removedPlaceholdersCount)
-  const realImages = localProduct?.images ?? [];
+  // ✅ ЕДИНЫЙ источник картинок: localProduct.images
+  // product?.images может отставать/меняться иначе, из-за этого и появлялись рассинхроны
+  const imageUrls = normalizeProductImageUrls(localProduct?.images);
+
+  // формируем вид галереи: реальные картинки располагаются слева, затем placeholders
+  // ✅ реальные = нормализованные url
+  const realImages = imageUrls;
+
   const realCount = Math.min(realImages.length, 8);
   const extraCount = Math.max(0, realImages.length - 8);
-  const placeholdersToShow = Math.max(0, 8 - realCount - removedPlaceholdersCount);
+
   const visibleImages = realImages.slice(0, realCount);
-  // visibleImages — реальные изображения для рендера слева; placeholdersToShow — сколько пустых слотов рисовать
+
+  // ✅ Вернуть "удаление заглушек":
+  // базово плейсхолдеров = 8 - реальных картинок
+  // но пользователь может "удалить" часть пустых слотов -> уменьшаем их на removedPlaceholdersCount
+  const basePlaceholders = Math.max(0, 8 - visibleImages.length);
+  const placeholdersToShow = Math.max(0, basePlaceholders - removedPlaceholdersCount);
 
   // --- drag-to-scroll handlers ---
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -190,38 +222,57 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
     setIsEditing(false);
     setLocalProduct(product);
   };
-  const handleSave = () => {
+  const handleSave = (ev?: React.MouseEvent) => {
+    ev?.preventDefault();
+    ev?.stopPropagation();
+
     if (!localProduct) return;
 
-    // Пример: realImagesUrls — массив строк (objectURL или уже существующие url/id)
-    const imagesToSave = (localProduct.images || []).filter(i => typeof i === 'string') as string[];
+    const payload: Product = {
+      ...localProduct,
+      images: normalizeImages(localProduct.images),
+      name: (localProduct.name ?? '').toString(),
+      category: (localProduct.category ?? '').toString(),
+      shortInfo: (localProduct.shortInfo ?? '').toString(),
+      description: (localProduct.description ?? '').toString(),
+      brand: (localProduct.brand ?? '').toString(),
+      subcategory: (localProduct.subcategory ?? '').toString(),
+      color: (localProduct.color ?? '').toString(),
+      price: Number(localProduct.price ?? 0),
+      quantity: Number(localProduct.quantity ?? 0),
+    };
 
-    // Здесь нужно загрузить файлы filesMapRef.current на сервер и получить реальные URL.
-    // Пока — логируем файлы, которые нужно отправить.
-    const filesToUpload = Object.entries(filesMapRef.current).map(([url, file]) => ({ url, file }));
-    if (filesToUpload.length > 0) {
-      console.log('Файлы для загрузки на сервер:', filesToUpload);
-      // TODO: выполнить upload и заменить temporary objectURL на серверные URL в imagesToSave
-    }
-
-    // Передаём на верхний уровень localProduct — при необходимости замените на результат после upload
-    if (onSave) onSave({ ...(localProduct as Product), images: imagesToSave });
-    setIsEditing(false);
+    onSave?.(payload);
+    onClose(); // закрываем ТОЛЬКО после нажатия "Сохранить"
   };
 
-  // при изменении полей обновляем локальную копию и сразу оповещаем родителя (чтобы карточка на главной обновлялась)
+  // ❗️ВАЖНО: Никакого onSave тут быть не должно.
+  // Иначе родитель (MainPageAdmin) закроет модалку после любого ввода.
   const setField = (field: keyof Product, value: any) => {
     setLocalProduct(prev => {
-      const next = { ...(prev as Product), [field]: value };
-      // обновляем внешний список — родитель должен обновить products иммутабельно в onSave
-      if (onSave) onSave(clone(next));
+      const next = { ...(prev ?? {}), [field]: value } as Product;
       return next;
     });
   };
 
   return ReactDOM.createPortal(
-    <div className="news-modal__backdrop" onClick={onClose}>
-      <div className={`news-modal ${isEditing ? 'news-modal--editing' : ''}`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="news-modal__backdrop"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="news-modal"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDownCapture={(e) => {
+          // не даём событиям клавиатуры всплывать наружу
+          e.stopPropagation();
+        }}
+        role="dialog"
+        aria-modal="true"
+      >
         <div className="news-modal__header-row">
           <h2 className="news-modal__title" style={{ flex: 1, textAlign: 'center' }}>
             Просмотр товара
@@ -388,18 +439,20 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
 
         {/* Описание */}
         <div className="news-modal__content-area">
-          {isEditing ? (
-            <textarea
-              className="news-modal__textarea"
-              placeholder="Описание товара"
-              value={localProduct?.description ?? ''}
-              onChange={(e) => setField('description', e.target.value)}
-            />
-          ) : (
-            <p className="news-modal__text">
-              {localProduct?.description && localProduct.description.trim() ? localProduct.description : 'Описание товара'}
-            </p>
-          )}
+          <form onSubmit={(e) => e.preventDefault()}>
+            {isEditing ? (
+              <textarea
+                className="news-modal__textarea"
+                placeholder="Описание товара"
+                value={localProduct?.description ?? ''}
+                onChange={(e) => setField('description', e.target.value)}
+              />
+            ) : (
+              <p className="news-modal__text">
+                {localProduct?.description && localProduct.description.trim() ? localProduct.description : 'Описание товара'}
+              </p>
+            )}
+          </form>
 
           {/* кнопки: заменить обработчик Сохранить на handleSave */}
           <div className="news-modal__actions" style={{ alignItems: 'center' }}>
@@ -426,7 +479,7 @@ const ProductViewModal: React.FC<Props> = ({ open, product, onClose, onSave }) =
 
             {/* right button: Сохранить (в режиме ред.) или Готово (в просмотре) — используем класс btn-done для правой зеленой кнопки */}
             {isEditing ? (
-              <button className="news-modal__btn-done" onClick={handleSave} type="button">
+              <button type="button" onClick={handleSave}>
                 Сохранить
               </button>
             ) : (

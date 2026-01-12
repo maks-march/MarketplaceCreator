@@ -14,17 +14,18 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (item: NewsPayload) => void;
+  title?: string; // <-- добавили
 };
 
 const PLACEHOLDER_COUNT = 4;
 const MAX_TOTAL = 20; // общий лимит слотов (заглушки + реальные)
 
-const NewsCreateCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
+const NewsCreateCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate, title = 'Создание новости' }) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const galleryRef = useRef<HTMLDivElement | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
   const itemNodesRef = useRef<Array<HTMLDivElement | null>>([]);
-  const [title, setTitle] = useState('');
+  const [newsTitle, setNewsTitle] = useState('');
   const [date, setDate] = useState('2001-01-01T11:00');
   const [text, setText] = useState('');
 
@@ -33,7 +34,7 @@ const NewsCreateCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) =
 
   useEffect(() => {
     if (isOpen) {
-      setTitle('');
+      setNewsTitle('');
       setDate('2001-01-01T11:00');
       setText('');
       setCombinedSlots(Array(PLACEHOLDER_COUNT).fill('placeholder'));
@@ -109,7 +110,7 @@ const NewsCreateCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) =
     const images = combinedSlots.filter(s => s !== 'placeholder');
     const payload: NewsPayload = {
       id: Date.now(),
-      title: title.trim(),
+      title: newsTitle.trim(),
       date: date || undefined,
       text: text.trim(),
       images,
@@ -121,17 +122,18 @@ const NewsCreateCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) =
   return ReactDOM.createPortal(
     <div className="news-modal__backdrop" onClick={onClose}>
       <div className="news-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="news-modal__header">
-          <h2 className="news-modal__title">Редактирование новости</h2>
-          <button className="news-modal__close" type="button" onClick={onClose}>✕</button>
+        {/* ЗАГОЛОВОК */}
+        <div className="news-modal__header-row">
+          <h2 className="news-modal__title">{title}</h2>
+          <button type="button" className="news-modal__close-btn" onClick={onClose}>×</button>
         </div>
 
         <div className="news-modal__green-top">
           <div className="news-modal__controls">
             <input
               className="news-modal__input"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
+              value={newsTitle}
+              onChange={e => setNewsTitle(e.target.value)}
               placeholder="Заголовок новости"
             />
             <input

@@ -109,14 +109,19 @@ const CreateProductModal: React.FC<Props> = ({ open, product = null, onClose, on
   };
 
   const handleCreate = () => {
+    const normalizedImages = (local.images || [])
+      .map(i => String(i))
+      .map(s => s.trim())
+      .filter(Boolean); // убираем '' заглушки
+
     const normalized: Product = {
       ...(local as Product),
       id: local.id || Date.now(),
       price: Number(local.price || 0),
       quantity: Number(local.quantity || 0),
-      images: (local.images || []).map(i => String(i)),
+      images: normalizedImages,
     };
-    // TODO: отправить filesMapRef.current на сервер и заменить objectURL на реальные URL
+
     if (onCreate) onCreate(normalized);
     onClose();
   };

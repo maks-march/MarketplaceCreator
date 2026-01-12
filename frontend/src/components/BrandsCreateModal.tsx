@@ -16,33 +16,33 @@ type Props = {
   onCreate: (item: BrandPayload) => void;
 };
 
-const PLACEHOLDER_COUNT = 4;
-const MAX_TOTAL = 20;
+const MAX_TOTAL = 1;
+
+const COUNTRIES = ['Россия', 'Китай', 'США'] as const;
 
 const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const galleryRef = useRef<HTMLDivElement | null>(null);
   const createdUrlsRef = useRef<string[]>([]);
   const itemNodesRef = useRef<Array<HTMLDivElement | null>>([]);
+
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
+  const [country, setCountry] = useState<string>('');
   const [description, setDescription] = useState('');
-  const [combinedSlots, setCombinedSlots] = useState<Array<string>>(() =>
-    Array(PLACEHOLDER_COUNT).fill('placeholder')
-  );
-  const [fileLabel, setFileLabel] = useState('Файл не выбран');
+
+  const [combinedSlots, setCombinedSlots] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       setTitle('');
-      setDate('');
+      setCountry('');
       setDescription('');
-      setCombinedSlots(Array(PLACEHOLDER_COUNT).fill('placeholder'));
+      setCombinedSlots([]);
       itemNodesRef.current = [];
       createdUrlsRef.current = [];
-      setFileLabel('Файл не выбран');
       document.body.style.overflow = 'hidden';
     }
+
     return () => {
       document.body.style.overflow = '';
       createdUrlsRef.current.forEach(u => {
@@ -54,51 +54,40 @@ const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
 
   if (!isOpen) return null;
 
-  const updateFileLabelFromSlots = (slots: string[]) => {
-    const imagesCount = slots.filter(s => s !== 'placeholder').length;
-    setFileLabel(imagesCount > 0 ? `${imagesCount} файлов` : 'Файл не выбран');
+  const setSingleImage = (file: File) => {
+    const url = URL.createObjectURL(file);
+
+    setCombinedSlots(prev => {
+      const prevUrl = prev[0];
+      if (prevUrl && createdUrlsRef.current.includes(prevUrl)) {
+        try { URL.revokeObjectURL(prevUrl); } catch {}
+        createdUrlsRef.current = createdUrlsRef.current.filter(x => x !== prevUrl);
+      }
+      createdUrlsRef.current.push(url);
+      return [url];
+    });
+
+    setTimeout(() => {
+      if (fileRef.current) fileRef.current.value = '';
+    }, 0);
   };
 
   const addFiles = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    setCombinedSlots(prev => {
-      const available = Math.max(0, MAX_TOTAL - prev.length);
-      const toAdd = Math.min(available, files.length);
-      if (toAdd === 0) return prev;
-      const next = prev.slice();
-      for (let i = 0; i < toAdd; i++) {
-        const url = URL.createObjectURL(files[i]);
-        createdUrlsRef.current.push(url);
-        next.push(url);
-      }
-      updateFileLabelFromSlots(next);
-      setTimeout(() => {
-        const lastIndex = next.length - 1;
-        const node = itemNodesRef.current[lastIndex];
-        if (node && typeof node.scrollIntoView === 'function') {
-          node.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        } else if (galleryRef.current) {
-          galleryRef.current.scrollLeft = galleryRef.current.scrollWidth;
-        }
-      }, 50);
-      return next;
-    });
-    setTimeout(() => { if (fileRef.current) fileRef.current.value = ''; }, 0);
+    setSingleImage(files[0]);
   };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => addFiles(e.target.files);
 
   const removeAt = (idx: number) => {
+    if (idx !== 0) return;
     setCombinedSlots(prev => {
-      if (idx < 0 || idx >= prev.length) return prev;
-      const arr = prev.slice();
-      const removed = arr.splice(idx, 1)[0];
-      if (removed && removed !== 'placeholder' && createdUrlsRef.current.includes(removed)) {
-        try { URL.revokeObjectURL(removed); } catch {}
-        createdUrlsRef.current = createdUrlsRef.current.filter(u => u !== removed);
+      const prevUrl = prev[0];
+      if (prevUrl && createdUrlsRef.current.includes(prevUrl)) {
+        try { URL.revokeObjectURL(prevUrl); } catch {}
+        createdUrlsRef.current = createdUrlsRef.current.filter(x => x !== prevUrl);
       }
-      updateFileLabelFromSlots(arr);
-      return arr;
+      return [];
     });
   };
 
@@ -110,14 +99,20 @@ const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
   };
 
   const handleSave = () => {
-    const images = combinedSlots.filter(s => s !== 'placeholder');
+    const images = combinedSlots.slice(0, MAX_TOTAL);
+
+    const desc = description.trim();
+    const normalizedDescription =
+      !desc || desc.toLowerCase() === 'описание бренда' ? '' : desc;
+
     const payload: BrandPayload = {
       id: Date.now(),
       name: title.trim() || 'Без названия',
-      country: date.trim() || undefined,
-      description: description.trim(),
+      country: country.trim() || undefined,
+      description: normalizedDescription,
       images,
     };
+
     onCreate(payload);
     onClose();
   };
@@ -128,8 +123,10 @@ const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
     <div className="news-modal__backdrop brands-modal" onClick={onClose} role="dialog" aria-modal="true">
       <div className="news-modal" onClick={e => e.stopPropagation()}>
         <div className="news-modal__header">
-          <h2 className="news-modal__title">Добавление новости</h2>
-          <button className="news-modal__close" type="button" onClick={onClose} aria-label="Закрыть">✕</button>
+          <h2 className="news-modal__title">Создание бренда</h2>
+          <button className="news-modal__close" type="button" onClick={onClose} aria-label="Закрыть">
+            ✕
+          </button>
         </div>
 
         <div className="news-modal__green-top">
@@ -138,67 +135,45 @@ const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
               className="news-modal__input"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Заголовок новости"
+              placeholder="Название бренда..."
             />
-            <input
+
+            <select
               className="news-modal__date"
-              value={date}
-              onChange={e => setDate(e.target.value)}
-              placeholder="01.01.2001 11:00"
-            />
+              value={country}
+              onChange={e => setCountry(e.target.value)}
+              aria-label="Страна"
+            >
+              <option value="">Выберите страну...</option>
+              {COUNTRIES.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
 
-          <div
-            className="news-modal__images-list"
-            role="list"
-            ref={galleryRef}
-            onWheel={onGalleryWheel}
-          >
-            {combinedSlots.map((slot, i) => {
-              const isPlaceholder = slot === 'placeholder';
-              return (
-                <div
-                  key={i}
-                  className={`news-modal__img-item ${isPlaceholder ? 'placeholder' : 'with-img'}`}
-                  data-index={i}
-                  ref={el => { itemNodesRef.current[i] = el; }}
-                  role="listitem"
+          <div className="news-modal__images-list" role="list" ref={galleryRef} onWheel={onGalleryWheel}>
+            {combinedSlots[0] && (
+              <div className="news-modal__img-item with-img" role="listitem">
+                <img className="news-modal__img" src={combinedSlots[0]} alt="logo" draggable={false} />
+                <button
+                  onClick={(e) => { e.stopPropagation(); removeAt(0); }}
+                  type="button"
+                  aria-label="Удалить логотип"
+                  className="news-modal__img-remove"
                 >
-                  {isPlaceholder ? (
-                    <>
-                      <div className="news-modal__img-placeholder">Img {i + 1}</div>
-                      {/* крестик на заглушке — удаляет слот */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeAt(i); }}
-                        type="button"
-                        aria-label={`Удалить слот ${i+1}`}
-                        className="news-modal__img-remove"
-                      >✕</button>
-                    </>
-                  ) : (
-                    <>
-                      <img src={slot} alt={`img-${i}`} className="news-modal__img" />
-                      {/* крестик на фото — удаляет изображение */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeAt(i); }}
-                        type="button"
-                        aria-label={`Удалить изображение ${i+1}`}
-                        className="news-modal__img-remove"
-                      >✕</button>
-                    </>
-                  )}
-                </div>
-              );
-            })}
+                  ✕
+                </button>
+              </div>
+            )}
 
             <div className="news-modal__add-wrap">
               <button
                 type="button"
-                onClick={openFilePicker}
                 className="news-modal__add-btn"
-              >
-                + Добавить
-              </button>
+                onClick={(e) => { e.stopPropagation(); openFilePicker(); }}
+                aria-label="Добавить логотип"
+                title="Добавить логотип"
+              />
             </div>
           </div>
         </div>
@@ -208,34 +183,20 @@ const BrandsCreateModal: React.FC<Props> = ({ isOpen, onClose, onCreate }) => {
             className="news-modal__textarea"
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Текст новости"
+            placeholder="Описание бренда"
           />
         </div>
 
         <div className="news-modal__actions">
-          <button
-            type="button"
-            className="news-modal__cancel"
-            onClick={onClose}
-          >
-            Отмена
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            className="news-modal__save"
-          >
-            Готово
-          </button>
+          <button type="button" className="news-modal__cancel" onClick={onClose}>Отмена</button>
+          <button type="button" className="news-modal__btn-done" onClick={handleSave}>Создать</button>
         </div>
 
-        {/* скрытый input — теперь полностью скрыт через hidden */}
         <input
           ref={fileRef}
           type="file"
           accept="image/*"
-          multiple
+          multiple={false}
           className="news-modal__file-input"
           onChange={onFileChange}
           hidden

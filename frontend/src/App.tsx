@@ -1,117 +1,146 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthContext';
-import RequireRole from './auth/RequireRole';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { CartProvider } from './contexts/CartContext';
+import { ProductsProvider } from './contexts/ProductsContext';
+import { CategoriesProvider } from './contexts/CategoriesContext';
+import { useAuth } from './context/useAuth';
+
+// Pages
 import MainPage from './pages/MainPage';
-import MainPageAdmin from './pages/MainPageAdmin';
-import BrandsPage from './pages/BrandsPage';
-import ForgotPasswordCodePage from './pages/ForgotPasswordCodePage';
-import ForgotPasswordNewPasswordPage from './pages/ForgotPasswordNewPasswordPage';
-import NewsPage from './pages/NewsPage';
-import UsersPage from './pages/UsersPage';
 import LoginPage from './pages/LoginPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import SignUpPage from './pages/SignUpPage';
 import AdminLogin from './pages/AdminLogin';
-import BrandsAdmin from './pages/BrandsAdmin';
-import UserNewsPage from './pages/UserNewsPage';
 import ProfilePage from './pages/ProfilePage';
-import './App.css';
-import { CartProvider } from './contexts/CartContext';
+import ProfileEditPage from './pages/ProfileEditPage';
+import CartPage from './pages/CartPage';
+import BrandsAdmin from './pages/BrandsAdmin';
+import NewsPage from './pages/NewsPage';
+import UsersPage from './pages/UsersPage';
+import MainPageAdmin from './pages/MainPageAdmin';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ForgotPasswordCodePage from './pages/ForgotPasswordCodePage';
+import ForgotPasswordNewPasswordPage from './pages/ForgotPasswordNewPasswordPage';
+import AdminListsPage from './pages/AdminListsPage';
+import UserNewsPage from './pages/UserNewsPage';
+
+// --- Защита маршрутов ---
+
+const RequireAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const auth = useAuth();
+  const location = useLocation();
+
+  if (!auth.isAuthenticated) {
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+  if (auth.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
+
+const RequireUser: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const auth = useAuth();
+  const location = useLocation();
+
+  if (!auth.isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return <>{children}</>;
+};
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <Routes>
-          {/* публичные / пользовательские */}
-          <Route path="/" element={<MainPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/forgot-password/code" element={<ForgotPasswordCodePage />} />
+    <CartProvider>
+      <ProductsProvider>
+        <CategoriesProvider>
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route path="/" element={<MainPage mode="user" />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/forgot-password/code" element={<ForgotPasswordCodePage />} />
+            <Route path="/forgot-new-password" element={<ForgotPasswordNewPasswordPage />} />
 
-          {/* админский логин (публичная страница) */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-
-          {/* главная — одна компонента, два роута (admin/user) */}
-          <Route
-            path="/admin/main"
-            element={
-              <RequireRole role="admin">
+            {/* ADMIN ROUTES */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            
+            <Route path="/admin" element={<Navigate to="/admin/main" replace />} />
+            <Route path="/admin/main" element={
+              <RequireAdmin>
                 <MainPage mode="admin" />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/admin/products"
-            element={
-              <RequireRole role="admin">
+              </RequireAdmin>
+            } />
+            <Route path="/admin/products" element={
+              <RequireAdmin>
                 <MainPageAdmin />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/user/main"
-            element={
-              <RequireRole role="user">
-                <MainPage mode="user" />
-              </RequireRole>
-            }
-          />
-
-          {/* админские страницы — защищены RequireRole role="admin" */}
-          <Route
-            path="/admin/brands"
-            element={
-              <RequireRole role="admin">
-                <BrandsAdmin />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/admin/users"
-            element={
-              <RequireRole role="admin">
+              </RequireAdmin>
+            } />
+            <Route path="/admin/users" element={
+              <RequireAdmin>
                 <UsersPage />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/admin/news"
-            element={
-              <RequireRole role="admin">
+              </RequireAdmin>
+            } />
+            <Route path="/admin/brands" element={
+              <RequireAdmin>
+                <BrandsAdmin />
+              </RequireAdmin>
+            } />
+            <Route path="/admin/news" element={
+              <RequireAdmin>
                 <NewsPage />
-              </RequireRole>
-            }
-          />
+              </RequireAdmin>
+            } />
+            <Route path="/admin/lists" element={
+              <RequireAdmin>
+                <AdminListsPage />
+              </RequireAdmin>
+            } />
+            
+            <Route path="/admin/profile" element={
+              <RequireAdmin>
+                <ProfilePage />
+              </RequireAdmin>
+            } />
+            <Route path="/admin/profile/edit" element={
+              <RequireAdmin>
+                <ProfileEditPage mode="admin" />
+              </RequireAdmin>
+            } />
 
-          {/* пользовательские страницы — защищены RequireRole role="user" */}
-          <Route
-            path="/user/news"
-            element={
-              <RequireRole role="user">
+            {/* USER ROUTES */}
+            <Route path="/user" element={<Navigate to="/user/main" replace />} />
+            <Route path="/user/main" element={
+              <RequireUser>
+                <MainPage mode="user" />
+              </RequireUser>
+            } />
+            <Route path="/user/profile" element={
+              <RequireUser>
+                <ProfilePage />
+              </RequireUser>
+            } />
+            <Route path="/user/profile/edit" element={
+              <RequireUser>
+                <ProfileEditPage mode="user" />
+              </RequireUser>
+            } />
+            <Route path="/user/cart" element={
+              <RequireUser>
+                <CartPage />
+              </RequireUser>
+            } />
+            <Route path="/user/news" element={
+              <RequireUser>
                 <UserNewsPage />
-              </RequireRole>
-            }
-          />
+              </RequireUser>
+            } />
 
-          {/* редиректы на конкретную "главную" */}
-          <Route path="/admin" element={<Navigate to="/admin/main" replace />} />
-          <Route path="/user" element={<Navigate to="/user/main" replace />} />
-
-          {/* редиректы / старые пути */}
-          <Route path="/brands" element={<Navigate to="/admin/brands" replace />} />
-
-          {/* профиль */}
-          <Route path="/user/profile" element={<ProfilePage />} />
-          <Route path="/admin/profile" element={<ProfilePage />} />
-
-          {/* дополнительные пути (product modal через MainPage) */}
-          <Route path="/user/product/:id" element={<MainPage mode="user" />} />
-          <Route path="/admin/product/:id" element={<MainPage mode="admin" />} />
-        </Routes>
-      </CartProvider>
-    </AuthProvider>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </CategoriesProvider>
+      </ProductsProvider>
+    </CartProvider>
   );
 }

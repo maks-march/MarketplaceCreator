@@ -7,14 +7,20 @@
 html, body, #root {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;   /* ✅ горизонтальный скрываем */
+  overflow-y: auto;     /* ✅ вертикальный разрешаем */
+}
+
+#root {
+  overflow-x: hidden;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: #1a1a1a;
   background-color: #f8f9fa;
-  overflow: hidden; /* фон html справа не виден */
+  overflow-x: hidden;
+  overflow-y: auto;     /* ✅ */
 }
 
 /* Адаптивный контейнер страницы */

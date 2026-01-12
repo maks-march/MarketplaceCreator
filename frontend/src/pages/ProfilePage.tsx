@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import PageLayout from '../components/PageLayout';
 import '../styles/ProfilePage.css';
 
@@ -37,18 +38,17 @@ const createNoopCart = () => ({
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
   // безопасный fallback: если в проекте есть реальный useCart — импортируйте и замените эту строку
   const { add, remove, has } = createNoopCart();
 
   const handleEdit = () => navigate('/user/profile/edit');
 
-  const user = {
-    avatar: '/assets/vite.svg',
-    name: 'ФИО',
-    email: 'Email@email.com',
-    role: 'Роль'
-  };
+  const avatar = (auth.user as any)?.avatarUrl || '/vite.svg';
+  const name = auth.user?.name || '';
+  const email = auth.user?.email || '';
+  const role = auth.user?.role || '';
 
   return (
     <PageLayout>
@@ -56,12 +56,12 @@ const ProfilePage: React.FC = () => {
         {/* ---- НОВАЯ ШАПКА: единый контейнер для аватара, инфо и кнопки --- */}
         <div className="profile-top">
           <div className="profile-avatar-wrap">
-            <img className="profile-avatar" src={user.avatar} alt="Аватар" />
+            <img className="profile-avatar" src={avatar} alt="Аватар" />
 
             <div className="profile-info">
-              <h1 className="profile-name">{user.name}</h1>
-              <div className="profile-email">{user.email}</div>
-              <div className="profile-role">{user.role}</div>
+              <h1 className="profile-name">{name}</h1>
+              <div className="profile-email">{email}</div>
+              <div className="profile-role">{role}</div>
             </div>
 
             <div className="profile-actions">

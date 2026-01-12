@@ -7,4 +7,8 @@ export interface Product {
     country: string;
     category: string;
     image?: string;
-  }
+
+    // NEW: для фильтров (пока без бекенда)
+    color?: string;
+    quantity?: number;
+}

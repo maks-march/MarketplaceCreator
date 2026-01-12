@@ -1,9 +1,9 @@
 import { createContext } from 'react';
 import type { User } from '../types/userTypes';
 
-type Role = 'user' | 'admin';
+export type Role = 'user' | 'admin';
 
-export interface AuthContextValue {
+export type AuthContextType = {
   user: User | null;
   role: Role | null;
   isAuthenticated: boolean;
@@ -17,9 +17,7 @@ export interface AuthContextValue {
     loginValue: string,
     password: string
   ) => boolean;
+  updateProfile: (patch: Partial<User>) => Promise<void>;
+};
 
-  // ✅ NEW: обновление профиля (имя/аватар/почта/логин и т.д.)
-  updateProfile: (patch: Partial<User> & { avatarUrl?: string }) => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | null>(null);

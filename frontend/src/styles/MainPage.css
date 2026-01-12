@@ -132,6 +132,36 @@
     font-size: 60px;
 }
 
+/* ===== FIX: Исправление отображения картинок в карточках ===== */
+.product-image {
+  /* Фиксируем высоту, чтобы карточки были одной высоты */
+  height: 220px !important;
+  width: 100% !important;
+  
+  /* Картинка не должна повторяться */
+  background-repeat: no-repeat !important;
+  
+  /* Картинка должна быть по центру */
+  background-position: center center !important;
+  
+  /* contain = показать картинку целиком (могут быть поля)
+     cover = заполнить всё пространство (картинка может обрезаться) 
+     Для товаров обычно лучше contain */
+  background-size: contain !important;
+  
+  /* Светлый фон для PNG с прозрачностью */
+  background-color: #fff;
+  
+  display: block;
+}
+
+/* ===== FIX: картинка товара должна подменять заглушку в .card-media ===== */
+.cards-grid .card .card-media{
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; /* чтобы картинка заполняла область */
+}
+
 .product-content {
     padding: 20px;
     flex: 1;
@@ -567,6 +597,17 @@
   cursor: pointer;
 }
 .card-add:hover { background: #5a9d1a; }
+
+.card-add.is-in-cart {
+  background: #d7f7a8; /* светлее */
+  color: #111;
+}
+
+/* опционально: если кнопка неактивна (admin) */
+.card-add[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
 
 /* Выезжающая справа панель фильтров */
 .filters-drawer {
@@ -1204,3 +1245,339 @@ body, html {
 /* Сам контейнер модалки */
 .news-modal {
   width: 100%;
+}
+
+/* "Выбрать все" не должно растягиваться на всю ширину */
+.select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  flex: 0 0 auto;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* чтобы чекбокс был кликабельным и нормального размера */
+.select-all input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #7AC142;
+}
+
+/* ===== Admin Lists (/admin/lists) ===== */
+.lists-page {
+  width: 100%;
+  padding: 18px 0 0;
+}
+
+.lists-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 18px;
+}
+
+.lists-title-icon {
+  font-size: 18px;
+  color: #111;
+}
+
+.lists-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 500;
+  color: #111;
+}
+
+.lists-grid {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  align-items: center;
+  gap: 34px;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+.lists-arrow {
+  text-align: center;
+  font-size: 36px;
+  color: rgba(0,0,0,0.35);
+}
+
+.lists-card {
+  width: min(520px, 100%);
+  justify-self: center;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+  padding: 18px 16px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lists-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lists-card__header-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #111;
+}
+
+.lists-card__btn-add {
+  margin-left: auto;
+  border: none;
+  background: #7AC142;
+  color: #111;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lists-card__btn-add:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lists-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.lists-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lists-row__edit {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #111;
+  padding: 0;
+}
+
+.lists-row__delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #111;
+  padding: 0;
+}
+
+.lists-row__edit:focus,
+.lists-row__edit:active,
+.lists-row__edit:focus-visible,
+.lists-row__delete:focus,
+.lists-row__delete:active,
+.lists-row__delete:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.lists-row__item {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  padding: 0 14px;
+  text-align: left;
+  cursor: pointer;
+  color: #111;
+  font-weight: 500;
+}
+
+.lists-row__item--static {
+  cursor: default;
+}
+
+.lists-row.is-active .lists-row__item {
+  background: #7AC142;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(122,193,66,0.35);
+}
+
+.lists-empty {
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: center;
+  color: rgba(0,0,0,0.35);
+}
+
+/* ===== Admin Lists layout: свободная высота (как Users/News) ===== */
+.lists-center {
+  width: 100%;
+  /* было: height: calc(100vh - 72px) + align-items:center */
+  /* теперь: нормальная страница, отступ сверху как в админских страницах */
+  min-height: calc(100vh - 72px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.lists-center__box {
+  /* было: width:1116px; height:508px */
+  width: min(1240px, 100%);
+  /* даём таблицам расти */
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.lists-center__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+  justify-content: flex-start; /* ✅ было center */
+}
+
+.lists-title__icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.lists-center__title-row {
+  /* чуть больше “воздуха” сверху/снизу */
+  margin-bottom: 26px;
+  justify-content: center; /* заголовок по центру как на скрине */
+}
+
+.lists-title-icon {
+  /* иконку слева оставляем, но выравниваем по центру строки */
+  font-size: 18px;
+  color: #111;
+}
+
+.lists-grid {
+  /* делаем как 2 колонки с расстоянием */
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 34px;
+  align-items: start;
+  justify-content: center;
+  padding-top: 0;
+}
+
+.lists-card {
+  width: 100%;        /* растягиваем карточки на ширину колонки */
+  max-width: 540px;   /* можно увеличить при желании */
+  min-height: 520px;  /* чтобы визуально было “таблично”, но могло расти */
+  height: auto;
+  justify-self: center;
+}
+
+/* тело карточки — если строк много, пусть будет аккуратный скролл внутри карточки,
+   а не “чёрный скролл” справа по body */
+.lists-card__body {
+  flex: 1;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+/* скролл внутри карточек — светлый */
+.lists-card__body::-webkit-scrollbar { width: 8px; }
+.lists-card__body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 8px; }
+.lists-card__body::-webkit-scrollbar-track { background: transparent; }
+
+@media (max-width: 1100px) {
+  .lists-grid { grid-template-columns: 1fr; }
+  .lists-arrow { display: none; }
+  .lists-card { max-width: 720px; }
+}
+
+/* адаптив */
+@media (max-width: 1100px) {
+  .lists-grid { grid-template-columns: 1fr; }
+  .lists-arrow { display: none; }
+}
+
+/* ===== FiltersPanel: цена/слайдер — чтобы влезало в контейнер ===== */
+.filters-shell .price-row{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.filters-shell .price-row input{
+  flex: 1 1 0;
+  min-width: 0;            /* ✅ критично, иначе второй инпут “выпирает” */
+  max-width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.18);
+  background: #fff;
+  color: #111;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.filters-shell .price-row .dash{
+  flex: 0 0 auto;
+  color: #111;
+  opacity: 0.6;
+}
+
+/* Слайдер */
+.filters-shell .price-slider-new{
+  width: 100%;
+  margin-top: 12px;
+}
+
+.filters-shell .price-slider-new .track{
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.12);
+  position: relative;
+}
+
+.filters-shell .price-slider-new .range{
+  position: absolute;
+  top: 0;
+  height: 8px;
+  border-radius: 999px;
+  background: #7AC142; /* ✅ зелёная линия как на вашем скрине */
+}
+
+.filters-shell .price-slider-new .thumb{
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;            /* визуально как точка на линии */
+  height: 18px;
+  border-radius: 999px;
+  background: #7AC142;
+  border: 2px solid #7AC142;
+  padding: 0;
+  cursor: pointer;
+}
+
+.filters-shell .price-slider-new .thumb:focus,
+.filters-shell .price-slider-new .thumb:active,
+.filters-shell .price-slider-new .thumb:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}

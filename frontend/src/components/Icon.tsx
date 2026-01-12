@@ -17,8 +17,8 @@ const cc = (n?: string) => ['icon', n].filter(Boolean).join(' ');
 
 export const SearchIcon: React.FC<IconProps> = ({ size = 18, color = '#8a8a8a', strokeWidth = 2, className }) => (
   <svg className={cc(className)} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="11" cy="11" r="7"></circle>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    <circle cx="11" cy="11" r="7" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
 
@@ -37,21 +37,30 @@ export const FilterIcon: React.FC<FilterIconProps> = ({
     width={size}
     height={size}
     viewBox="0 0 24 24"
-    fill={filled ? color : 'none'}
-    stroke={color}
-    strokeWidth={strokeWidth}
-    strokeLinecap="round"
-    strokeLinejoin="round"
     aria-hidden="true"
   >
-    {/* Воронка фильтра */}
-    <path d="M3 5h18l-7.5 8.5V19l-4 2v-7.5L3 5z" />
+    <path
+      d="M3 5h18l-7.5 8.5V19l-4 2v-7.5L3 5z"
+      fill={filled ? color : 'none'}
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
   </svg>
 );
 
 export const ChevronDownIcon: React.FC<IconProps> = ({ size = 14, color = '#888', strokeWidth = 2, className }) => (
   <svg className={cc(className)} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="6 9 12 15 18 9"></polyline>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+export const SortIcon: React.FC<IconProps> = ({ size = 18, color = '#111', strokeWidth = 2, className }) => (
+  <svg className={cc(className)} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <line x1="6" y1="7" x2="18" y2="7" />
+    <line x1="6" y1="12" x2="14" y2="12" />
+    <line x1="6" y1="17" x2="10" y2="17" />
   </svg>
 );
 
@@ -109,15 +118,6 @@ export const NewsIcon: React.FC<IconProps> = ({ size = 24 }) => (
 
 export const TagIcon: React.FC<IconProps> = ({ size = 24 }) => (
   <img src={TagSvg} alt="Tag" width={size} height={size} />
-);
-
-export const SortIcon: React.FC<IconProps> = ({ size = 18, color = '#111', strokeWidth = 2, className }) => (
-  <svg className={cc(className)} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <polyline points="4 6 9 6 9 18"></polyline>
-    <line x1="7" y1="6" x2="7" y2="18"></line>
-    <polyline points="20 18 15 18 15 6"></polyline>
-    <line x1="17" y1="6" x2="17" y2="18"></line>
-  </svg>
 );
 
 // Новый: три полоски (меню) из макета

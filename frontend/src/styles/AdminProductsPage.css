@@ -37,3 +37,150 @@
 .admin-add-btn:hover {
     background-color: #5a9d1a;
 }
+
+.admin-products-container .admin-add-btn{
+  background-color: #7AC142 !important;
+  color: #000 !important;
+  border: none !important;
+}
+
+.admin-products-container .admin-add-btn:hover{
+  background-color: #6bb63a !important;
+}
+
+/* ===== Admin/products: убрать случайные дубли контролов (если на страницу попали элементы из MainPage) ===== */
+/* ВАЖНО: эти селекторы сработают ТОЛЬКО внутри admin-products-container */
+.admin-products-container .toolbar,
+.admin-products-container .main-filters,
+.admin-products-container .main-header,
+.admin-products-container .main-nav,
+.admin-products-container .main-hero{
+  display: none !important;
+}
+
+/* Если где-то рендерится вторая кнопка "Добавить" без нашего класса - прячем только её клон.
+   На скрине лишняя кнопка справа похожа на обычный button без .admin-add-btn */
+.admin-products-container button:not(.admin-add-btn):not(.ap-select-all):not(.product-btn):not(.pm-btn):not(.almb-btn){
+  /* НИЧЕГО не делаем по умолчанию — опасно */
+}
+
+/* ===== /admin/products: в toolbar оставляем только кнопку фильтра ===== */
+
+/* Показываем toolbar (если он был скрыт старым правилом) */
+.admin-products-container .toolbar{
+  display: flex !important;
+  align-items: center;
+}
+
+/* 1) Скрываем всё, что находится слева (обычно там div/label/select-all и т.п.) */
+.admin-products-container .toolbar > :not(.toolbar-actions){
+  display: none !important;
+}
+
+/* 2) Внутри toolbar-actions скрываем всё, кроме кнопки фильтра */
+.admin-products-container .toolbar .toolbar-actions > :not(.filter-toggle){
+  display: none !important;
+}
+
+/* 3) На всякий случай: если “Выбрать все” реализовано label’ом */
+.admin-products-container .toolbar .select-all{
+  display: none !important;
+}
+
+/* 4) Если внутри toolbar-actions попадает кнопка "Добавить" — прячем только там (не в header) */
+.admin-products-container .toolbar .toolbar-actions .admin-add-btn{
+  display: none !important;
+}
+
+/* 5) Кнопку фильтра прижимаем вправо */
+.admin-products-container .toolbar .toolbar-actions{
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* ===== admin/products: checkbox + "выбрать все" ===== */
+.admin-products-container .ap-check{
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(0,0,0,0.35);
+  background: #fff;
+  border-radius: 4px;
+  display: inline-block;     /* ✅ не ломает сетку */
+  vertical-align: middle;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.admin-products-container .ap-check:checked{
+  background: #7AC142;
+  border-color: #7AC142;
+}
+
+.admin-products-container .ap-check:checked::after{
+  content: '';
+  position: relative;
+  display: inline-block;
+  width: 10px;
+  height: 16px;
+  border-right: 3px solid #111;
+  border-bottom: 3px solid #111;
+  transform: rotate(45deg);
+  left: 8px;
+  top: 2px;
+}
+
+.admin-products-container .ap-check:focus,
+.admin-products-container .ap-check:active,
+.admin-products-container .ap-check:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* "Выбрать все" — как чекбокс + текст, без рамки кнопки */
+.admin-products-container .ap-select-all{
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  margin: 0 0 12px 0;
+  cursor: pointer;
+  color: #111;
+  font-size: 16px;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-products-container .ap-select-all:focus,
+.admin-products-container .ap-select-all:active,
+.admin-products-container .ap-select-all:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ===== /admin/products: общая строка контролов над сеткой ===== */
+.admin-products-container .admin-products-controls{
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* чекбокс слева, кнопка справа */
+  gap: 16px;
+  margin: 6px 0 14px 0;           /* прямо у верхнего края сетки */
+  width: 100%;
+}
+
+/* "Выбрать все" в этой строке — без лишних отступов */
+.admin-products-container .admin-products-controls .ap-select-all{
+  margin: 0; /* переопределяем ваш margin-bottom, чтобы строка была ровной */
+}
+
+/* Кнопка "Добавить" в строке выравнивается вправо */
+.admin-products-container .admin-products-controls .admin-add-btn{
+  margin-left: auto;
+}

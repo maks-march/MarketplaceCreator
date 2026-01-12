@@ -2,75 +2,32 @@ import type { User } from '../types/userTypes';
 import type { Product } from '../types/productTypes';
 import type { Brand } from '../types/brandTypes';
 import type { News } from '../types/newsTypes';
+import { buildMockProducts } from './mockProductsFactory';
 
 export const MOCK_USERS: User[] = [
   {
-    id: '1',
-    login: 'user',
-    password: '12345',
-    email: 'user@example.com',
-    name: 'Иван Петров Иванович',
-    role: 'Пользователь',
-    dateCreated: '01.01.2023',
+    id: 'admin-1',
+    login: '1',
+    password: '1',
+    email: 'admin@local',
+    name: 'Администратор',
+    role: 'Администратор',
+    dateCreated: '01.01.2026',
+    avatarUrl: '/vite.svg',
   },
   {
-    id: '2',
-    login: 'admin',
-    password: '12345',
-    email: 'admin@admin.com',
-    name: 'Администратор Системы',
-    role: 'Администратор',
-    dateCreated: '01.01.2020',
+    id: 'user-1',
+    login: '1',
+    password: '1',
+    email: 'user@local',
+    name: 'Пользователь',
+    role: 'Пользователь',
+    dateCreated: '01.01.2026',
+    avatarUrl: '/vite.svg',
   },
 ];
 
-export const MOCK_PRODUCTS: Product[] = [
-  { 
-    id: '1', 
-    name: 'Товар 1', 
-    description: 'Описание товара', 
-    price: 1500, 
-    brand: 'Бренд 1', 
-    country: 'Россия', 
-    category: 'Электроника' 
-  },
-  { 
-    id: '2', 
-    name: 'Товар 2', 
-    description: 'Описание товара', 
-    price: 2500, 
-    brand: 'Бренд 2', 
-    country: 'Китай', 
-    category: 'Мебель' 
-  },
-  { 
-    id: '3', 
-    name: 'Товар 3', 
-    description: 'Описание товара', 
-    price: 999, 
-    brand: 'Бренд 1', 
-    country: 'Россия', 
-    category: 'Электроника' 
-  },
-  { 
-    id: '4', 
-    name: 'Товар 4', 
-    description: 'Описание товара', 
-    price: 3500, 
-    brand: 'Бренд 3', 
-    country: 'США', 
-    category: 'Электроника' 
-  },
-  { 
-    id: '5', 
-    name: 'Товар 5', 
-    description: 'Описание товара', 
-    price: 1200, 
-    brand: 'Бренд 2', 
-    country: 'Китай', 
-    category: 'Аксессуары' 
-  },
-];
+export const MOCK_PRODUCTS: Product[] = buildMockProducts(120, 20260111);
 
 export const MOCK_BRANDS: Brand[] = [
   { 

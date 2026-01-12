@@ -1,0 +1,65 @@
+/* Скоупим всё на админ-страницу товаров, чтобы не сломать другие чекбоксы */
+.admin-products-container .ap-check{
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(0,0,0,0.35);
+  background: #fff;
+  border-radius: 4px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-products-container .ap-check:checked{
+  background: #7AC142;
+  border-color: #7AC142;
+}
+
+.admin-products-container .ap-check:checked::after{
+  content: '';
+  width: 10px;
+  height: 16px;
+  border-right: 3px solid #111;
+  border-bottom: 3px solid #111;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.admin-products-container .ap-check:focus,
+.admin-products-container .ap-check:active,
+.admin-products-container .ap-check:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* "Выбрать все" как на скрине: чекбокс + текст, без рамок кнопки */
+.admin-products-container .ap-select-all{
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  padding: 8px 0;
+  margin: 0;
+  cursor: pointer;
+  color: #111;
+  font-size: 16px;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-products-container .ap-select-all:focus,
+.admin-products-container .ap-select-all:active,
+.admin-products-container .ap-select-all:focus-visible{
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Кнопки "Редактировать" на карточках — текст чёрный (с учётом глобальных button) */
+.admin-products-container .admin-product-edit-btn{
+  color: #000 !important;
+}

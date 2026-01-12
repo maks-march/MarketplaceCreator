@@ -16,17 +16,20 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
     if (!loginValue || !password) {
       setError('Введите логин и пароль');
       return;
     }
 
-    try {
-      auth.login('user');
-      navigate(from, { replace: true });
-    } catch (err) {
-      setError('Ошибка входа');
+    // ✅ реальный логин через context/AuthContext
+    const ok = auth.login(loginValue.trim(), password, 'user');
+    if (!ok) {
+      setError('Неверный логин/email или пароль');
+      return;
     }
+
+    navigate(from, { replace: true });
   };
 
   return (

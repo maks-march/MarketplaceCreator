@@ -19,6 +19,8 @@ export const BrandViewModal: React.FC<BrandViewModalProps> = ({
 }) => {
   if (!isOpen || !brand) return null;
 
+  const hasDesc = (brand.description ?? '').trim().length > 0;
+
   return (
     <div className="brand-view-modal__backdrop" onClick={onClose}>
       <div
@@ -38,10 +40,11 @@ export const BrandViewModal: React.FC<BrandViewModalProps> = ({
 
         <div className="brand-view-modal__top">
           <div className="brand-view-modal__chip brand-view-modal__chip--logo">
-            Логотип
+            <div className="brands-table__img-placeholder">
+              {brand.logoUrl ? <img src={brand.logoUrl} alt="" className="brands-table__thumb" /> : 'IMG'}
+            </div>
           </div>
           <div className="brand-view-modal__chip brand-view-modal__chip--name">
-            Название бренда
             <span className="brand-view-modal__chip-value">
               {brand.name}
             </span>
@@ -55,11 +58,8 @@ export const BrandViewModal: React.FC<BrandViewModalProps> = ({
         </div>
 
         <div className="brand-view-modal__content">
-          <div className="brand-view-modal__description-label">
-            Описание бренда
-          </div>
           <div className="brand-view-modal__description-box">
-            {brand.description || 'Описание бренда'}
+            {hasDesc ? brand.description : '—'}
           </div>
         </div>
 

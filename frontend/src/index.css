@@ -30,11 +30,12 @@ html, body, #root {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  /* было: display:flex; place-items:center; */
+  display: block;          /* ✅ */
   min-width: 320px;
   min-height: 100vh;
-  background: #fff;     /* вместо темного */
+  overflow-x: hidden;      /* ✅ убираем горизонтальный ползунок */
+  background: #fff;
   color: #222;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }

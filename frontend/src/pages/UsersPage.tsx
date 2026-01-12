@@ -12,15 +12,19 @@ type UserRow = {
   role: string;
   email: string;
   date: string;
+  fio?: string;
 };
 
 const initialUsers: UserRow[] = Array.from({ length: 10 }).map((_, i) => ({
   id: i + 1,
   login: 'Ник',
-  role: 'Роль',
+  role: 'user', // лучше сразу 'user' вместо "Роль"
   email: 'Почта',
   date: '01.01.2024',
+  fio: 'Фамилия Имя Отчество',
 }));
+
+const truncate6 = (s: string) => (s.length > 6 ? `${s.slice(0, 6)}…` : s);
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
@@ -35,7 +39,19 @@ const UsersPage: React.FC = () => {
   };
 
   // Обработчик создания пользователя из UserAddModal
-  const handleCreateUser = (newUser: UserRow) => {
+  const handleCreateUser = (payload: Omit<UserRow, 'id' | 'date'>) => {
+    const nextId = Math.max(0, ...users.map(u => u.id)) + 1;
+    const today = new Date().toLocaleDateString('ru-RU');
+  
+    const newUser: UserRow = {
+      id: nextId,
+      login: payload.login,
+      fio: payload.fio,
+      role: payload.role,
+      email: payload.email,
+      date: today,
+    };
+  
     setUsers(prev => [...prev, newUser]);
     setIsAddModalOpen(false);
   };
@@ -104,24 +120,28 @@ const UsersPage: React.FC = () => {
                 <div
                   key={user.id}
                   className={`users-table__row ${isOdd ? 'users-table__row--odd' : 'users-table__row--even'}`}
-                  onClick={() => handleViewUser(user)} // Клик по строке -> Просмотр
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleViewUser(user)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleViewUser(user); }}
                 >
-                  <div className="users-table__cell users-table__cell--id">{index}</div>
-                  <div className="users-table__cell">{user.login}</div>
-                  <div className="users-table__cell">{user.role}</div>
+                  <div className="users-table__cell users-table__cell--id">{user.id}</div>
+                  <div className="users-table__cell">{truncate6(user.login)}</div>
+                  <div className="users-table__cell">{truncate6(user.role)}</div>
                   <div className="users-table__cell">{user.email}</div>
                   <div className="users-table__cell">{user.date}</div>
+
                   <div className="users-table__cell">
-                    <button 
-                      className="users-table__edit-btn" 
+                    <button
                       type="button"
+                      className="users-table__edit-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleEditUser(user); // Клик по карандашу -> Редактирование
+                        handleEditUser(user);
                       }}
+                      aria-label="Редактировать"
                     >
-                      <img src={pencilIcon} alt="Edit" className="users-table__edit-icon" />
+                      <img src={pencilIcon} alt="" className="users-table__edit-icon" />
                     </button>
                   </div>
                 </div>

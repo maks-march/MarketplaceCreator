@@ -1,6 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import '../styles/MainPage.css';
-import { ChevronDownIcon, TagIcon } from './Icon';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { useProducts } from '../contexts/ProductsContext';
 
 interface Props {
   open: boolean;
@@ -8,15 +7,17 @@ interface Props {
 }
 
 const RANGE_MIN = 0;
-const RANGE_MAX = 9999999;
-const STEP = 100; // шаг для клавиатуры
+const RANGE_MAX = 500000;
+const STEP = 100;
 
 export const FiltersPanel: React.FC<Props> = ({ open, onClose }) => {
-  const [category, setCategory] = useState('');
-  const [brand, setBrand] = useState('');
-  const [color, setColor] = useState('');
-  const [priceMin, setPriceMin] = useState<number>(RANGE_MIN);
-  const [priceMax, setPriceMax] = useState<number>(RANGE_MAX);
+  const { filters, setFilters } = useProducts();
+
+  const category = filters.category;
+  const brand = filters.brand;
+  const color = filters.color;
+  const priceMin = filters.priceMin;
+  const priceMax = filters.priceMax;
 
   const trackRef = useRef<HTMLDivElement | null>(null);
   const draggingRef = useRef<'min' | 'max' | null>(null);
@@ -26,10 +27,35 @@ export const FiltersPanel: React.FC<Props> = ({ open, onClose }) => {
     if (max > RANGE_MAX) max = RANGE_MAX;
     if (min > max) min = max;
     if (max < min) max = min;
-    return [min, max];
+    return [min, max] as const;
   };
 
   const percent = (v: number) => ((v - RANGE_MIN) / (RANGE_MAX - RANGE_MIN)) * 100;
+
+  const onDrag = useCallback(
+    (e: MouseEvent) => {
+      if (!draggingRef.current || !trackRef.current) return;
+      const rect = trackRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const ratio = Math.min(Math.max(x / rect.width, 0), 1);
+      const value = Math.round((RANGE_MIN + ratio * (RANGE_MAX - RANGE_MIN)) / STEP) * STEP;
+
+      if (draggingRef.current === 'min') {
+        const [min, max] = clampValues(value, priceMax);
+        setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }));
+      } else {
+        const [min, max] = clampValues(priceMin, value);
+        setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }));
+      }
+    },
+    [priceMin, priceMax, setFilters]
+  );
+
+  const stopDrag = useCallback(() => {
+    draggingRef.current = null;
+    window.removeEventListener('mousemove', onDrag);
+    window.removeEventListener('mouseup', stopDrag);
+  }, [onDrag]);
 
   const startDrag = (handle: 'min' | 'max', e: React.MouseEvent) => {
     e.preventDefault();
@@ -38,40 +64,18 @@ export const FiltersPanel: React.FC<Props> = ({ open, onClose }) => {
     window.addEventListener('mouseup', stopDrag);
   };
 
-  const onDrag = useCallback((e: MouseEvent) => {
-    if (!draggingRef.current || !trackRef.current) return;
-    const rect = trackRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const ratio = Math.min(Math.max(x / rect.width, 0), 1);
-    const value = Math.round((RANGE_MIN + ratio * (RANGE_MAX - RANGE_MIN)) / STEP) * STEP;
-    if (draggingRef.current === 'min') {
-      const [min, max] = clampValues(value, priceMax);
-      setPriceMin(min);
-      setPriceMax(max); // защита перекреста
-    } else {
-      const [min, max] = clampValues(priceMin, value);
-      setPriceMin(min);
-      setPriceMax(max);
-    }
-  }, [priceMin, priceMax]);
-
-  const stopDrag = () => {
-    draggingRef.current = null;
-    window.removeEventListener('mousemove', onDrag);
-    window.removeEventListener('mouseup', stopDrag);
-  };
-
   const onInputMin = (v: string) => {
-    const num = Number(v.replace(/\D/g, '')) || RANGE_MIN;
-    const [min, max] = clampValues(num, priceMax);
-    setPriceMin(min);
-    setPriceMax(max);
+    const num = Number(v.replace(/\D/g, ''));
+    const val = Number.isFinite(num) ? num : RANGE_MIN;
+    const [min, max] = clampValues(val, priceMax);
+    setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }));
   };
+
   const onInputMax = (v: string) => {
-    const num = Number(v.replace(/\D/g, '')) || RANGE_MAX;
-    const [min, max] = clampValues(priceMin, num);
-    setPriceMin(min);
-    setPriceMax(max);
+    const num = Number(v.replace(/\D/g, ''));
+    const val = Number.isFinite(num) ? num : RANGE_MAX;
+    const [min, max] = clampValues(priceMin, val);
+    setFilters(prev => ({ ...prev, priceMin: min, priceMax: max }));
   };
 
   const handleKey = (target: 'min' | 'max', e: React.KeyboardEvent) => {
@@ -86,10 +90,10 @@ export const FiltersPanel: React.FC<Props> = ({ open, onClose }) => {
     }
   };
 
-  const apply = () => {
-    // здесь можно передать выбранные значения наружу
-    onClose();
-  };
+  const minPct = useMemo(() => percent(priceMin), [priceMin]);
+  const maxPct = useMemo(() => percent(priceMax), [priceMax]);
+
+  const apply = () => onClose();
 
   return (
     <>
@@ -99,98 +103,82 @@ export const FiltersPanel: React.FC<Props> = ({ open, onClose }) => {
 
           <label className="filters-label">Категория</label>
           <div className="filters-select">
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="">Категория…</option>
-              <option>Электроника</option>
-              <option>Мебель</option>
-              <option>Аксессуары</option>
-              <option>Одежда</option>
+            <select
+              value={category}
+              onChange={(e) => setFilters(prev => ({ ...prev, category: e.target.value }))}
+            >
+              <option value="">Категория...</option>
+              <option value="Электроника">Электроника</option>
+              <option value="Мебель">Мебель</option>
+              <option value="Аксессуары">Аксессуары</option>
+              <option value="Одежда">Одежда</option>
             </select>
-            <span className="sel-ico"><ChevronDownIcon /></span>
           </div>
 
-            <label className="filters-label">Бренд</label>
-            <div className="filters-select">
-              <input
-                type="text"
-                placeholder="Название бренда…"
-                value={brand}
-                onChange={(e) => setBrand(e.target.value)}
-              />
-              {/* Удаляем иконку тега из инпута бренда */}
-              {/* <span className="sel-ico"><TagIcon /></span> */}
-            </div>
+          <label className="filters-label">Бренд</label>
+          <div className="filters-select">
+            <input
+              value={brand}
+              onChange={(e) => setFilters(prev => ({ ...prev, brand: e.target.value }))}
+              placeholder="Название бренда..."
+            />
+          </div>
 
-            <label className="filters-label">Цвет</label>
-            <div className="filters-select">
-              <select value={color} onChange={(e) => setColor(e.target.value)}>
-                <option value="">Цвет…</option>
-                <option>Белый</option>
-                <option>Черный</option>
-                <option>Серый</option>
-                <option>Зеленый</option>
-              </select>
-              <span className="sel-ico"><ChevronDownIcon /></span>
-            </div>
+          <label className="filters-label">Цвет</label>
+          <div className="filters-select">
+            <select
+              value={color}
+              onChange={(e) => setFilters(prev => ({ ...prev, color: e.target.value }))}
+            >
+              <option value="">Цвет...</option>
+              <option value="Белый">Белый</option>
+              <option value="Чёрный">Чёрный</option>
+              <option value="Красный">Красный</option>
+              <option value="Зелёный">Зелёный</option>
+              <option value="Синий">Синий</option>
+            </select>
+          </div>
 
-            <div className="filters-field">
-              <label className="filters-label">Цена</label>
+          <label className="filters-label" style={{ marginTop: 10 }}>Цена</label>
+          <div className="price-row">
+            <input
+              value={priceMin}
+              onChange={(e) => onInputMin(e.target.value)}
+              onKeyDown={(e) => handleKey('min', e)}
+              inputMode="numeric"
+            />
+            <div className="dash">—</div>
+            <input
+              value={priceMax}
+              onChange={(e) => onInputMax(e.target.value)}
+              onKeyDown={(e) => handleKey('max', e)}
+              inputMode="numeric"
+            />
+          </div>
 
-              <div className="filters-price-row">
-                <input
-                  type="number"
-                  className="filters-input filters-price-input"
-                  placeholder="0"
-                  value={priceMin}                          // ← связали со стейтом
-                  onChange={(e) => onInputMin(e.target.value)}  // ← обновляем стейт
-                />
-
-                <span className="filters-price-separator">—</span>
-
-                <input
-                  type="number"
-                  className="filters-input filters-price-input filters-price-input--max"
-                  placeholder="9999999"
-                  value={priceMax}                          // ← связали со стейтом
-                  onChange={(e) => onInputMax(e.target.value)}  // ← обновляем стейт
-                />
-              </div>
-            </div>
-
-            {/* Рабочий двойной слайдер */}
-            <div className="price-range" ref={trackRef}>
-              <div
-                className="price-range-fill"
-                style={{
-                  left: `${percent(priceMin)}%`,
-                  width: `${percent(priceMax) - percent(priceMin)}%`
-                }}
-              />
+          <div className="price-slider-new">
+            <div ref={trackRef} className="track">
+              <div className="range" style={{ left: `${minPct}%`, width: `${maxPct - minPct}%` }} />
               <button
                 type="button"
-                className="price-range-handle"
-                style={{ left: `${percent(priceMin)}%` }}
-                aria-label="Минимальная цена"
-                aria-valuemin={RANGE_MIN}
-                aria-valuemax={priceMax}
-                aria-valuenow={priceMin}
+                className="thumb min"
+                style={{ left: `${minPct}%` }}
                 onMouseDown={(e) => startDrag('min', e)}
-                onKeyDown={(e) => handleKey('min', e)}
+                aria-label="Минимальная цена"
               />
               <button
                 type="button"
-                className="price-range-handle"
-                style={{ left: `${percent(priceMax)}%` }}
-                aria-label="Максимальная цена"
-                aria-valuemin={priceMin}
-                aria-valuemax={RANGE_MAX}
-                aria-valuenow={priceMax}
+                className="thumb max"
+                style={{ left: `${maxPct}%` }}
                 onMouseDown={(e) => startDrag('max', e)}
-                onKeyDown={(e) => handleKey('max', e)}
+                aria-label="Максимальная цена"
               />
             </div>
+          </div>
 
-            <button className="filters-apply" onClick={apply}>Применить</button>
+          <button type="button" className="filters-apply" onClick={apply}>
+            Применить
+          </button>
         </div>
       </div>
 
