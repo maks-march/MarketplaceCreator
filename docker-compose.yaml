@@ -21,6 +21,7 @@ services:
       - "5089"
     depends_on:
       - postgres
+      - frontend
     volumes:
       - static:/staticfiles/
   
