@@ -34,7 +34,13 @@ const MainPage: React.FC<Props> = ({ mode }) => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { products, getFilteredProducts } = useProducts();
+  const { products, getFilteredProducts, loadProducts } = useProducts();
+
+  React.useEffect(() => {
+    // грузим один раз при первом открытии
+    loadProducts().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleFavorite = (id: number) => {
     // избранное только для user

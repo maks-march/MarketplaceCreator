@@ -1,7 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import type { User } from '../types/userTypes';
-import { MOCK_USERS } from '../utils/mockData';
 import { AuthContext } from './AuthContextObject';
+
+// ✅ подключаем реальный API
+import { authApi } from '../services/api/auth/auth.api';
+import type { LoginRequest, RegisterRequest } from '../services/api/auth/auth.types';
 
 type Role = 'user' | 'admin';
 
@@ -10,7 +13,7 @@ type StoredAuth = {
   role: Role;
 };
 
-// ✅ Безопасно читаем localStorage (не падаем на битом JSON)
+// Безопасно читаем localStorage
 function readAuthFromStorage(): StoredAuth | null {
   try {
     const raw = localStorage.getItem('auth');
@@ -24,18 +27,16 @@ function readAuthFromStorage(): StoredAuth | null {
 
     return { user: parsed.user as User, role };
   } catch {
-    try {
-      localStorage.removeItem('auth');
-    } catch {
-      // ignore
-    }
     return null;
   }
 }
 
-// ✅ Безопасно пишем localStorage
-function writeAuthToStorage(value: StoredAuth) {
+function writeAuthToStorage(value: StoredAuth | null) {
   try {
+    if (!value) {
+      localStorage.removeItem('auth');
+      return;
+    }
     localStorage.setItem('auth', JSON.stringify(value));
   } catch {
     // ignore
@@ -43,86 +44,87 @@ function writeAuthToStorage(value: StoredAuth) {
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>(() => [...MOCK_USERS]);
-
   const initialAuth = useMemo(() => readAuthFromStorage(), []);
-
   const [user, setUser] = useState<User | null>(() => initialAuth?.user ?? null);
   const [role, setRole] = useState<Role | null>(() => initialAuth?.role ?? null);
 
-  const login = (loginOrEmail: string, password: string, userRole: Role): boolean => {
-    const foundUser = users.find(
-      (u) =>
-        (u.login === loginOrEmail || u.email === loginOrEmail) &&
-        u.password === password &&
-        (userRole === 'admin' ? u.role === 'Администратор' : u.role === 'Пользователь')
-    );
+  const isAuthenticated = !!user && !!role;
 
-    if (!foundUser) return false;
+  const login = async (loginOrEmail: string, password: string, userRole: Role): Promise<boolean> => {
+    const credentials: LoginRequest = { emailOrUsername: loginOrEmail, password };
 
-    setUser(foundUser);
+    const result = await authApi.login(credentials);
+
+    if (!result.success) return false;
+
+    // authApi.loginAsync возвращает user из backend DTO,
+    // но ваш фронтовый тип User = types/userTypes.ts (id: string, login, roleLabel, etc)
+    // Поэтому берём всё, что возможно, и делаем "безопасное" приведение.
+    const meResult = await authApi.getMe();
+    if (!meResult.success) return false;
+
+    const apiUser = meResult.response as any;
+
+    // Приведение к вашему UI-типу User
+    const uiUser: User = {
+      id: String(apiUser.id ?? apiUser.userId ?? ''),
+      login: String(apiUser.username ?? apiUser.login ?? loginOrEmail),
+      password: '', // пароль не храним
+      email: String(apiUser.email ?? ''),
+      name: String([apiUser.name, apiUser.surname, apiUser.patronymic].filter(Boolean).join(' ') || apiUser.name || ''),
+      role: apiUser.isAdmin ? 'Администратор' : 'Пользователь',
+      dateCreated: String(apiUser.created ?? apiUser.dateCreated ?? ''),
+      avatarUrl: String(apiUser.avatarUrl ?? '/vite.svg'),
+    };
+
+    setUser(uiUser);
     setRole(userRole);
-    writeAuthToStorage({ user: foundUser, role: userRole });
+    writeAuthToStorage({ user: uiUser, role: userRole });
     return true;
   };
 
-  const logout = () => {
-    setUser(null);
-    setRole(null);
+  const logout = async (): Promise<void> => {
     try {
-      localStorage.removeItem('auth');
-    } catch {
-      // ignore
+      await authApi.logout();
+    } finally {
+      setUser(null);
+      setRole(null);
+      writeAuthToStorage(null);
     }
   };
 
-  const signup = (
+  const signup = async (
     email: string,
     lastName: string,
     firstName: string,
     patronymic: string,
     loginValue: string,
     password: string
-  ): boolean => {
-    const exists = users.some((u) => u.login === loginValue || u.email === email);
-    if (exists) return false;
-
-    const newUser: User = {
-      id: String(users.length + 1),
-      login: loginValue,
+  ): Promise<boolean> => {
+    const payload: RegisterRequest = {
+      email: email.trim(),
+      username: loginValue.trim(),
       password,
-      email,
-      name: `${lastName} ${firstName} ${patronymic}`.trim(),
-      role: 'Пользователь',
-      dateCreated: new Date().toLocaleDateString('ru-RU'),
+      name: firstName.trim(),
+      surname: lastName.trim(),
+      patronymic: patronymic?.trim() || undefined,
     };
 
-    setUsers((prev) => [...prev, newUser]);
-    setUser(newUser);
-    setRole('user');
-    writeAuthToStorage({ user: newUser, role: 'user' });
-    return true;
+    const result = await authApi.register(payload);
+    if (!result.success) return false;
+
+    // после регистрации можно залогинить автоматически
+    return await login(payload.username, password, 'user');
   };
 
   const updateProfile = async (patch: Partial<User> & { avatarUrl?: string }) => {
-    setUser((prev) => {
-      if (!prev) return prev;
-
-      const next = { ...prev, ...patch } as User;
-
-      // обновляем users[] (моки) в рамках текущей сессии
-      setUsers((uPrev) => uPrev.map((u) => (u.id === prev.id ? next : u)));
-
-      // ✅ если role null (редкий кейс), восстанавливаем из prev.user.role
-      const safeRole: Role =
-        role ??
-        (prev.role === 'Администратор' ? 'admin' : 'user');
-
-      setRole(safeRole);
-      writeAuthToStorage({ user: next, role: safeRole });
-
-      return next;
-    });
+    // ✅ В services/api нет user.updateMe, поэтому пока оставим локально (не ломаем UI)
+    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+    // сохраняем в local storage, если пользователь авторизован
+    const stored = readAuthFromStorage();
+    if (stored?.role && stored?.user) {
+      writeAuthToStorage({ role: stored.role, user: { ...stored.user, ...patch } as User });
+    }
   };
 
   return (
@@ -130,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         user,
         role,
-        isAuthenticated: !!user,
+        isAuthenticated,
         login,
         logout,
         signup,

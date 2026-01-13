@@ -15,8 +15,7 @@ const AdminLogin: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ✅ реальный логин админа
-    const ok = auth.login(loginValue.trim(), password, 'admin');
+    const ok = await auth.login(loginValue.trim(), password, 'admin');
     if (!ok) {
       setError('Неверный логин/email или пароль');
       return;

@@ -7,8 +7,10 @@ export interface AuthContextValue {
   user: User | null;
   role: Role | null;
   isAuthenticated: boolean;
-  login: (loginOrEmail: string, password: string, role: Role) => boolean;
-  logout: () => void;
+
+  login: (loginOrEmail: string, password: string, role: Role) => Promise<boolean>;
+  logout: () => Promise<void>;
+
   signup: (
     email: string,
     lastName: string,
@@ -16,9 +18,8 @@ export interface AuthContextValue {
     patronymic: string,
     loginValue: string,
     password: string
-  ) => boolean;
+  ) => Promise<boolean>;
 
-  // ✅ NEW: обновление профиля (имя/аватар/почта/логин и т.д.)
   updateProfile: (patch: Partial<User> & { avatarUrl?: string }) => Promise<void>;
 }
 

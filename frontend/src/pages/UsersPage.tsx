@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PageLayout from '../components/PageLayout';
 import UserEditModal from '../components/UserEditModal';
 import UserAddModal from '../components/UserAddModal';
-import usersIcon from '../assets/Groups.svg';
-import pencilIcon from '../assets/Pencil.svg';
+import { usersApi } from '../services/api/users/users.api';
+import type { UserLinked, UpdateUserRequest } from '../services/api/users/users.types';
 import '../styles/UsersPage.css';
 
 type UserRow = {
@@ -15,34 +15,51 @@ type UserRow = {
   fio?: string;
 };
 
-const initialUsers: UserRow[] = Array.from({ length: 10 }).map((_, i) => ({
-  id: i + 1,
-  login: 'Ник',
-  role: 'user', // лучше сразу 'user' вместо "Роль"
-  email: 'Почта',
-  date: '01.01.2024',
-  fio: 'Фамилия Имя Отчество',
-}));
-
-const truncate6 = (s: string) => (s.length > 6 ? `${s.slice(0, 6)}…` : s);
+const mapApiUserToRow = (u: UserLinked): UserRow => ({
+  id: Number(u.id),
+  login: u.username ?? '',
+  role: u.isAdmin ? 'admin' : 'user',
+  email: '', // в UserLinked нет email в типах
+  date: u.updated ?? u.сreated ?? '',
+  fio: [u.surname, u.name, u.patronymic].filter(Boolean).join(' ') || '',
+});
 
 const UsersPage: React.FC = () => {
-  const [users, setUsers] = useState<UserRow[]>(initialUsers);
+  const [users, setUsers] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserRow | null>(null);
   const [openInEditMode, setOpenInEditMode] = useState(false);
 
-  // Открыть модалку добавления (отдельная)
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await usersApi.getAll(1, 100);
+      if (!res.success) return;
+      const payload = res.response as any;
+      const list: UserLinked[] = (payload?.users ?? payload ?? []) as UserLinked[];
+      setUsers(list.map(mapApiUserToRow));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load().catch(() => {});
+  }, []);
+
   const handleAddUser = () => {
+    // create API отсутствует — оставляем как заглушку UI
     setIsAddModalOpen(true);
   };
 
-  // Обработчик создания пользователя из UserAddModal
   const handleCreateUser = (payload: Omit<UserRow, 'id' | 'date'>) => {
-    const nextId = Math.max(0, ...users.map(u => u.id)) + 1;
+    // ❗️Оставляем локально, так как API create не предоставлен
+    const nextId = Math.max(0, ...users.map((u) => u.id)) + 1;
     const today = new Date().toLocaleDateString('ru-RU');
-  
+
     const newUser: UserRow = {
       id: nextId,
       login: payload.login,
@@ -51,122 +68,132 @@ const UsersPage: React.FC = () => {
       email: payload.email,
       date: today,
     };
-  
-    setUsers(prev => [...prev, newUser]);
+
+    setUsers((prev) => [...prev, newUser]);
     setIsAddModalOpen(false);
   };
 
-  // Просмотр (клик по строке)
   const handleViewUser = (user: UserRow) => {
     setSelectedUser(user);
-    setOpenInEditMode(false); // Только просмотр
+    setOpenInEditMode(false);
     setIsModalOpen(true);
   };
 
-  // Редактирование (клик по карандашу)
   const handleEditUser = (user: UserRow) => {
     setSelectedUser(user);
-    setOpenInEditMode(true); // Сразу редактирование
+    setOpenInEditMode(true);
     setIsModalOpen(true);
   };
 
-  const handleSaveUser = (updatedUser: UserRow) => {
-    setUsers(prev => {
-      const exists = prev.some(u => u.id === updatedUser.id);
-      if (exists) {
-        return prev.map(u => u.id === updatedUser.id ? updatedUser : u);
-      } else {
-        return [...prev, updatedUser];
-      }
-    });
+  const handleSaveUser = async (updatedUser: UserRow) => {
+    // update API есть
+    const req: UpdateUserRequest = {
+      username: updatedUser.login,
+      name: (updatedUser.fio ?? '').split(' ')[1] || undefined,
+      surname: (updatedUser.fio ?? '').split(' ')[0] || undefined,
+      patronymic: (updatedUser.fio ?? '').split(' ')[2] || undefined,
+      // email отсутствует в UpdateUserRequest types.ts у вас (есть email?: string там — ок)
+      email: updatedUser.email || undefined,
+    };
+
+    const res = await usersApi.update(String(updatedUser.id), req);
+    if (res.success) {
+      setIsModalOpen(false);
+      await load();
+      return;
+    }
+
+    // fallback локально, если update не прошёл
+    setUsers((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
     setIsModalOpen(false);
+  };
+
+  const handleDeleteUser = async (id: number) => {
+    const ok = window.confirm('Удалить пользователя?');
+    if (!ok) return;
+
+    const res = await usersApi.delete(String(id));
+    if (!res.success) return;
+
+    await load();
   };
 
   return (
     <PageLayout>
       <div className="users-page">
         <div className="users-page__header">
-          <img src={usersIcon} alt="" className="users-page__icon" />
           <h1 className="users-page__title">Пользователи</h1>
-
-          {/* кнопка Добавить — открывает отдельную модалку добавления */}
-          <button
-            type="button"
-            className="users-page__add-btn"
-            onClick={handleAddUser}
-          >
+          <button className="users-page__add-btn" onClick={handleAddUser}>
             Добавить
           </button>
         </div>
 
-        <div className="users-table">
-          {/* Шапка таблицы */}
-          <div className="users-table__header">
-            <div className="users-table__cell users-table__cell--id">id</div>
-            <div className="users-table__cell">Логин</div>
-            <div className="users-table__cell">Роль</div>
-            <div className="users-table__cell">Email</div>
-            <div className="users-table__cell">Дата создания</div>
-            <div className="users-table__cell" />
-          </div>
+        {loading ? (
+          <div>Загрузка...</div>
+        ) : (
+          <div className="users-table">
+            <div className="users-table__header">
+              <div className="users-table__cell users-table__cell--id">ID</div>
+              <div className="users-table__cell">Логин</div>
+              <div className="users-table__cell">Роль</div>
+              <div className="users-table__cell">Email</div>
+              <div className="users-table__cell">Дата</div>
+              <div className="users-table__cell">Действия</div>
+            </div>
 
-          {/* Тело таблицы */}
-          <div className="users-table__body">
-            {users.map((user, i) => {
-              const index = i + 1;
-              const isOdd = index % 2 !== 0;
-
-              return (
+            <div className="users-table__body">
+              {users.map((u, idx) => (
                 <div
-                  key={user.id}
-                  className={`users-table__row ${isOdd ? 'users-table__row--odd' : 'users-table__row--even'}`}
-                  onClick={() => handleViewUser(user)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleViewUser(user); }}
+                  key={u.id}
+                  className={`users-table__row ${idx % 2 === 0 ? 'users-table__row--odd' : 'users-table__row--even'}`}
+                  onClick={() => handleViewUser(u)}
                 >
-                  <div className="users-table__cell users-table__cell--id">{user.id}</div>
-                  <div className="users-table__cell">{truncate6(user.login)}</div>
-                  <div className="users-table__cell">{truncate6(user.role)}</div>
-                  <div className="users-table__cell">{user.email}</div>
-                  <div className="users-table__cell">{user.date}</div>
-
+                  <div className="users-table__cell users-table__cell--id">{u.id}</div>
+                  <div className="users-table__cell">{u.login}</div>
+                  <div className="users-table__cell">{u.role}</div>
+                  <div className="users-table__cell">{u.email}</div>
+                  <div className="users-table__cell">{u.date}</div>
                   <div className="users-table__cell">
                     <button
-                      type="button"
                       className="users-table__edit-btn"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleEditUser(user);
+                        handleEditUser(u);
                       }}
-                      aria-label="Редактировать"
                     >
-                      <img src={pencilIcon} alt="" className="users-table__edit-icon" />
+                      ✎
+                    </button>
+                    <button
+                      className="users-table__edit-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteUser(u.id);
+                      }}
+                    >
+                      🗑
                     </button>
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        <UserEditModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          user={selectedUser}
+          onSave={handleSaveUser}
+          initialEditMode={openInEditMode}
+          allowEdit={openInEditMode}
+        />
+
+        <UserAddModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={handleCreateUser}
+        />
       </div>
-
-      {/* Модальное окно редактирования */}
-      <UserEditModal 
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        user={selectedUser}
-        onSave={handleSaveUser}
-        initialEditMode={openInEditMode}
-        allowEdit={openInEditMode}
-      />
-
-      {/* Модальное окно добавления */}
-      <UserAddModal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleCreateUser}
-      />
     </PageLayout>
   );
 };

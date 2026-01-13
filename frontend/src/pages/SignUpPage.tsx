@@ -24,13 +24,13 @@ const SignUpPage: React.FC = () => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
       setError('Пароли не совпадают');
       return;
     }
-    const ok = signup(
+    const ok = await signup(
       formData.email,
       formData.lastName,
       formData.firstName,
@@ -38,7 +38,7 @@ const SignUpPage: React.FC = () => {
       formData.login,
       formData.password
     );
-    if (!ok) setError('Логин или email уже заняты');
+    if (!ok) setError('Не удалось зарегистрироваться');
     else navigate('/login');
   };
 

@@ -31,7 +31,12 @@ const truncate20 = (s: string) => {
 };
 
 const MainPageAdmin: React.FC = () => {
-  const { products, addProduct, upsertProduct, getFilteredProducts } = useProducts();
+  const { products, addProduct, upsertProduct, getFilteredProducts, loadProducts } = useProducts();
+
+  React.useEffect(() => {
+    loadProducts().catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);

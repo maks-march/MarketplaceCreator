@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import PageLayout from '../components/PageLayout';
-import pencilIcon from '../assets/Pencil.svg';
-import tagIcon from '../assets/Tag.svg';
-import { BrandViewModal } from '../components/BrandViewModal';
-import { BrandEditModal } from '../components/BrandEditModal';
+import { brandsApi } from '../services/api/brands/brands.api';
+import type { BrandLinked, UpdateBrandRequest, CreateBrandRequest } from '../services/api/brands/brands.types';
 import BrandsCreateModal, { type BrandPayload } from '../components/BrandsCreateModal';
+import { BrandEditModal } from '../components/BrandEditModal';
+import { BrandViewModal } from '../components/BrandViewModal';
 import '../styles/BrandsPage.css';
 
 type BrandRow = {
@@ -15,26 +15,27 @@ type BrandRow = {
   images?: (string | number)[];
 };
 
-const initialBrands: BrandRow[] = Array.from({ length: 10 }).map((_, i) => ({
-  id: i + 1,
-  name: 'Очень интересно',
-  country: 'Страна',
-  description: 'Описание бренда',
-  images: [],
-}));
-
 const truncate16 = (s: string) => (s.length > 16 ? `${s.slice(0, 16)}…` : s);
 
 const normalizeImages = (imgs: unknown): string[] => {
   if (!Array.isArray(imgs)) return [];
   return imgs
     .filter((x): x is string => typeof x === 'string')
-    .map(s => s.trim())
-    .filter(s => s.length > 0 && s !== 'placeholder');
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && s !== 'placeholder');
 };
 
+const mapApiBrandToRow = (b: BrandLinked): BrandRow => ({
+  id: Number(b.id),
+  name: b.name ?? '',
+  country: '—', // в API нет country
+  description: b.description ?? '',
+  images: [], // в API нет logo/imageLinks в типах
+});
+
 export default function BrandsPage() {
-  const [brands, setBrands] = useState<BrandRow[]>(initialBrands);
+  const [brands, setBrands] = useState<BrandRow[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -43,25 +44,41 @@ export default function BrandsPage() {
   const [selectedBrandId, setSelectedBrandId] = useState<number | null>(null);
 
   const selectedBrand = useMemo(
-    () => (selectedBrandId == null ? null : brands.find(b => b.id === selectedBrandId) ?? null),
+    () => (selectedBrandId == null ? null : brands.find((b) => b.id === selectedBrandId) ?? null),
     [brands, selectedBrandId]
   );
 
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await brandsApi.getAll(1, 100);
+      if (!res.success) return;
+
+      const payload = res.response as any;
+      const list: BrandLinked[] = (payload?.users ?? payload?.brands ?? payload ?? []) as BrandLinked[];
+      setBrands(list.map(mapApiBrandToRow));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load().catch(() => {});
+  }, []);
+
   const handleAddBrandClick = () => setIsCreateOpen(true);
 
-  const handleCreateBrand = (payload: BrandPayload) => {
-    const newId = Math.max(0, ...brands.map(b => b.id)) + 1;
-
-    const newBrand: BrandRow = {
-      id: newId,
+  const handleCreateBrand = async (payload: BrandPayload) => {
+    const req: CreateBrandRequest = {
       name: payload.name?.trim() || 'Без названия',
-      country: payload.country?.trim() || 'Страна',
-      description: payload.description?.trim() || '',
-      images: normalizeImages(payload.images),
+      description: payload.description?.trim() || undefined,
     };
 
-    setBrands(prev => [newBrand, ...prev]);
+    const res = await brandsApi.create(req);
+    if (!res.success) return;
+
     setIsCreateOpen(false);
+    await load();
   };
 
   const handleNameClick = (brandId: number) => {
@@ -79,140 +96,110 @@ export default function BrandsPage() {
     setIsEditOpen(true);
   };
 
-  const handleEditSave = (data: {
-    id?: number;
-    name: string;
-    country: string;
-    description: string;
-    images?: (string | number)[];
-  }) => {
-    if (selectedBrandId == null) {
-      setIsEditOpen(false);
-      return;
-    }
+  const handleEditSave = async (data: { id?: number; name: string; country: string; description: string; images?: (string | number)[] }) => {
+    if (selectedBrandId == null) return;
 
-    setBrands(prev =>
-      prev.map(b =>
-        b.id === selectedBrandId
-          ? {
-              ...b,
-              name: data.name?.trim() || 'Без названия',
-              country: data.country?.trim() || 'Страна',
-              description: data.description ?? '',
-              images: data.images ?? b.images ?? [],
-            }
-          : b
-      )
-    );
+    const req: UpdateBrandRequest = {
+      name: data.name?.trim() || undefined,
+      description: data.description?.trim() || undefined,
+    };
+
+    const res = await brandsApi.update(String(selectedBrandId), req);
+    if (!res.success) return;
 
     setIsEditOpen(false);
     setSelectedBrandId(null);
+    await load();
   };
 
-  const getThumbSrc = (img: string | number | undefined) => {
-    if (!img) return null;
-    if (typeof img !== 'string') return null;
-    const s = img.trim();
-    if (!s || s === 'placeholder') return null;
-    return s;
+  const handleDelete = async (id: number) => {
+    const ok = window.confirm('Удалить бренд?');
+    if (!ok) return;
+    const res = await brandsApi.delete(String(id));
+    if (!res.success) return;
+    await load();
   };
+
+  const getThumbSrc = (_img: string | number | undefined) => null;
 
   return (
     <PageLayout>
       <div className="brands-page">
-        <div className="brands-page__header">
-          <img src={tagIcon} alt="" className="brands-page__icon" />
-          <h1 className="brands-page__title">Бренды</h1>
-        </div>
-
-        <div className="brands-table-wrap">
-          <div className="brands-table-actions">
-            <button
-              type="button"
-              className="brands-table__add-btn"
-              onClick={handleAddBrandClick}
-            >
+        <div className="brands-page__inner">
+          <div className="brands-page__header">
+            <h1 className="brands-page__title">Бренды</h1>
+            <button className="brands-table__add-btn" onClick={handleAddBrandClick}>
               Добавить
             </button>
           </div>
 
-          <div className="brands-table">
-            <div className="brands-table__header">
-              <div className="brands-table__cell brands-table__cell--index">№</div>
-              <div className="brands-table__cell brands-table__cell--img" />
-              <div className="brands-table__cell">Название бренда</div>
-              <div className="brands-table__cell">Страна</div>
-              <div className="brands-table__cell">Категории</div>
-              <div className="brands-table__cell brands-table__cell--actions" />
-            </div>
+          {loading ? (
+            <div>Загрузка...</div>
+          ) : (
+            <div className="brands-table-wrap">
+              <div className="brands-table">
+                <div className="brands-table__header">
+                  <div className="brands-table__cell brands-table__cell--index">№</div>
+                  <div className="brands-table__cell brands-table__cell--img">IMG</div>
+                  <div className="brands-table__cell">Название</div>
+                  <div className="brands-table__cell">Описание</div>
+                  <div className="brands-table__cell brands-table__cell--actions">Действия</div>
+                </div>
 
-            <div className="brands-table__body">
-              {brands.map((brand, i) => {
-                const index = i + 1;
-                const thumb = getThumbSrc(brand.images?.[0]);
-
-                return (
-                  <div
-                    key={brand.id}
-                    className={`brands-table__row ${(index % 2 === 1) ? 'brands-table__row--odd' : 'brands-table__row--even'}`}
-                  >
-                    <div className="brands-table__cell brands-table__cell--index">{index}</div>
-
-                    <div className="brands-table__cell brands-table__cell--img">
-                      <div className="brands-table__img-placeholder">
-                        {thumb ? <img src={thumb} alt="" className="brands-table__thumb" /> : 'IMG'}
+                <div className="brands-table__body">
+                  {brands.map((b, i) => (
+                    <div key={b.id} className={`brands-table__row ${i % 2 === 0 ? 'brands-table__row--odd' : 'brands-table__row--even'}`}>
+                      <div className="brands-table__cell brands-table__cell--index">{i + 1}</div>
+                      <div className="brands-table__cell brands-table__cell--img">
+                        <div className="brands-table__img-placeholder">{getThumbSrc(undefined) ? <img src={getThumbSrc(undefined)!} alt="" className="brands-table__thumb" /> : 'IMG'}</div>
+                      </div>
+                      <div className="brands-table__cell">
+                        <button className="brands-table__name-btn" onClick={() => handleNameClick(b.id)}>
+                          {truncate16(b.name)}
+                        </button>
+                      </div>
+                      <div className="brands-table__cell">{truncate16(b.description ?? '')}</div>
+                      <div className="brands-table__cell brands-table__cell--actions">
+                        <button onClick={() => handleEditClick(b.id)}>✎</button>
+                        <button onClick={() => handleDelete(b.id)}>🗑</button>
                       </div>
                     </div>
-
-                    <div className="brands-table__cell brands-table__cell--name" onClick={() => handleNameClick(brand.id)}>
-                      <span className="brands-table__name">{truncate16(brand.name)}</span>
-                    </div>
-
-                    <div className="brands-table__cell brands-table__cell--country">{brand.country}</div>
-                    <div className="brands-table__cell brands-table__cell--category">Категории</div>
-
-                    <div className="brands-table__cell brands-table__cell--actions">
-                      <button type="button" className="brands-table__edit-btn" onClick={() => handleEditClick(brand.id)}>
-                        <img src={pencilIcon} alt="edit" className="brands-table__edit-icon" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          <BrandViewModal
+            isOpen={isViewOpen}
+            onClose={handleCloseView}
+            brand={
+              selectedBrand
+                ? { name: selectedBrand.name, country: selectedBrand.country, description: selectedBrand.description, logoUrl: undefined }
+                : null
+            }
+          />
+
+          <BrandEditModal
+            isOpen={isEditOpen}
+            onClose={() => {
+              setIsEditOpen(false);
+              setSelectedBrandId(null);
+            }}
+            onSave={handleEditSave}
+            brand={
+              selectedBrand
+                ? { id: selectedBrand.id, name: selectedBrand.name, country: selectedBrand.country, description: selectedBrand.description, images: selectedBrand.images }
+                : null
+            }
+          />
+
+          <BrandsCreateModal
+            isOpen={isCreateOpen}
+            onClose={() => setIsCreateOpen(false)}
+            onCreate={handleCreateBrand}
+          />
         </div>
-
-        <BrandViewModal
-          isOpen={isViewOpen}
-          onClose={handleCloseView}
-          brand={
-            selectedBrand
-              ? {
-                  name: selectedBrand.name,
-                  country: selectedBrand.country,
-                  description: selectedBrand.description,
-                  logoUrl: getThumbSrc(selectedBrand.images?.[0]) ?? undefined,
-                }
-              : null
-          }
-        />
-
-        <BrandEditModal
-          isOpen={isEditOpen}
-          onClose={() => {
-            setIsEditOpen(false);
-            setSelectedBrandId(null);
-          }}
-          onSave={handleEditSave}
-          brand={selectedBrand}
-        />
-
-        <BrandsCreateModal
-          isOpen={isCreateOpen}
-          onClose={() => setIsCreateOpen(false)}
-          onCreate={handleCreateBrand}
-        />
       </div>
     </PageLayout>
   );

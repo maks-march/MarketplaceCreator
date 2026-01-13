@@ -22,8 +22,7 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    // ✅ реальный логин через context/AuthContext
-    const ok = auth.login(loginValue.trim(), password, 'user');
+    const ok = await auth.login(loginValue.trim(), password, 'user');
     if (!ok) {
       setError('Неверный логин/email или пароль');
       return;

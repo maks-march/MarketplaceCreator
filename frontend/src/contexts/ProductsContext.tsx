@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
-import { MOCK_PRODUCTS } from '../utils/mockData';
+import { productsApi } from '../services/api/products/products.api';
+import type { Product } from '../services/api/products/product.types';
 
 export type ProductRow = {
   id: number;
@@ -17,8 +18,8 @@ export type ProductRow = {
 
 export type ProductFilters = {
   category: string; // '' = все
-  brand: string;    // подстрока
-  color: string;    // '' = все
+  brand: string; // подстрока
+  color: string; // '' = все
   priceMin: number;
   priceMax: number;
 };
@@ -38,8 +39,11 @@ type Ctx = {
   filters: ProductFilters;
   setFilters: React.Dispatch<React.SetStateAction<ProductFilters>>;
 
+  // CRUD локально (для UI), API CRUD делайте на страницах админки через productsApi.*
   addProduct: (p: Omit<ProductRow, 'id'>) => void;
   upsertProduct: (p: ProductRow) => void;
+
+  loadProducts: (page?: number, pageSize?: number) => Promise<void>;
 
   getFilteredProducts: (src?: ProductRow[]) => ProductRow[];
 };
@@ -48,26 +52,24 @@ const ProductsContext = createContext<Ctx | null>(null);
 
 const norm = (v: unknown) => (v ?? '').toString().trim().toLowerCase();
 
-const mapMockToRow = (): ProductRow[] => {
-  return MOCK_PRODUCTS.map((p) => ({
+const mapApiProductToRow = (p: Product): ProductRow => {
+  return {
     id: Number(p.id),
-    name: p.name ?? '',
+    name: p.title ?? '',
     description: p.description ?? '',
     price: Number(p.price ?? 0),
     category: p.category ?? '',
-    images: p.image ? [p.image] : [],
-    brand: p.brand ?? '',
-    color: p.color ?? '',
+    images: (p.imageLinks ?? []).filter((x): x is string => typeof x === 'string' && x.trim().length > 0),
+    brand: p.brand?.name ?? '',
+    color: '',
     shortInfo: '',
-
-    // ✅ добавляем недостающие поля из моков (чтобы в модалке не было прочерков)
     subcategory: '',
-    quantity: Number(p.quantity ?? 0),
-  }));
+    quantity: undefined,
+  };
 };
 
 export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const [products, setProducts] = useState<ProductRow[]>(() => mapMockToRow());
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [filters, setFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
 
   const addProduct: Ctx['addProduct'] = (p) => {
@@ -79,9 +81,21 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
 
   const upsertProduct: Ctx['upsertProduct'] = (p) => {
     setProducts((prev) => {
-      const exists = prev.some((x) => x.id === p.id);
-      return exists ? prev.map((x) => (x.id === p.id ? p : x)) : [p, ...prev];
+      const idx = prev.findIndex((x) => x.id === p.id);
+      if (idx === -1) return [p, ...prev];
+      const copy = prev.slice();
+      copy[idx] = p;
+      return copy;
     });
+  };
+
+  const loadProducts: Ctx['loadProducts'] = async (page = 1, pageSize = 50) => {
+    const res = await productsApi.getAll(page, pageSize);
+    if (!res.success) return;
+
+    const payload = res.response as any;
+    const list: Product[] = (payload?.products ?? payload ?? []) as Product[];
+    setProducts(list.map(mapApiProductToRow));
   };
 
   const getFilteredProducts: Ctx['getFilteredProducts'] = (src) => {
@@ -91,22 +105,12 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
     const fBrand = norm(filters.brand);
     const fColor = norm(filters.color);
 
-    const min = Number.isFinite(filters.priceMin) ? filters.priceMin : 0;
-    const max = Number.isFinite(filters.priceMax) ? filters.priceMax : 9999999;
-
     return list.filter((p) => {
-      const pCat = norm(p.category);
-      const pBrand = norm(p.brand);
-      const pColor = norm(p.color);
-      const price = Number(p.price ?? 0);
-
-      if (fCat && pCat !== fCat) return false;
-      if (fBrand && !pBrand.includes(fBrand)) return false;
-      if (fColor && pColor !== fColor) return false;
-      if (price < min) return false;
-      if (price > max) return false;
-
-      return true;
+      const catOk = !fCat || norm(p.category) === fCat;
+      const brandOk = !fBrand || norm(p.brand).includes(fBrand);
+      const colorOk = !fColor || norm(p.color) === fColor;
+      const priceOk = p.price >= filters.priceMin && p.price <= filters.priceMax;
+      return catOk && brandOk && colorOk && priceOk;
     });
   };
 
@@ -118,6 +122,7 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
       setFilters,
       addProduct,
       upsertProduct,
+      loadProducts,
       getFilteredProducts,
     }),
     [products, filters]
