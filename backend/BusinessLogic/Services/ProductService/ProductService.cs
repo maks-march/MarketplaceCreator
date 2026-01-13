@@ -21,10 +21,9 @@ internal class ProductService(IProductRepository productRepository) :
 
     protected override async Task<bool> CheckItem(Product? item, int userId = -1, params string[] valuesCheck)
     {
-        await base.CheckItem(item, userId, valuesCheck);
         if (userId != -1 && item!.Brand.Users.All(u => u.Id != userId))
             throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
-        return true;
+        return await base.CheckItem(item, userId, valuesCheck);
     }
 
     protected override async Task<Product> FillFromUser(Product item, User user, CancellationToken cancellationToken)

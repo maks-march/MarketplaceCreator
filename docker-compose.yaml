@@ -29,6 +29,8 @@ services:
     build: ./frontend/
     expose:
       - "8080"
+    depends_on:
+      - postgres
     volumes:
       - static:/staticfiles/
 

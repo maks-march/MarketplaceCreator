@@ -65,12 +65,14 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
         // Корзина
         modelBuilder.Entity<Cart>().HasKey(n => n.Id);
         modelBuilder.Entity<Cart>()
-            .HasMany(c => c.Products)
-            .WithOne();
+            .HasMany(с => с.Products)
+            .WithMany(p => p.Carts)
+            .UsingEntity(j => j.ToTable("CartProducts"));
+        
         modelBuilder.Entity<Cart>()
             .HasOne(c => c.User)
             .WithOne(u => u.Cart)
-            .HasForeignKey<Cart>(c => c.UserId)
+            .HasForeignKey<User>(u => u.CartId)
             .OnDelete(DeleteBehavior.Cascade);
         
         base.OnModelCreating(modelBuilder);

@@ -5,8 +5,8 @@ namespace DataAccess.Models;
 public class BaseModel: IBaseModel<BaseModel, EntityDto, EntityDto, BaseDto>
 {
     public int Id { get; set; }
-    public DateTime Created { get; set; }
-    public DateTime Updated { get; set; }
+    public DateTime Created { get; set; } = DateTime.UtcNow;
+    public DateTime Updated { get; set; } = DateTime.UtcNow;
 
     public void Update(BaseDto dto)
     {

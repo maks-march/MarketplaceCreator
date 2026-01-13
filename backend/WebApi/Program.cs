@@ -35,6 +35,23 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
+app.UseCors("AllowFrontend");
+app.UseRouting();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1");
+    c.SwaggerEndpoint("/swagger/v2.0/swagger.json", "v2");
+    c.ConfigObject.AdditionalItems["theme"] = "dark";
+});
+
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DataAccess.AppContext>();
@@ -64,21 +81,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-app.UseCors("AllowFrontend");
-app.UseRouting();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "v1");
-    c.SwaggerEndpoint("/swagger/v2.0/swagger.json", "v2");
-    c.ConfigObject.AdditionalItems["theme"] = "dark";
-});
-
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
 
 var staticFilesPath = "/staticfiles/uploads";
 Directory.CreateDirectory(staticFilesPath);

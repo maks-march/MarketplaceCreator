@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories.CrudRepository;
 
-public class CrudRepository<T, TDto, TCreateDto, TUpdateDto>(AppContext context) : ICrudRepository<T, TUpdateDto> 
+public abstract class CrudRepository<T, TDto, TCreateDto, TUpdateDto>(AppContext context) : ICrudRepository<T, TUpdateDto> 
     where T : BaseModel, IBaseModel<T, TDto, TCreateDto, TUpdateDto>
 {
     protected virtual DbSet<T> Items => null;

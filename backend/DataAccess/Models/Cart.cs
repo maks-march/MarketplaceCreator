@@ -7,11 +7,11 @@ public class Cart : BaseModel, IBaseModel<Cart, CartLinkedDto, CartCreateDto, Ca
 {
     public ICollection<Product> Products { get; set; } = new List<Product>();
     
-    public int UserId { get; set; }
     public User User { get; set; }
     
     public void Update(CartUpdateDto dto)
     {
+        TrackUpdate();
         if (dto.IsAdding)
         {
             Products.Add(dto.Product);
@@ -26,6 +26,9 @@ public class Cart : BaseModel, IBaseModel<Cart, CartLinkedDto, CartCreateDto, Ca
     {
         return new()
         {
+            Id = Id,
+            Created = Created,
+            Updated = Updated,
             Products = Products.Select(x => x.GetUnlinkedDto()).ToList(),
             Total = Products.Select(x => x.Price).Sum(),
             User = User.GetUnlinkedDto()
@@ -36,6 +39,9 @@ public class Cart : BaseModel, IBaseModel<Cart, CartLinkedDto, CartCreateDto, Ca
     {
         return new()
         {
+            Id = Id,
+            Created = Created,
+            Updated = Updated,
             Products = Products.Select(x => x.GetDto()).ToList(),
             Total = Products.Select(x => x.Price).Sum(),
             User = User.GetDto()

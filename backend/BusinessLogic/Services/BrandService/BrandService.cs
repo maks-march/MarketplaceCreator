@@ -12,10 +12,9 @@ public class BrandService(IBrandRepository brandRepository) :
 {
     protected override async Task<bool> CheckItem(Brand? item, int userId = -1, params string[] valuesCheck)
     {
-        await base.CheckItem(item, userId, valuesCheck);
         if (userId != -1 && item!.Users.All(u => u.Id != userId))
             throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
-        return await Task.FromResult(true);
+        return await base.CheckItem(item, userId, valuesCheck);
     }
 
     protected override async Task<Brand> FillFromUser(Brand item, User user, CancellationToken cancellationToken)

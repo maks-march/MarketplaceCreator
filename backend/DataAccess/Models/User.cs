@@ -17,6 +17,8 @@ public class User : BaseModel, IBaseModel<User, UserLinkedDto, UserCreateDto, Us
     
     public ICollection<Brand> Brands { get; set; } = new List<Brand>();
     
+    public int CartId { get; set; }
+    
     public Cart Cart { get; set; }
     
     public int RefreshTokenId { get; set; }

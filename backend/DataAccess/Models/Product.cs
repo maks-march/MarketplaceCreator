@@ -27,6 +27,8 @@ public sealed class Product :
     
     public Brand Brand { get; set; }
     
+    public ICollection<Cart> Carts { get; set; } = new List<Cart>();
+    
     public ProductCategory ProductCategory { get; set; }   
 
     public static Product Create(ProductCreateDto dto)

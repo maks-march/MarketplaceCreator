@@ -5,16 +5,17 @@ using Shared.Exceptions;
 
 namespace WebApi.Controllers.CartsController;
 
-public class CartService(ICartRepository cartRepository) : ICartService
+public class CartService(ICartRepository cartRepository) : 
+    ICartService
 {
     public async Task UpdateAsync(int id, CartUpdateDto cartUpdateDto, int userId, CancellationToken cancellationToken = default)
     {
         var cart = await cartRepository.GetByIdAsync(id, cancellationToken);
         if (cart is null)
             throw new NotFoundException("Данный ресурс не найден");
-        if (userId != cart.UserId)
+        if (userId != cart.User.Id)
             throw new AuthenticationException("Данный пользователь не может редактировать этот ресурс");
-        cart.Update(cartUpdateDto);
+        await cartRepository.UpdateAsync(cart, cartUpdateDto, cancellationToken);
     }
 
     public async Task<CartDto> GetByIdAsync(int id, CancellationToken cancellationToken = default)

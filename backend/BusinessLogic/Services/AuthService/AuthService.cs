@@ -8,13 +8,16 @@ using DataAccess.Repositories.UserRepository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.DataTransferObjects.Request.AuthDto;
+using Shared.DataTransferObjects.Request.CartDto;
 using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
+using WebApi.Controllers.CartsController;
 
 namespace BusinessLogic.Services.AuthService;
 
-public class AuthService(IUserRepository userRepository, IRefreshTokenRepository tokenRepository, IConfiguration configuration) : IAuthService
+public class AuthService(IUserRepository userRepository, IRefreshTokenRepository tokenRepository, IConfiguration configuration) : 
+    IAuthService
 {
     public async Task RegisterAsync(UserCreateDto request, CancellationToken cancellationToken = default)
     {
@@ -26,7 +29,11 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
         var user = User.Create(request);
         var refreshToken = GenerateJwtRefreshToken(user.GetSecuredDto());
         var tokenEntity = RefreshToken.Create(refreshToken);
+        var cart = Cart.Create(new CartCreateDto());
         user.RefreshToken = tokenEntity;
+        user.Cart = cart;
+        cart.User = user;
+        tokenEntity.User = user;
         await userRepository.CreateAsync(user, cancellationToken);
     }
 
@@ -76,7 +83,7 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
         var refreshToken = await tokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
         if (refreshToken == null || refreshToken != user.RefreshToken)
             throw new NotFoundException("Неверный токен!");
-        if (refreshToken.Expires > DateTime.UtcNow)
+        if (refreshToken.Expires < DateTime.UtcNow)
             throw new InvalidOperationException("Токен просрочен!");
         if (refreshToken.User.Id != user.Id)
             throw new AuthenticationException("Данный пользователь не может обновить этот токен");

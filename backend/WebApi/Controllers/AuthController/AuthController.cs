@@ -12,7 +12,8 @@ namespace WebApi.Controllers.AuthController;
 [ApiController]
 [Route("api/v{version:apiVersion}/auth")]
 [ApiVersion("1.0")]
-public class AuthController(IAuthService authService, IUserService userService) : NeedAuthController(userService)
+public class AuthController(IAuthService authService, IUserService userService) : 
+    NeedAuthController(userService)
 {
     [HttpPost("register")]
     [MapToApiVersion("1.0")]

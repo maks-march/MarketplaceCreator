@@ -1,5 +1,6 @@
 using DataAccess.Models;
 using DataAccess.Repositories.CrudRepository;
+using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects.Request.CartDto;
 using Shared.DataTransferObjects.Response.CartDto;
 using WebApi.Controllers.CartsController;
@@ -10,4 +11,13 @@ public class CartRepository(AppContext context) :
     CrudRepository<Cart, CartLinkedDto, CartCreateDto, CartUpdateDto>(context), 
     ICartRepository
 {
+    protected override DbSet<Cart> Items => context.Carts;
+
+    public override async Task<Cart?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await Items
+            .Include(c => c.Products)
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
 }
