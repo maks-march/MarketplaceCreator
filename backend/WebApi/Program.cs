@@ -21,6 +21,18 @@ builder.Services.AddWebApiVersioning();
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "default-secret-key-min-32-chars-long-123456789";
 builder.Services.AddJwtAuthentification(jwtKey);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173", "http://localhost:80")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -52,7 +64,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
+app.UseCors("AllowFrontend");
 app.UseRouting();
 
 app.UseSwagger();
