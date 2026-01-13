@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
 import { productsApi } from '../services/api/products/products.api';
-import type { Product } from '../services/api/products/product.types';
+import { normalizeProductImageUrls } from '../utils/productImages';
 
 export type ProductRow = {
   id: number;
@@ -9,17 +9,15 @@ export type ProductRow = {
   price: number;
   category: string;
   images: string[];
-  shortInfo?: string;
   brand?: string;
   color?: string;
-  subcategory?: string;
   quantity?: number;
 };
 
 export type ProductFilters = {
-  category: string; // '' = все
-  brand: string; // подстрока
-  color: string; // '' = все
+  category: string;
+  brand: string;
+  color: string;
   priceMin: number;
   priceMax: number;
 };
@@ -34,98 +32,94 @@ const DEFAULT_FILTERS: ProductFilters = {
 
 type Ctx = {
   products: ProductRow[];
-  setProducts: React.Dispatch<React.SetStateAction<ProductRow[]>>;
-
+  loading: boolean;
   filters: ProductFilters;
   setFilters: React.Dispatch<React.SetStateAction<ProductFilters>>;
-
-  // CRUD локально (для UI), API CRUD делайте на страницах админки через productsApi.*
-  addProduct: (p: Omit<ProductRow, 'id'>) => void;
-  upsertProduct: (p: ProductRow) => void;
-
-  loadProducts: (page?: number, pageSize?: number) => Promise<void>;
-
-  getFilteredProducts: (src?: ProductRow[]) => ProductRow[];
+  loadProducts: () => Promise<void>;
+  getFilteredProducts: () => ProductRow[];
+  createProduct: (data: any) => Promise<boolean>;
 };
 
-const ProductsContext = createContext<Ctx | null>(null);
+const ProductsContext = createContext<Ctx | undefined>(undefined);
 
 const norm = (v: unknown) => (v ?? '').toString().trim().toLowerCase();
 
-const mapApiProductToRow = (p: Product): ProductRow => {
-  return {
-    id: Number(p.id),
-    name: p.title ?? '',
-    description: p.description ?? '',
-    price: Number(p.price ?? 0),
-    category: p.category ?? '',
-    images: (p.imageLinks ?? []).filter((x): x is string => typeof x === 'string' && x.trim().length > 0),
-    brand: p.brand?.name ?? '',
-    color: '',
-    shortInfo: '',
-    subcategory: '',
-    quantity: undefined,
-  };
-};
-
 export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [products, setProducts] = useState<ProductRow[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState<ProductFilters>(DEFAULT_FILTERS);
 
-  const addProduct: Ctx['addProduct'] = (p) => {
-    setProducts((prev) => {
-      const nextId = Math.max(0, ...prev.map((x) => x.id)) + 1;
-      return [{ ...p, id: nextId }, ...prev];
-    });
-  };
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await productsApi.getAll(1, 1000); 
+      if (res.success && res.data) {
+        const items = res.data.products || [];
+        
+        const mapped: ProductRow[] = items.map((p: any) => ({
+           id: p.id,
+           name: p.title,
+           description: p.description,
+           price: p.price,
+           category: p.category, 
+           images: p.imageLinks ? normalizeProductImageUrls(p.imageLinks) : [],
+           brand: p.brand?.name || 'Без бренда',
+           quantity: 100
+        }));
+        setProducts(mapped);
+      }
+    } catch (e) {
+      console.error('Ошибка загрузки товаров', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const upsertProduct: Ctx['upsertProduct'] = (p) => {
-    setProducts((prev) => {
-      const idx = prev.findIndex((x) => x.id === p.id);
-      if (idx === -1) return [p, ...prev];
-      const copy = prev.slice();
-      copy[idx] = p;
-      return copy;
-    });
-  };
-
-  const loadProducts: Ctx['loadProducts'] = async (page = 1, pageSize = 50) => {
-    const res = await productsApi.getAll(page, pageSize);
-    if (!res.success) return;
-
-    const payload = res.response as any;
-    const list: Product[] = (payload?.products ?? payload ?? []) as Product[];
-    setProducts(list.map(mapApiProductToRow));
-  };
-
-  const getFilteredProducts: Ctx['getFilteredProducts'] = (src) => {
-    const list = src ?? products;
-
+  const getFilteredProducts = useCallback(() => {
     const fCat = norm(filters.category);
     const fBrand = norm(filters.brand);
     const fColor = norm(filters.color);
+    const min = filters.priceMin;
+    const max = filters.priceMax;
 
-    return list.filter((p) => {
-      const catOk = !fCat || norm(p.category) === fCat;
-      const brandOk = !fBrand || norm(p.brand).includes(fBrand);
-      const colorOk = !fColor || norm(p.color) === fColor;
-      const priceOk = p.price >= filters.priceMin && p.price <= filters.priceMax;
-      return catOk && brandOk && colorOk && priceOk;
+    return products.filter((p) => {
+       if (fCat && fCat !== 'все' && norm(p.category) !== fCat) return false;
+       if (fBrand && fBrand !== 'все' && norm(p.brand) !== fBrand) return false;
+       if (fColor && fColor !== 'все' && norm(p.color) !== fColor) return false;
+       if (p.price < min || p.price > max) return false;
+       return true;
     });
-  };
+  }, [filters, products]);
+
+  const createProduct = useCallback(async (data: any) => {
+      try {
+          const res = await productsApi.create(data);
+          if (res.success) {
+              await loadProducts();
+              return true;
+          }
+          return false;
+      } catch (e) {
+          console.error(e);
+          return false;
+      }
+  }, [loadProducts]);
+
+  useEffect(() => {
+      loadProducts();
+  }, [loadProducts]);
 
   const value = useMemo<Ctx>(
     () => ({
       products,
-      setProducts,
+      loading,
       filters,
       setFilters,
-      addProduct,
-      upsertProduct,
       loadProducts,
       getFilteredProducts,
+      createProduct
     }),
-    [products, filters]
+    [products, loading, filters, loadProducts, getFilteredProducts, createProduct]
   );
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;
