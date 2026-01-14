@@ -7,7 +7,7 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
 {
     public DbSet<Product> Products { get; set; }
     public DbSet<User> Users { get; set; }
-    
+    public DbSet<CartItem> CartItems { get; set; }
     public DbSet<Cart> Carts { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<News> News { get; set; }
@@ -64,10 +64,6 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
         
         // Корзина
         modelBuilder.Entity<Cart>().HasKey(n => n.Id);
-        modelBuilder.Entity<Cart>()
-            .HasMany(с => с.Products)
-            .WithMany(p => p.Carts)
-            .UsingEntity(j => j.ToTable("CartProducts"));
         
         modelBuilder.Entity<Cart>()
             .HasOne(c => c.User)
@@ -75,6 +71,17 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
             .HasForeignKey<User>(u => u.CartId)
             .OnDelete(DeleteBehavior.Cascade);
         
+        // Элемент в корзине
+        modelBuilder.Entity<CartItem>().HasKey(n => n.Id);
+        modelBuilder.Entity<CartItem>()
+            .HasOne(c => c.Cart)
+            .WithMany(c => c.Items)
+            .HasForeignKey(c => c.CartId);
+        
+        modelBuilder.Entity<CartItem>()
+            .HasOne(c => c.Product)
+            .WithMany(p => p.CartItems)
+            .HasForeignKey(c => c.ProductId);
         base.OnModelCreating(modelBuilder);
     }
 }

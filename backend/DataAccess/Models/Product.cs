@@ -27,7 +27,7 @@ public sealed class Product :
     
     public Brand Brand { get; set; }
     
-    public ICollection<Cart> Carts { get; set; } = new List<Cart>();
+    public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     
     public ProductCategory ProductCategory { get; set; }   
 
