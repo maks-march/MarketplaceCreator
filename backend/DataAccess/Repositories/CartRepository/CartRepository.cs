@@ -20,4 +20,12 @@ public class CartRepository(AppContext context) :
             .Include(c => c.User)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
+
+    public override async Task<IEnumerable<Cart>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await Items
+            .Include(c => c.Products)
+            .Include(c => c.User)
+            .ToListAsync(cancellationToken);
+    }
 }

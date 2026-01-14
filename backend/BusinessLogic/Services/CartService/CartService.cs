@@ -25,4 +25,13 @@ public class CartService(ICartRepository cartRepository) :
             throw new NotFoundException("Данный ресурс не найден");
         return cart.GetUnlinkedDto();
     }
+    
+    public async Task<CartDto> GetByUserIdAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var carts = await cartRepository.GetAllAsync(cancellationToken);
+        var cart = carts.FirstOrDefault(x => x.User.Id == userId);
+        if (cart is null)
+            throw new NotFoundException("Ваша корзина не найдена");
+        return cart.GetUnlinkedDto();
+    }
 }
