@@ -16,7 +16,7 @@ public class UserService(IUserRepository userRepository) :
         await base.CheckItem(item, userId, valuesCheck);
         if (item is null)
             throw new NotFoundException($"Пользователя с id {userId} не найдено");
-        if (userId != -1 && (!item.IsAdmin || userId == item.Id))
+        if (userId != -1 && (userId != item.Id))
             throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
         return await Task.FromResult(true);
     }
@@ -44,13 +44,5 @@ public class UserService(IUserRepository userRepository) :
             .Take(searchDto.PageSize)
             .Select(p => p.GetDto())
             .ToList();
-    }
-
-    public async Task<User> GetEntityByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        var user = await userRepository.GetByIdAsync(id, cancellationToken);
-        if (user is null)
-            throw new NotFoundException("Пользователь не найден");
-        return user;
     }
 }

@@ -1,5 +1,3 @@
-using BusinessLogic.Services;
-using DataAccess.Models;
 using Shared.DataTransferObjects.Request.CartDto;
 using Shared.DataTransferObjects.Response.CartDto;
 

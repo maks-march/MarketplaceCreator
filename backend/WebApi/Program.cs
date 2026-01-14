@@ -90,3 +90,5 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 app.Run();
+
+public partial class Program { }

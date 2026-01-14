@@ -36,12 +36,25 @@ public class UserController(IUserService userService):
             throw new AuthenticationException("Пользователь может редактировать только себя");
         return base.UpdateAsync(id, updateDto);
     }
-
+    
     [Authorize]
     [HttpPost]
     [MapToApiVersion("1.0")]
     public override Task<IActionResult> CreateAsync(UserCreateDto createDto)
     {
-        throw new NotImplementedException("Создавать пользователя может только admin");
+        throw new InvalidOperationException("Создавать пользователя можно только через registration");
+    }
+    
+    [Authorize]
+    [HttpPatch("toAdmin")]
+    [MapToApiVersion("1.0")]
+    public async Task<IActionResult> UpgradeToAdminAsync()
+    {
+        var current = await GetCurrentUser();
+        if (current.IsAdmin)
+            throw new InvalidOperationException("Пользователь уже admin");
+        current.IsAdmin = true;
+        await userService.UpdateByIdAsync(current.Id, new(), current.Id);
+        return NoContent();
     }
 }

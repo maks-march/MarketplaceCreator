@@ -1,4 +1,3 @@
-using DataAccess.Repositories;
 using DataAccess.Repositories.BrandRepository;
 using DataAccess.Repositories.CartRepository;
 using DataAccess.Repositories.NewsRepository;

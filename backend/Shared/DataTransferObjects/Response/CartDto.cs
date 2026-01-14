@@ -2,7 +2,7 @@ namespace Shared.DataTransferObjects.Response.CartDto;
 
 public class CartDto : EntityDto
 {
-    public ICollection<ProductDto> Products { get; set; }
+    public ICollection<ProductDto> Items { get; set; }
     
     public decimal Total { get; set; }
     
@@ -11,7 +11,7 @@ public class CartDto : EntityDto
 
 public class CartLinkedDto : EntityDto
 {
-    public ICollection<ProductLinkedDto> Products { get; set; }
+    public ICollection<ProductLinkedDto> Items { get; set; }
     
     public decimal Total { get; set; }
     

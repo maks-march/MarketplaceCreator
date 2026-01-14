@@ -1,7 +1,6 @@
 using System.Security.Authentication;
 using DataAccess.Models;
 using DataAccess.Repositories.NewsRepository;
-using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
