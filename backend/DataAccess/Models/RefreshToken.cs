@@ -1,7 +1,3 @@
-using DataAccess.Migrations;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Shared.DataTransferObjects;
-
 namespace DataAccess.Models;
 
 public class RefreshToken : BaseModel

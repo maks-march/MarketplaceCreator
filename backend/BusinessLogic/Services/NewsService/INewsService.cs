@@ -1,5 +1,4 @@
 using DataAccess.Models;
-using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
 

@@ -12,7 +12,6 @@ using Shared.DataTransferObjects.Request.CartDto;
 using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
-using WebApi.Controllers.CartsController;
 
 namespace BusinessLogic.Services.AuthService;
 

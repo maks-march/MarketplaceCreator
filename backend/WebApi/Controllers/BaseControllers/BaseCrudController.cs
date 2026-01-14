@@ -34,6 +34,17 @@ public class BaseCrudController<T, TDto, TCreateDto, TUpdateDto>(
     }
     
     [Authorize]
+    [HttpDelete("{id:int}")]
+    [MapToApiVersion("1.0")]
+    public virtual async Task<IActionResult> DeleteAsync([FromRoute]int id)
+    {
+        this.EnsureValidateId(id);
+        var userId = GetCurrentUserId();
+        await service.DeleteByIdAsync(id, userId);
+        return Ok();
+    }
+    
+    [Authorize]
     [HttpPatch("{id:int}")]
     [MapToApiVersion("1.0")]
     public virtual async Task<IActionResult> UpdateAsync(
@@ -44,16 +55,5 @@ public class BaseCrudController<T, TDto, TCreateDto, TUpdateDto>(
         var user = GetCurrentUserId();
         await service.UpdateByIdAsync(id, updateDto, user);
         return NoContent();
-    }
-    
-    [Authorize]
-    [HttpDelete("{id:int}")]
-    [MapToApiVersion("1.0")]
-    public virtual async Task<IActionResult> DeleteAsync([FromRoute]int id)
-    {
-        this.EnsureValidateId(id);
-        var userId = GetCurrentUserId();
-        await service.DeleteByIdAsync(id, userId);
-        return Ok();
     }
 }
