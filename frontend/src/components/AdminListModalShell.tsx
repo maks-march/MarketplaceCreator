@@ -13,7 +13,7 @@ const AdminListModalShell: React.FC<Props> = ({ open, title, onClose, children }
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    if (open) window.addEventListener('keydown', onKey);
+    // if (open) window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', onKey);

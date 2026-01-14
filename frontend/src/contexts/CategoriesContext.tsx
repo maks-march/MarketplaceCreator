@@ -81,59 +81,58 @@ export const CategoriesProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch {}
   }, [state]);
 
-  const api: Ctx = useMemo(() => {
+  const api = useMemo<Ctx>(() => {
+    const updateCategoryName = (id: number, name: string) => {
+      setState((s) => ({
+        ...s,
+        categories: s.categories.map((c) => (c.id === id ? { ...c, name } : c)),
+      }));
+    };
+
+    const updateSubcategory = (id: number, patch: Partial<UiSubcategory>) => {
+      setState((s) => ({
+        ...s,
+        subcategories: s.subcategories.map((sc) => (sc.id === id ? { ...sc, ...patch } : sc)),
+      }));
+    };
+
+    const createCategory = (name: string) => {
+      setState((s) => {
+        const nextId = Math.max(0, ...s.categories.map((c) => c.id)) + 1;
+        return { ...s, categories: [...s.categories, { id: nextId, name }] };
+      });
+    };
+
+    const createSubcategory = (categoryId: number, name: string) => {
+      setState((s) => {
+        const nextId = Math.max(0, ...s.subcategories.map((c) => c.id)) + 1;
+        return { ...s, subcategories: [...s.subcategories, { id: nextId, categoryId, name }] };
+      });
+    };
+
+    const deleteCategory = (id: number) => {
+      setState((s) => ({
+        categories: s.categories.filter((c) => c.id !== id),
+        subcategories: s.subcategories.filter((sc) => sc.categoryId !== id),
+      }));
+    };
+
+    const deleteSubcategory = (id: number) => {
+      setState((s) => ({
+        ...s,
+        subcategories: s.subcategories.filter((sc) => sc.id !== id),
+      }));
+    };
+
     return {
       categories: state.categories,
       subcategories: state.subcategories,
-
-      updateCategoryName: (id, name) => {
-        const nextName = name.trim();
-        if (!nextName) return;
-        setState(prev => ({
-          ...prev,
-          categories: prev.categories.map(c => (c.id === id ? { ...c, name: nextName } : c)),
-        }));
-      },
-
-      updateSubcategory: (id, patch) => {
-        setState(prev => ({
-          ...prev,
-          subcategories: prev.subcategories.map(s => (s.id === id ? { ...s, ...patch } : s)),
-        }));
-      },
-
-      createCategory: (name) => {
-        const n = name.trim();
-        if (!n) return;
-        setState(prev => {
-          const nextId = Math.max(0, ...prev.categories.map(c => c.id)) + 1;
-          return { ...prev, categories: [{ id: nextId, name: n }, ...prev.categories] };
-        });
-      },
-
-      createSubcategory: (categoryId, name) => {
-        const n = name.trim();
-        if (!n) return;
-        setState(prev => {
-          const nextId = Math.max(0, ...prev.subcategories.map(s => s.id)) + 1;
-          return { ...prev, subcategories: [...prev.subcategories, { id: nextId, categoryId, name: n }] };
-        });
-      },
-
-      deleteCategory: (id) => {
-        setState(prev => ({
-          categories: prev.categories.filter(c => c.id !== id),
-          // ✅ удаляем все подкатегории этой категории
-          subcategories: prev.subcategories.filter(s => s.categoryId !== id),
-        }));
-      },
-
-      deleteSubcategory: (id) => {
-        setState(prev => ({
-          ...prev,
-          subcategories: prev.subcategories.filter(s => s.id !== id),
-        }));
-      },
+      updateCategoryName,
+      updateSubcategory,
+      createCategory,
+      createSubcategory,
+      deleteCategory,
+      deleteSubcategory,
     };
   }, [state]);
 

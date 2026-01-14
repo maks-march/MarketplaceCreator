@@ -82,5 +82,9 @@ export const usersApi = {
             .catch((err: any) => {
                 return { success: false, response: null, errors: buildErrors(err) || null };
             });
-    }
+    },
+
+    me: async () => apiClient.get('/users/me'),
+
+    updateMe: async (payload: any) => apiClient.put('/users/me', payload),
 };

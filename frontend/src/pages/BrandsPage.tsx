@@ -3,74 +3,117 @@ import PageLayout from '../components/PageLayout';
 import { brandsApi } from '../services/api/brands/brands.api';
 import '../styles/BrandsPage.css';
 
-// Тип для отображения
 type BrandRow = {
-    id: number;
-    name: string;
-    description: string;
+  id: number;
+  name: string;
+  description: string;
+  logoUrl?: string;
+};
+
+const pickList = (payload: any): any[] => {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.brands)) return payload.brands;
+  if (Array.isArray(payload.items)) return payload.items;
+  return [];
+};
+
+const pickLogo = (b: any): string => {
+  // поддержка разных форматов API
+  const arr = b?.images ?? b?.logos ?? b?.pictures ?? b?.photos;
+  if (Array.isArray(arr)) {
+    const s = arr.find((x: any) => typeof x === 'string' && x.trim().length > 0);
+    if (s) return String(s);
+  }
+  const direct = b?.logoUrl ?? b?.logo ?? b?.image ?? b?.imageUrl;
+  if (typeof direct === 'string' && direct.trim().length > 0) return direct.trim();
+  return '';
 };
 
 const BrandsPage: React.FC = () => {
-    const [brands, setBrands] = useState<BrandRow[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>('');
+  const [brands, setBrands] = useState<BrandRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [loadedOk, setLoadedOk] = useState(false);
 
-    // Загрузка данных (паттерн из MainPage/LoginPage)
-    useEffect(() => {
-        let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const res = await brandsApi.getAll();
-                if (mounted) {
-                    if (res.success && res.data) {
-                        // @ts-ignore: Проверка структуры ответа
-                        const items = res.data.brands || [];
-                        setBrands(items.map((b: any) => ({
-                            id: b.id,
-                            name: b.name,
-                            description: b.description
-                        })));
-                    } else {
-                        setError('Не удалось загрузить бренды');
-                    }
-                }
-            } catch (e) {
-                if (mounted) {
-                    console.error(e);
-                    setError('Ошибка сети');
-                }
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        };
+    const fetchData = async () => {
+      setLoading(true);
+      setError('');
+      setLoadedOk(false);
 
-        fetchData();
+      try {
+        const res: any = await brandsApi.getAll();
+        if (!mounted) return;
 
-        return () => { mounted = false; };
-    }, []);
+        if (!res) {
+          setError('Пустой ответ от API');
+          return;
+        }
 
-    if (loading) return <PageLayout><div>Загрузка...</div></PageLayout>;
+        if (res.success) {
+          const payload = res.response ?? res.data ?? null;
+          const items = pickList(payload);
 
-    return (
-        <PageLayout>
-            <div className="brands-page">
-                <h2>Наши бренды</h2>
-                {error && <div style={{ color: 'red' }}>{error}</div>}
-                
-                <div className="brands-grid">
-                    {brands.length === 0 && !error && <p>Бренды не найдены</p>}
-                    {brands.map((b) => (
-                        <div key={b.id} className="brand-card">
-                            <h3>{b.name}</h3>
-                            <p>{b.description}</p>
-                        </div>
-                    ))}
+          setBrands(
+            items.map((b: any) => ({
+              id: Number(b.id),
+              name: String(b.name ?? ''),
+              description: String(b.description ?? ''),
+              logoUrl: pickLogo(b) || undefined,
+            }))
+          );
+          setLoadedOk(true);
+        } else {
+          setError((res?.errors && res.errors[0]) || 'Ошибка получения брендов');
+        }
+      } catch (e) {
+        if (mounted) setError('Ошибка сети при загрузке брендов');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchData();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const showEmpty = loadedOk && !loading && !error && brands.length === 0;
+
+  return (
+    <PageLayout>
+      <div className="brands-page">
+        <h2>Наши бренды</h2>
+
+        {loading && <div>Загрузка...</div>}
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        {showEmpty && <p>Бренды не найдены</p>}
+
+        {!error && brands.length > 0 && (
+          <div className="brands-grid">
+            {brands.map((b) => (
+              <div key={b.id} className="brand-card">
+                <div className="brands-table__img-placeholder" style={{ marginBottom: 10 }}>
+                  {b.logoUrl ? (
+                    <img src={b.logoUrl} alt="" className="brands-table__thumb" />
+                  ) : (
+                    'IMG'
+                  )}
                 </div>
-            </div>
-        </PageLayout>
-    );
+
+                <h3>{b.name}</h3>
+                <p>{b.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </PageLayout>
+  );
 };
 
 export default BrandsPage;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import PageLayout from '../components/PageLayout';
@@ -36,9 +36,16 @@ const createNoopCart = () => ({
   has: (_id: number) => false
 });
 
+function hasToken(): boolean {
+  const v = localStorage.getItem('access_token');
+  return !!v && v !== 'undefined' && v !== 'null';
+}
+
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+
+  const authed = isAuthenticated || hasToken(); // ✅ ключевая правка
 
   // безопасный fallback: если в проекте есть реальный useCart — импортируйте и замените эту строку
   const { add, remove, has } = createNoopCart();
@@ -46,11 +53,11 @@ const ProfilePage: React.FC = () => {
   const handleEdit = () => navigate('/user/profile/edit');
 
   const avatar = (user as any)?.avatarUrl || '/vite.svg';
-  const name = user?.name || '';
+  const name = user?.name || 'Пользователь';
   const email = user?.email || '';
-  const role = user?.role || '';
+  const role = (user as any)?.role || 'user';
 
-  if (!isAuthenticated) {
+  if (!authed) {
     return (
       <PageLayout>
         <div className="profile-page">

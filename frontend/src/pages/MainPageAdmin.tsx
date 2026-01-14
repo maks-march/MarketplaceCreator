@@ -31,7 +31,7 @@ const truncate20 = (s: string) => {
 };
 
 const MainPageAdmin: React.FC = () => {
-  const { products, addProduct, upsertProduct, getFilteredProducts, loadProducts } = useProducts();
+  const { products, createProduct, upsertProduct, getFilteredProducts, loadProducts } = useProducts();
 
   React.useEffect(() => {
     loadProducts().catch(() => {});
@@ -69,7 +69,7 @@ const MainPageAdmin: React.FC = () => {
     setModalProduct(null);
   };
 
-  const handleCreate = (created: {
+  const handleCreate = async (created: {
     name?: string;
     description?: string;
     category?: string;
@@ -86,7 +86,7 @@ const MainPageAdmin: React.FC = () => {
       .map(s => s.trim())
       .filter(Boolean);
 
-    addProduct({
+    await createProduct({
       name: (created.name ?? '').trim() || 'Без названия',
       description: (created.description ?? '').trim(),
       category: (created.category ?? '').trim() || 'Электроника',

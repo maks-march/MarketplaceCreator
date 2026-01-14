@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useMemo, useCallback, useEffect } from 'react';
-import { productsApi } from '../services/api/products/products.api';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { productsApi } from '../services/api';
 import { normalizeProductImageUrls } from '../utils/productImages';
 
 export type ProductRow = {
@@ -52,24 +52,26 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
   const loadProducts = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await productsApi.getAll(1, 1000); 
-      if (res.success && res.data) {
-        const items = res.data.products || [];
-        
-        const mapped: ProductRow[] = items.map((p: any) => ({
-           id: p.id,
-           name: p.title,
-           description: p.description,
-           price: p.price,
-           category: p.category, 
-           images: p.imageLinks ? normalizeProductImageUrls(p.imageLinks) : [],
-           brand: p.brand?.name || 'Без бренда',
-           quantity: 100
+      const res = await productsApi.getAll(1, 1000);
+      if (res.success && res.response) {
+        const apiProducts = (res.response.products ?? res.response) as any[];
+
+        const mapped: ProductRow[] = (apiProducts ?? []).map((p: any) => ({
+          id: Number(p.id),
+          name: p.title ?? p.name ?? '',
+          description: p.description ?? '',
+          price: Number(p.price ?? 0),
+          category: p.category ?? '',
+          images: normalizeProductImageUrls(p.imageLinks ?? p.images),
+          brand: p.brand?.name ?? p.brand ?? undefined,
+          color: p.color ?? undefined,
+          quantity: p.quantity ?? undefined,
         }));
+
         setProducts(mapped);
       }
     } catch (e) {
-      console.error('Ошибка загрузки товаров', e);
+      console.error('loadProducts failed', e);
     } finally {
       setLoading(false);
     }
@@ -83,30 +85,26 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
     const max = filters.priceMax;
 
     return products.filter((p) => {
-       if (fCat && fCat !== 'все' && norm(p.category) !== fCat) return false;
-       if (fBrand && fBrand !== 'все' && norm(p.brand) !== fBrand) return false;
-       if (fColor && fColor !== 'все' && norm(p.color) !== fColor) return false;
-       if (p.price < min || p.price > max) return false;
-       return true;
+      if (fCat && fCat !== 'все' && norm(p.category) !== fCat) return false;
+      if (fBrand && fBrand !== 'все' && norm(p.brand) !== fBrand) return false;
+      if (fColor && fColor !== 'все' && norm(p.color) !== fColor) return false;
+      if (p.price < min || p.price > max) return false;
+      return true;
     });
   }, [filters, products]);
 
-  const createProduct = useCallback(async (data: any) => {
-      try {
-          const res = await productsApi.create(data);
-          if (res.success) {
-              await loadProducts();
-              return true;
-          }
-          return false;
-      } catch (e) {
-          console.error(e);
-          return false;
-      }
-  }, [loadProducts]);
+  const createProduct = async (payload: any) => {
+    const res: any = await productsApi.create(payload);
+    if (!res?.success) {
+      throw new Error((res?.errors && res.errors[0]) || 'Не удалось создать товар');
+    }
+    await loadProducts();
+    return res.response ?? null;
+  };
 
   useEffect(() => {
-      loadProducts();
+    // автозагрузка списка
+    loadProducts().catch(() => {});
   }, [loadProducts]);
 
   const value = useMemo<Ctx>(
@@ -117,7 +115,7 @@ export const ProductsProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
       setFilters,
       loadProducts,
       getFilteredProducts,
-      createProduct
+      createProduct,
     }),
     [products, loading, filters, loadProducts, getFilteredProducts, createProduct]
   );

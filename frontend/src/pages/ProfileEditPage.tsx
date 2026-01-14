@@ -68,15 +68,28 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
       return;
     }
 
-    await updateProfile({
-      login: login.trim(),
-      name: fio.trim(),
-      email: email.trim(),
-      ...(password.trim() ? { password: password.trim() } : {}),
-      ...(avatarUrl ? { avatarUrl } : {}),
-    });
+    // ⚠️ blob: URL нельзя сохранять в БД как avatarUrl
+    // пока нет API загрузки файла — не отправляем avatarUrl
+    const isBlob = avatarUrl.startsWith('blob:');
 
-    navigate(backToProfilePath, { replace: true });
+    try {
+      await updateProfile({
+        login: login.trim(),
+        name: fio.trim(),
+        email: email.trim(),
+        ...(password.trim() ? { password: password.trim() } : {}),
+        ...(avatarUrl && !isBlob ? { avatarUrl } : {}),
+      });
+
+      if (avatarUrl && isBlob) {
+        // мягкое уведомление
+        console.warn('Avatar выбран как локальный файл (blob:). Нужен endpoint загрузки файла, чтобы сохранить в БД.');
+      }
+
+      navigate(backToProfilePath, { replace: true });
+    } catch (e: any) {
+      setError(e?.message || 'Не удалось сохранить профиль');
+    }
   };
 
   const onCancel = () => navigate(backToProfilePath);

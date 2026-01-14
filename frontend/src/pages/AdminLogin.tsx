@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
-import '../styles/LoginPage.css';
+import '../styles/LoginBox.css';
+import '../styles/AuthShell.css';
 
 const AdminLogin: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/admin/main';
+
   const [loginValue, setLoginValue] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,8 +37,8 @@ const AdminLogin: React.FC = () => {
 
       <div className="login-page">
         <div className="login-shell">
-          {/* отличие только в заголовке */}
           <h2 className="login-title">Вход для администрации</h2>
+
           <div className="login-card">
             <form onSubmit={handleSubmit} className="login-form">
               {error && <div className="login-error">{error}</div>}
@@ -48,7 +50,8 @@ const AdminLogin: React.FC = () => {
                 name="login"
                 placeholder="login или example@mail.ru"
                 value={loginValue}
-                onChange={e => setLoginValue(e.target.value)}
+                onChange={(e) => setLoginValue(e.target.value)}
+                autoComplete="username"
               />
 
               <label className="login-label">Пароль:</label>
@@ -58,23 +61,15 @@ const AdminLogin: React.FC = () => {
                 name="password"
                 placeholder="******"
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
               />
 
-              <button type="submit" className="login-btn">
-                Вход
-              </button>
+              <button type="submit" className="login-btn">Войти</button>
 
-              {/* блок с регистрацией и восстановлением УБРАН */}
-
-              {/* возврат к обычному входу */}
-              <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  className="login-link-btn"
-                  onClick={() => navigate('/login')}
-                >
-                  Вернуться к входу для пользователей
+              <div className="login-links" style={{ justifyContent: 'center' }}>
+                <button type="button" className="login-link-btn" onClick={() => navigate('/login')}>
+                  Назад
                 </button>
               </div>
             </form>

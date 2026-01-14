@@ -4,6 +4,7 @@ import { AuthContext } from './AuthContextObject';
 
 // ✅ подключаем реальный API
 import { authApi } from '../services/api/auth/auth.api';
+import { usersApi } from '../services/api/users/users.api';
 import type { LoginRequest, RegisterRequest } from '../services/api/auth/auth.types';
 
 type Role = 'user' | 'admin';
@@ -117,13 +118,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return await login(payload.username, password, 'user');
   };
 
-  const updateProfile = async (patch: Partial<User> & { avatarUrl?: string }) => {
-    // ✅ В services/api нет user.updateMe, поэтому пока оставим локально (не ломаем UI)
-    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
-    // сохраняем в local storage, если пользователь авторизован
-    const stored = readAuthFromStorage();
-    if (stored?.role && stored?.user) {
-      writeAuthToStorage({ role: stored.role, user: { ...stored.user, ...patch } as User });
+  const updateProfile = async (payload: any) => {
+    const res: any = await usersApi.updateMe(payload);
+    if (!res?.success) {
+      const msg = (res?.errors && res.errors[0]) || 'Не удалось обновить профиль';
+      throw new Error(msg);
+    }
+
+    const me: any = await usersApi.me();
+    if (me?.success) {
+      setUser(me.response ?? me.data ?? me.response?.user ?? null);
+      setIsAuthenticated(true);
     }
   };
 
