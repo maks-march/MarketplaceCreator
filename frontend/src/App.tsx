@@ -25,6 +25,7 @@ import UsersPage from './pages/UsersPage';
 import NewsPage from './pages/NewsPage';
 import CartPage from './pages/CartPage';
 import AdminListsPage from './pages/AdminListsPage';
+import AdminNewsPage from './pages/AdminNewsPage';
 
 const isAuthedByStorage = () => {
   const token = localStorage.getItem('access_token');
@@ -41,10 +42,10 @@ const RequireAdmin: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   const location = useLocation();
 
   const authed = auth.isAuthenticated || isAuthedByStorage();
-  const role = auth.role ?? roleByStorage();
 
+  // ✅ роль берём ТОЛЬКО из контекста. Если контекст не успел — он bootstrap'ится в AuthProvider.
   if (!authed) return <Navigate to="/admin/login" state={{ from: location }} replace />;
-  if (role !== 'admin') return <Navigate to="/user/main" replace />;
+  if (auth.role !== 'admin') return <Navigate to="/user/main" replace />;
   return <>{children}</>;
 };
 
@@ -53,10 +54,9 @@ const RequireUser: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const location = useLocation();
 
   const authed = auth.isAuthenticated || isAuthedByStorage();
-  const role = auth.role ?? roleByStorage();
 
   if (!authed) return <Navigate to="/login" state={{ from: location }} replace />;
-  if (role !== 'user') return <Navigate to="/admin/main" replace />;
+  if (auth.role !== 'user') return <Navigate to="/admin/main" replace />;
   return <>{children}</>;
 };
 
@@ -137,6 +137,14 @@ export default function App() {
               path="/admin/main"
               element={
                 <RequireAdmin>
+                  <MainPage mode="admin" />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <RequireAdmin>
                   <MainPageAdmin />
                 </RequireAdmin>
               }
@@ -177,7 +185,7 @@ export default function App() {
               path="/admin/news"
               element={
                 <RequireAdmin>
-                  <NewsPage />
+                  <AdminNewsPage />
                 </RequireAdmin>
               }
             />

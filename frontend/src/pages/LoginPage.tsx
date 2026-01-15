@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 
 import '../styles/LoginBox.css';
 import '../styles/AuthShell.css';
-
-import { authApi } from '../services/api/auth/auth.api';
-import type { LoginRequest } from '../services/api/auth/auth.types';
 
 function hasAnyTokenInStorage(): boolean {
   // подстраховка: в разных местах проекта могли использовать разные ключи
@@ -17,6 +15,7 @@ function hasAnyTokenInStorage(): boolean {
 }
 
 const LoginPage: React.FC = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const [error, setError] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -38,37 +37,13 @@ const LoginPage: React.FC = () => {
     setSubmitting(true);
 
     try {
-      const request: LoginRequest = {
-        emailOrUsername: formData.emailOrUsername,
-        password: formData.password,
-      };
-
-      const result = await authApi.login(request);
-
-      // 1) нормальный путь
-      if (result?.success) {
-        navigate('/user/main', { replace: true });
+      const ok = await auth.login(formData.emailOrUsername.trim(), formData.password, 'user');
+      if (!ok) {
+        setError(['Неверный логин/email или пароль (или это admin-аккаунт, войдите через /admin/login)']);
         return;
       }
-
-      // 2) fallback: бэк мог вернуть 200 с токенами, но authApi неверно распарсил success
-      if (hasAnyTokenInStorage()) {
-        console.warn('Login: success=false but token exists in localStorage. Redirecting...');
-        navigate('/user/main', { replace: true });
-        return;
-      }
-
-      setError(result?.errors ?? ['Не удалось войти']);
-    } catch (err) {
-      console.error('Login failed', err);
-
-      // fallback даже на исключения: вдруг токен всё равно записался
-      if (hasAnyTokenInStorage()) {
-        console.warn('Login threw error but token exists in localStorage. Redirecting...');
-        navigate('/user/main', { replace: true });
-        return;
-      }
-
+      navigate('/user/main', { replace: true });
+    } catch {
       setError(['Ошибка входа (проверьте доступность API)']);
     } finally {
       setSubmitting(false);

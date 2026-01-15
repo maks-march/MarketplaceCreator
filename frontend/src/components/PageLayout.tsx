@@ -220,6 +220,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({ children }) => {
                 <NewsIcon size={24} />
               </NavLink>
 
+              {/* ✅ ТРЕТИЙ ПУНКТ = управление товарами */}
               <NavLink to="/admin/products" className={navClass} title="Товары (админ)">
                 <img src={ordersSvg} alt="Товары" style={{ width: 22, height: 22 }} />
               </NavLink>

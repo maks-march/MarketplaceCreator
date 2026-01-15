@@ -1,86 +1,149 @@
-import React, { useMemo, useState } from 'react';
-import type { User } from '../types/userTypes';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { LoginRequest } from '../services/api/auth/auth.types';
+import { authApi, usersApi } from '../services/api';
+import type { User as UiUser } from '../types/userTypes';
 import { AuthContext } from './AuthContextObject';
 
-// ✅ подключаем реальный API
-import { authApi } from '../services/api/auth/auth.api';
-import { usersApi } from '../services/api/users/users.api';
-import type { LoginRequest, RegisterRequest } from '../services/api/auth/auth.types';
-
 type Role = 'user' | 'admin';
+type StoredAuth = { user: UiUser; role: Role };
 
-type StoredAuth = {
-  user: User;
-  role: Role;
-};
-
-// Безопасно читаем localStorage
 function readAuthFromStorage(): StoredAuth | null {
   try {
     const raw = localStorage.getItem('auth');
     if (!raw) return null;
-
     const parsed = JSON.parse(raw) as Partial<StoredAuth> | null;
-    if (!parsed || !parsed.user) return null;
-
+    if (!parsed?.user) return null;
     const role = parsed.role === 'admin' || parsed.role === 'user' ? parsed.role : null;
     if (!role) return null;
-
-    return { user: parsed.user as User, role };
+    return { user: parsed.user as UiUser, role };
   } catch {
     return null;
   }
 }
 
-function writeAuthToStorage(value: StoredAuth | null) {
+function writeAuthToStorage(v: StoredAuth | null) {
   try {
-    if (!value) {
-      localStorage.removeItem('auth');
-      return;
-    }
-    localStorage.setItem('auth', JSON.stringify(value));
-  } catch {
-    // ignore
-  }
+    if (!v) localStorage.removeItem('auth');
+    else localStorage.setItem('auth', JSON.stringify(v));
+  } catch {}
 }
+
+function hasToken(): boolean {
+  const t = localStorage.getItem('access_token');
+  return !!t && t !== 'undefined' && t !== 'null';
+}
+
+function clearTokens() {
+  try {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('current_role');
+    localStorage.removeItem('auth');
+  } catch {}
+}
+
+const mapMeToUiUser = (apiUser: any): UiUser => {
+  // ВАЖНО: email должен приходить с /auth/me, иначе будет пусто
+  return {
+    id: String(apiUser.id ?? ''),
+    login: String(apiUser.username ?? ''),
+    password: '',
+    email: String(apiUser.email ?? ''), // ✅
+    name: String([apiUser.surname, apiUser.name, apiUser.patronymic].filter(Boolean).join(' ').trim()),
+    role: apiUser.isAdmin ? 'Администратор' : 'Пользователь',
+    dateCreated: String(apiUser.created ?? apiUser.createdAt ?? apiUser.сreated ?? ''),
+    avatarUrl: String(apiUser.avatarUrl ?? '/vite.svg'),
+  };
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const initialAuth = useMemo(() => readAuthFromStorage(), []);
-  const [user, setUser] = useState<User | null>(() => initialAuth?.user ?? null);
+  const [user, setUser] = useState<UiUser | null>(() => initialAuth?.user ?? null);
   const [role, setRole] = useState<Role | null>(() => initialAuth?.role ?? null);
+  const [initializing, setInitializing] = useState(true);
 
   const isAuthenticated = !!user && !!role;
 
-  const login = async (loginOrEmail: string, password: string, userRole: Role): Promise<boolean> => {
-    const credentials: LoginRequest = { emailOrUsername: loginOrEmail, password };
+  // ✅ bootstrap из токена: после F5/переходов контекст должен восстановиться
+  useEffect(() => {
+    let mounted = true;
 
-    const result = await authApi.login(credentials);
+    const boot = async () => {
+      try {
+        if (!hasToken()) {
+          if (mounted) {
+            setInitializing(false);
+          }
+          return;
+        }
 
-    if (!result.success) return false;
+        const me = await authApi.getMe();
+        if (!me.success || !me.response) {
+          clearTokens();
+          if (mounted) {
+            setUser(null);
+            setRole(null);
+          }
+          return;
+        }
 
-    // authApi.loginAsync возвращает user из backend DTO,
-    // но ваш фронтовый тип User = types/userTypes.ts (id: string, login, roleLabel, etc)
-    // Поэтому берём всё, что возможно, и делаем "безопасное" приведение.
-    const meResult = await authApi.getMe();
-    if (!meResult.success) return false;
+        const apiUser = me.response as any;
+        const nextRole: Role = apiUser.isAdmin ? 'admin' : 'user';
 
-    const apiUser = meResult.response as any;
+        // записываем роль для UI, но guards всё равно будут опираться на контекст
+        localStorage.setItem('current_role', nextRole);
 
-    // Приведение к вашему UI-типу User
-    const uiUser: User = {
-      id: String(apiUser.id ?? apiUser.userId ?? ''),
-      login: String(apiUser.username ?? apiUser.login ?? loginOrEmail),
-      password: '', // пароль не храним
-      email: String(apiUser.email ?? ''),
-      name: String([apiUser.name, apiUser.surname, apiUser.patronymic].filter(Boolean).join(' ') || apiUser.name || ''),
-      role: apiUser.isAdmin ? 'Администратор' : 'Пользователь',
-      dateCreated: String(apiUser.created ?? apiUser.dateCreated ?? ''),
-      avatarUrl: String(apiUser.avatarUrl ?? '/vite.svg'),
+        const uiUser = mapMeToUiUser(apiUser);
+        if (mounted) {
+          setUser(uiUser);
+          setRole(nextRole);
+          writeAuthToStorage({ user: uiUser, role: nextRole });
+        }
+      } finally {
+        if (mounted) setInitializing(false);
+      }
     };
 
+    boot();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const login = async (loginOrEmail: string, password: string, expectedRole: Role): Promise<boolean> => {
+    const credentials: LoginRequest = { emailOrUsername: loginOrEmail, password };
+    const result = await authApi.login(credentials);
+    if (!result.success) return false;
+
+    // ✅ выясняем реальную роль через backend
+    const me = await authApi.getMe();
+    if (!me.success || !me.response) {
+      clearTokens();
+      setUser(null);
+      setRole(null);
+      return false;
+    }
+
+    const apiUser = me.response as any;
+    const actualRole: Role = apiUser.isAdmin ? 'admin' : 'user';
+
+    // ✅ запрет “входа не на той странице”
+    // /admin/login должен впускать только admin, /login только user
+    if (actualRole !== expectedRole) {
+      // чистим токены, чтобы не получилось “залогинился не туда, но токен остался”
+      await authApi.logout().catch(() => {});
+      clearTokens();
+      setUser(null);
+      setRole(null);
+      return false;
+    }
+
+    localStorage.setItem('current_role', actualRole);
+
+    const uiUser = mapMeToUiUser(apiUser);
     setUser(uiUser);
-    setRole(userRole);
-    writeAuthToStorage({ user: uiUser, role: userRole });
+    setRole(actualRole);
+    writeAuthToStorage({ user: uiUser, role: actualRole });
     return true;
   };
 
@@ -88,9 +151,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await authApi.logout();
     } finally {
+      clearTokens();
       setUser(null);
       setRole(null);
-      writeAuthToStorage(null);
     }
   };
 
@@ -102,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loginValue: string,
     password: string
   ): Promise<boolean> => {
-    const payload: RegisterRequest = {
+    const payload = {
       email: email.trim(),
       username: loginValue.trim(),
       password,
@@ -111,25 +174,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       patronymic: patronymic?.trim() || undefined,
     };
 
-    const result = await authApi.register(payload);
-    if (!result.success) return false;
+    const res = await authApi.register(payload as any);
+    if (!res.success) return false;
 
-    // после регистрации можно залогинить автоматически
+    // после регистрации — логиним как user
     return await login(payload.username, password, 'user');
   };
 
-  const updateProfile = async (payload: any) => {
-    const res: any = await usersApi.updateMe(payload);
-    if (!res?.success) {
-      const msg = (res?.errors && res.errors[0]) || 'Не удалось обновить профиль';
-      throw new Error(msg);
+  const updateProfile = async (patch: Partial<UiUser> & { avatarUrl?: string; password?: string }) => {
+    // UI -> API
+    const fio = (patch.name ?? '').trim();
+    const parts = fio.split(' ').filter(Boolean);
+    const surname = parts[0] ?? '';
+    const name = parts[1] ?? '';
+    const patronymic = parts.slice(2).join(' ').trim();
+
+    const payload: any = {
+      ...(patch.login ? { username: patch.login } : {}),
+      ...(patch.email ? { email: patch.email } : {}),
+      ...(surname ? { surname } : {}),
+      ...(name ? { name } : {}),
+      ...(patronymic ? { patronymic } : {}),
+      ...(patch.password ? { password: patch.password } : {}),
+      // avatarUrl только если это не blob:
+      ...(patch.avatarUrl && !patch.avatarUrl.startsWith('blob:') ? { avatarUrl: patch.avatarUrl } : {}),
+    };
+
+    const upd = await usersApi.updateMe(payload);
+    if (!upd.success) {
+      throw new Error((upd.errors && upd.errors[0]) || 'Не удалось обновить профиль');
     }
 
-    const me: any = await usersApi.me();
-    if (me?.success) {
-      setUser(me.response ?? me.data ?? me.response?.user ?? null);
-      setIsAuthenticated(true);
+    // после успешного обновления — подтягиваем актуальные данные
+    const me = await authApi.getMe();
+    if (!me.success || !me.response) {
+      throw new Error('Профиль обновлён, но не удалось получить актуальные данные');
     }
+
+    const apiUser = me.response as any;
+    const nextRole: Role = apiUser.isAdmin ? 'admin' : 'user';
+    const uiUser = mapMeToUiUser(apiUser);
+
+    setUser(uiUser);
+    setRole(nextRole);
+    try {
+      localStorage.setItem('current_role', nextRole);
+      localStorage.setItem('auth', JSON.stringify({ user: uiUser, role: nextRole } satisfies StoredAuth));
+    } catch {}
   };
 
   return (
@@ -142,9 +233,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         signup,
         updateProfile,
+        // доп. поле: если у вас тип AuthContextValue не содержит initializing — не добавляйте наружу
       }}
     >
-      {children}
+      {/* ✅ пока bootstrapping — не рендерим guards/роуты, чтобы не было ложных редиректов */}
+      {initializing ? <div style={{ padding: 16 }}>Loading...</div> : children}
     </AuthContext.Provider>
   );
 };

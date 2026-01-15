@@ -19,7 +19,7 @@ const AdminLogin: React.FC = () => {
 
     const ok = await auth.login(loginValue.trim(), password, 'admin');
     if (!ok) {
-      setError('Неверный логин/email или пароль');
+      setError('Неверный логин/email или пароль (или нет прав администратора)');
       return;
     }
 

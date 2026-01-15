@@ -40,6 +40,12 @@ const usersRepository = {
     }
 }
 
+const tryUpdateMe = async (method: 'patch' | 'put', url: string, payload: any): Promise<BaseResponse> => {
+    return await (apiClient as any)[method](url, payload)
+      .then(() => ({ success: true, response: null, errors: null }))
+      .catch((err: any) => ({ success: false, response: null, errors: buildErrors(err) || null }));
+};
+
 export const usersApi = { 
     getAll: async (
         page: number = 1,
@@ -84,7 +90,37 @@ export const usersApi = {
             });
     },
 
-    me: async () => apiClient.get('/users/me'),
+    me: async (): Promise<BaseResponse> => {
+        return await apiClient
+            .get<UserLinked>('/auth/me')
+            .then((r) => ({ success: true, response: r.data, errors: null }))
+            .catch((err: any) => ({ success: false, response: null, errors: buildErrors(err) || null }));
+    },
 
-    updateMe: async (payload: any) => apiClient.put('/users/me', payload),
+    updateMe: async (payload: UpdateUserRequest & { password?: string }): Promise<BaseResponse> => {
+        // 1) узнать текущего пользователя и его id
+        const meRes = await usersApi.me();
+        if (!meRes.success || !meRes.response) {
+            return { success: false, response: null, errors: meRes.errors ?? ['Не удалось получить текущего пользователя'] };
+        }
+
+        const me = meRes.response as any;
+        const id = me?.id;
+        if (id == null) {
+            return { success: false, response: null, errors: ['Не удалось определить id текущего пользователя'] };
+        }
+
+        // 2) пароль сейчас не поддержан типами UpdateUserRequest и чаще всего отдельным endpoint’ом.
+        //    Чтобы не “делать вид”, что пароль меняется — запрещаем отправлять его через /users/{id}.
+        const { password, ...safePatch } = payload as any;
+        if (password) {
+            return { success: false, response: null, errors: ['Смена пароля через профиль пока не поддерживается backend'] };
+        }
+
+        // 3) обновить пользователя
+        return await usersRepository
+            .updateAsync(String(id), safePatch)
+            .then(() => ({ success: true, response: null, errors: null }))
+            .catch((err: any) => ({ success: false, response: null, errors: buildErrors(err) || null }));
+    },
 };

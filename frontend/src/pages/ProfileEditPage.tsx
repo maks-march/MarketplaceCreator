@@ -27,10 +27,11 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
     [mode]
   );
 
+  const currentEmail = user?.email ?? '';
+
   useEffect(() => {
     if (!user) return;
 
-    // если уже синхронизировано — ничего не делаем
     const nextLogin = user.login ?? '';
     const nextFio = user.name ?? '';
     const nextEmail = user.email ?? '';
@@ -49,7 +50,6 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
     const url = URL.createObjectURL(f);
     setAvatarUrl(url);
 
-    // сброс, чтобы можно было выбрать тот же файл снова
     if (fileRef.current) fileRef.current.value = '';
   };
 
@@ -68,27 +68,32 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
       return;
     }
 
-    // ⚠️ blob: URL нельзя сохранять в БД как avatarUrl
-    // пока нет API загрузки файла — не отправляем avatarUrl
     const isBlob = avatarUrl.startsWith('blob:');
 
     try {
+      setError('');
+
       await updateProfile({
         login: login.trim(),
         name: fio.trim(),
         email: email.trim(),
-        ...(password.trim() ? { password: password.trim() } : {}),
+        ...(password.trim() ? ({ password: password.trim() } as any) : {}),
         ...(avatarUrl && !isBlob ? { avatarUrl } : {}),
       });
 
       if (avatarUrl && isBlob) {
-        // мягкое уведомление
-        console.warn('Avatar выбран как локальный файл (blob:). Нужен endpoint загрузки файла, чтобы сохранить в БД.');
+        console.warn(
+          'Avatar выбран как локальный файл (blob:). Нужен endpoint загрузки файла, чтобы сохранить в БД.'
+        );
       }
 
       navigate(backToProfilePath, { replace: true });
     } catch (e: any) {
-      setError(e?.message || 'Не удалось сохранить профиль');
+      const apiMsg =
+        e?.response?.data?.message ||
+        (Array.isArray(e?.response?.data?.errors) ? e.response.data.errors[0] : null);
+
+      setError(apiMsg || e?.message || 'Не удалось сохранить профиль');
     }
   };
 
@@ -97,10 +102,7 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
   return (
     <PageLayout>
       <div className="pe-page">
-        {/* было: "pe-shell pe-shell--stack pe-shell--left" */}
         <div className="pe-shell pe-shell--stack">
-          {/* AVATAR TOP */}
-          {/* было: "pe-left pe-left--top pe-left--flush" */}
           <div className="pe-left pe-left--top">
             <div
               className="pe-avatar pe-avatar--click"
@@ -126,14 +128,14 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
               style={{ display: 'none' }}
               onChange={onAvatarChange}
             />
-
-            {/* ✅ КНОПКУ "Изменить фото" убрали */}
           </div>
 
-          {/* FORM BELOW AVATAR */}
-          {/* было: "pe-right pe-right--below pe-right--flush" */}
           <div className="pe-right pe-right--below">
-            {error && <div className="pe-error">{error}</div>}
+            {error && (
+              <div className="pe-error" style={{ background: '#ffd6d6', color: '#b00020', padding: 10, borderRadius: 8 }}>
+                {error}
+              </div>
+            )}
 
             <div className="pe-row">
               <div className="pe-label">Логин</div>
@@ -171,13 +173,12 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
                   className="pe-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@email.com"
+                  placeholder="example@mail.ru"
                 />
-                <div className="pe-current pe-current--side">Текущий: {user?.email ?? '—'}</div>
+                <div className="pe-current pe-current--side">Текущий: {currentEmail || '—'}</div>
               </div>
             </div>
 
-            {/* ✅ Нижняя панель: слева "Изменить пароль", справа "Отмена/Сохранить" */}
             <div className="pe-footerbar">
               <button
                 type="button"
@@ -199,9 +200,6 @@ const ProfileEditPage: React.FC<Props> = ({ mode }) => {
                 </button>
               </div>
             </div>
-
-            {/* ✅ Старые блоки .pe-password-area и .pe-actions можно оставить, но НЕ рендерить.
-                Если они уже в файле — удалять не обязательно, главное чтобы не было дублей в JSX. */}
           </div>
         </div>
       </div>

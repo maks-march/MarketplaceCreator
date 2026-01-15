@@ -1,8 +1,8 @@
 import React from 'react';
-import BrandsPage from './BrandsPage';
+import AdminBrandsPage from './AdminBrandsPage';
 
 const BrandsAdmin: React.FC = () => {
-  return <BrandsPage />;
+  return <AdminBrandsPage />;
 };
 
 export default BrandsAdmin;
