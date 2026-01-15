@@ -15,29 +15,31 @@ public class CartController(ICartService cartService, IProductService productSer
 {
     [Authorize]
     [MapToApiVersion("1.0")]
-    [HttpPatch("{id:int}/add/{productId:int}")]
-    public async Task<IActionResult> UpdateAddAsync([FromRoute] int id, [FromRoute] int productId)
+    [HttpPatch("my/add/{productId:int}")]
+    public async Task<IActionResult> UpdateAddAsync([FromRoute] int productId)
     {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         var updateDto = new CartUpdateDto()
         {
             IsAdding = true,
             Product = await productService.GetByIdModelAsync(productId)
         };
-        await cartService.UpdateAsync(id, updateDto, GetCurrentUserId());
+        await cartService.UpdateAsync(cart.Id, updateDto, GetCurrentUserId());
         return NoContent();
     }
     
     [Authorize]
     [MapToApiVersion("1.0")]
-    [HttpPatch("{id:int}/remove/{productId:int}")]
-    public async Task<IActionResult> UpdateDeleteAsync([FromRoute] int id, [FromRoute] int productId)
+    [HttpPatch("my/remove/{productId:int}")]
+    public async Task<IActionResult> UpdateDeleteAsync([FromRoute] int productId)
     {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         var updateDto = new CartUpdateDto()
         {
             IsAdding = false,
             Product = await productService.GetByIdModelAsync(productId)
         };
-        await cartService.UpdateAsync(id, updateDto, GetCurrentUserId());
+        await cartService.UpdateAsync(cart.Id, updateDto, GetCurrentUserId());
         return NoContent();
     }
     
