@@ -6,7 +6,7 @@ namespace Shared.DataTransferObjects.Request.NewsDto;
 public class NewsCreateDto : BaseDto
 {
     [Required(ErrorMessage = "Имя для продукта обязательно")]
-    [StringLength(50, MinimumLength = 3, ErrorMessage = "Имя от 3 до 50 символов")]
+    [StringLength(500, MinimumLength = 3, ErrorMessage = "Имя от 3 до 50 символов")]
     public string? Title { get; set; }
     
     public string Description { get; set; } = string.Empty;
