@@ -67,22 +67,22 @@ public class AuthService(IUserRepository userRepository, IRefreshTokenRepository
         throw new AuthenticationException("Неправильный логин или пароль!");
     }
 
-    public async Task LogoutAsync(string refreshToken, int userId, CancellationToken cancellationToken = default)
+    public async Task LogoutAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var refreshTokenEntity = await tokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
+        var refreshTokenEntity = await tokenRepository.GetByUserIdAsync(userId, cancellationToken);
         if (refreshTokenEntity == null)
             throw new NotFoundException("Неверный токен!");
         if (refreshTokenEntity.User.Id != userId)
             throw new AuthenticationException("Данный пользователь не может разрушить этот токен");
-        await tokenRepository.DeleteAsync(refreshTokenEntity, cancellationToken);
+        await tokenRepository.UpdateAsync(refreshTokenEntity, "", cancellationToken);
     }
 
-    public async Task<RefreshResponse> RefreshAsync(RefreshRequest request, User user, CancellationToken cancellationToken = default)
+    public async Task<RefreshResponse> RefreshAsync(User user, CancellationToken cancellationToken = default)
     {
-        var refreshToken = await tokenRepository.GetByTokenAsync(request.RefreshToken, cancellationToken);
+        var refreshToken = await tokenRepository.GetByUserIdAsync(user.Id, cancellationToken);
         if (refreshToken == null || refreshToken != user.RefreshToken)
-            throw new NotFoundException("Неверный токен!");
-        if (refreshToken.Expires < DateTime.UtcNow)
+            throw new NotFoundException("У этого пользователя нету токена!");
+        if (refreshToken.Expires < DateTime.UtcNow || refreshToken.Token == "")
             throw new InvalidOperationException("Токен просрочен!");
         if (refreshToken.User.Id != user.Id)
             throw new AuthenticationException("Данный пользователь не может обновить этот токен");

@@ -3,7 +3,7 @@ using BusinessLogic.Services.UserService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers.BaseControllerrs;
+namespace WebApi.Controllers.BaseControllers;
 
 [ApiVersion("1.0")]
 public class BaseCrudController<T, TDto, TCreateDto, TUpdateDto>(

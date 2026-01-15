@@ -7,10 +7,10 @@ namespace Shared.DataTransferObjects.Request.ProductDto;
 public class ProductCreateDto : BaseDto
 {
     [Required(ErrorMessage = "Имя для продукта обязательно")]
-    [StringLength(50, MinimumLength = 3, ErrorMessage = "Имя от 3 до 50 символов")]
+    [StringLength(500, MinimumLength = 3, ErrorMessage = "Имя от 3 до 500 символов")]
     public string Title { get; set; }
     
-    [StringLength(2000, MinimumLength = 5, ErrorMessage = "Описание до 2000 символов")]
+    [StringLength(200000, MinimumLength = 5, ErrorMessage = "Описание до 200000 символов")]
     public string Description { get; set; } = string.Empty;
     
     [Required(ErrorMessage = "Цена для продукта обязательна")]
@@ -23,4 +23,9 @@ public class ProductCreateDto : BaseDto
     
     [Required(ErrorMessage = "Должна быть хотя бы одна картинка")]
     public IFormFile[] ImageFiles { get; set; }
+    public string? ProductCategory { get; set; } = "Нет категории";
+    public string? ColorScheme { get; set; } = "Нет цветовой схемы";
+    
+    [StringLength(2000, ErrorMessage = "Характеристики до 2000 символов")]
+    public string Characteristics { get; set; } = string.Empty;
 }

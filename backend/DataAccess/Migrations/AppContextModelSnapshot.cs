@@ -162,6 +162,10 @@ namespace DataAccess.Migrations
                     b.Property<int>("BrandId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("character varying(100)");
+
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -186,6 +190,10 @@ namespace DataAccess.Migrations
 
                     b.Property<DateTime>("Updated")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Сharacteristics")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

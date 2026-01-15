@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi.Controllers.BaseControllerrs;
+namespace WebApi.Controllers.BaseControllers;
 
 public static class ControllerBaseExtensions
 {

@@ -91,4 +91,7 @@ app.UseStaticFiles(new StaticFileOptions
 });
 app.Run();
 
-public partial class Program { }
+namespace WebApi
+{
+    public partial class Program { }
+}

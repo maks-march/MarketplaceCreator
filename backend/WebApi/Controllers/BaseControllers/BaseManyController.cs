@@ -2,7 +2,7 @@ using BusinessLogic.Services;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request;
 
-namespace WebApi.Controllers.BaseControllerrs;
+namespace WebApi.Controllers.BaseControllers;
 
 [ApiVersion("1.0")]
 public class BaseManyController<T,TDto,TSearchDto>(IManyService<T,TDto,TSearchDto> service) : BaseController where TSearchDto : SearchDto, new()

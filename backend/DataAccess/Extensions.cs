@@ -6,7 +6,6 @@ using DataAccess.Repositories.RefreshtokenRepository;
 using DataAccess.Repositories.UserRepository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using WebApi.Controllers.CartsController;
 
 namespace DataAccess;
 

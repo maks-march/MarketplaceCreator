@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request.AuthDto;
 using Shared.DataTransferObjects.Request.UserDto;
 using Shared.DataTransferObjects.Response;
-using WebApi.Controllers.BaseControllerrs;
+using WebApi.Controllers.BaseControllers;
 
 namespace WebApi.Controllers.AuthController;
 
@@ -34,9 +34,9 @@ public class AuthController(IAuthService authService, IUserService userService) 
     [Authorize]
     [HttpPost("logout")]
     [MapToApiVersion("1.0")]
-    public async Task<ActionResult<AuthResponse>> Logout([FromBody] string refreshToken)
+    public async Task<ActionResult<AuthResponse>> Logout()
     {
-        await authService.LogoutAsync(refreshToken, GetCurrentUserId());
+        await authService.LogoutAsync(GetCurrentUserId());
         return Ok();
     }
 
@@ -52,9 +52,9 @@ public class AuthController(IAuthService authService, IUserService userService) 
     [Authorize]
     [HttpPost("refresh")]
     [MapToApiVersion("1.0")]
-    public async Task<ActionResult<RefreshResponse>> Refresh([FromBody] RefreshRequest request)
+    public async Task<ActionResult<RefreshResponse>> Refresh()
     {
-        var result = await authService.RefreshAsync(request, await GetCurrentUser());
+        var result = await authService.RefreshAsync(await GetCurrentUser());
         return Ok(result);
     }
 }

@@ -1,4 +1,4 @@
-namespace Shared.DataTransferObjects.Response.CartDto;
+namespace Shared.DataTransferObjects.Response;
 
 public class CartDto : EntityDto
 {

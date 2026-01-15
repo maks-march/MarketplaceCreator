@@ -1,9 +1,10 @@
 using System.Text;
+using BusinessLogic.Services.CartService;
 using BusinessLogic.Services.ProductService;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects.Request.CartDto;
-using WebApi.Controllers.BaseControllerrs;
+using WebApi.Controllers.BaseControllers;
 
 namespace WebApi.Controllers.CartsController;
 
@@ -14,29 +15,31 @@ public class CartController(ICartService cartService, IProductService productSer
 {
     [Authorize]
     [MapToApiVersion("1.0")]
-    [HttpPatch("{id:int}/add/{productId:int}")]
-    public async Task<IActionResult> UpdateAddAsync([FromRoute] int id, [FromRoute] int productId)
+    [HttpPatch("my/add/{productId:int}")]
+    public async Task<IActionResult> UpdateAddAsync([FromRoute] int productId)
     {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         var updateDto = new CartUpdateDto()
         {
             IsAdding = true,
             Product = await productService.GetByIdModelAsync(productId)
         };
-        await cartService.UpdateAsync(id, updateDto, GetCurrentUserId());
+        await cartService.UpdateAsync(cart.Id, updateDto, GetCurrentUserId());
         return NoContent();
     }
     
     [Authorize]
     [MapToApiVersion("1.0")]
-    [HttpPatch("{id:int}/remove/{productId:int}")]
-    public async Task<IActionResult> UpdateDeleteAsync([FromRoute] int id, [FromRoute] int productId)
+    [HttpPatch("my/remove/{productId:int}")]
+    public async Task<IActionResult> UpdateDeleteAsync([FromRoute] int productId)
     {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         var updateDto = new CartUpdateDto()
         {
             IsAdding = false,
             Product = await productService.GetByIdModelAsync(productId)
         };
-        await cartService.UpdateAsync(id, updateDto, GetCurrentUserId());
+        await cartService.UpdateAsync(cart.Id, updateDto, GetCurrentUserId());
         return NoContent();
     }
     
@@ -46,6 +49,15 @@ public class CartController(ICartService cartService, IProductService productSer
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var cart = await cartService.GetByIdAsync(id);
+        return Ok(cart);
+    }
+    
+    [Authorize]
+    [MapToApiVersion("1.0")]
+    [HttpGet("my")]
+    public async Task<IActionResult> GetUserCartAsync()
+    {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         return Ok(cart);
     }
     

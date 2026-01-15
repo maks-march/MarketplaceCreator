@@ -4,7 +4,9 @@ namespace Shared.DataTransferObjects.Request.ProductDto;
 
 public class ProductSearchDto : SearchDto
 {
-    // public string Category { get; set; }
+    public string? Category { get; set; } = null;
+
+    public string? ColorScheme { get; set; } = null;
 
     [Range(0, double.MaxValue, ErrorMessage = "Минимальная цена не может быть отрицательной")]
     public decimal? MinPrice { get; set; } = null;

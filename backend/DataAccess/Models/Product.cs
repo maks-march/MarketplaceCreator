@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DataAccess.Models.Enums;
 using Shared.DataTransferObjects;
 using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
@@ -18,6 +19,8 @@ public sealed class Product :
     
     public string Description { get; set; } = string.Empty;
     
+    public string Сharacteristics { get; set; } = string.Empty;
+    
     public string[] ImageLinks { get; set; }
     
     [Required(ErrorMessage = "Цена для продукта обязательна")]
@@ -30,6 +33,8 @@ public sealed class Product :
     public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
     
     public ProductCategory ProductCategory { get; set; }   
+    
+    public ColorScheme Color { get; set; }  
 
     public static Product Create(ProductCreateDto dto)
     {
@@ -40,7 +45,10 @@ public sealed class Product :
             Title = dto.Title,
             Description = dto.Description,
             Price = dto.Price,
-            BrandId = dto.BrandId
+            BrandId = dto.BrandId,
+            Сharacteristics = dto.Characteristics,
+            ProductCategory = EnumConverter.ConvertToEnum<ProductCategory>(dto.ProductCategory),
+            Color = EnumConverter.ConvertToEnum<ColorScheme>(dto.ColorScheme)
         };
         return product;
     }
@@ -51,6 +59,9 @@ public sealed class Product :
         Title = dto.Title ?? Title;
         Description = dto.Description ?? Description;
         Price = dto.Price ?? Price;
+        Сharacteristics = dto.Characteristics ?? Сharacteristics;
+        ProductCategory = dto.ProductCategory is null ? ProductCategory : EnumConverter.ConvertToEnum<ProductCategory>(dto.ProductCategory);
+        Color = dto.ColorScheme is null ? Color : EnumConverter.ConvertToEnum<ColorScheme>(dto.ColorScheme);
     }
 
     public ProductDto GetUnlinkedDto()
@@ -62,10 +73,14 @@ public sealed class Product :
             Updated = Updated,
             Title = Title,
             Description = Description,
+            Characteristics = Сharacteristics,
+            Category = EnumConverter.ConvertToString(ProductCategory),
+            Color = EnumConverter.ConvertToString(Color),
             Price = Price,
             ImageLinks = ImageLinks,
         };
     }
+
 
     public override ProductLinkedDto GetDto()
     {

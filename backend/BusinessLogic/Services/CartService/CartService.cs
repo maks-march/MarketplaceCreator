@@ -1,9 +1,10 @@
 using System.Security.Authentication;
-using Shared.DataTransferObjects.Request.CartDto;
-using Shared.DataTransferObjects.Response.CartDto;
+using DataAccess.Models;
+using DataAccess.Repositories.CartRepository;
+using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
-namespace WebApi.Controllers.CartsController;
+namespace BusinessLogic.Services.CartService;
 
 public class CartService(ICartRepository cartRepository) : 
     ICartService
