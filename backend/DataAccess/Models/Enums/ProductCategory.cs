@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace DataAccess.Models;
+namespace DataAccess.Models.Enums;
 
 public enum ProductCategory
 {
@@ -34,15 +34,4 @@ public enum ProductCategory
     Shoes,
     [Description("Электроника")]
     Electronics
-}
-
-public static class ProductsCategoryExtension {
-    public static string GetDescription(this Enum value)
-    {
-        var field = value.GetType().GetField(value.ToString());
-        var attribute = field?.GetCustomAttributes(typeof(DescriptionAttribute), false)
-            .FirstOrDefault() as DescriptionAttribute;
-            
-        return attribute?.Description ?? value.ToString();
-    }
 }

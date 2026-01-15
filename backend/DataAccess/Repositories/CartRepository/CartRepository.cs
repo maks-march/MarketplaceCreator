@@ -2,8 +2,7 @@ using DataAccess.Models;
 using DataAccess.Repositories.CrudRepository;
 using Microsoft.EntityFrameworkCore;
 using Shared.DataTransferObjects.Request.CartDto;
-using Shared.DataTransferObjects.Response.CartDto;
-using WebApi.Controllers.CartsController;
+using Shared.DataTransferObjects.Response;
 
 namespace DataAccess.Repositories.CartRepository;
 

@@ -1,4 +1,5 @@
 using DataAccess.Models;
+using DataAccess.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess;
@@ -18,9 +19,14 @@ public class AppContext(DbContextOptions<AppContext> options) : DbContext(option
         // Продукт
         modelBuilder.Entity<Product>().HasKey(n => n.Id);
         modelBuilder.Entity<Product>().Property(n => n.Title).IsRequired();
+        
         modelBuilder.Entity<Product>()
             .Property(n => n.ProductCategory)
             .HasConversion(new EnumDescriptionConverter<ProductCategory>());
+        
+        modelBuilder.Entity<Product>()
+            .Property(p => p.Color)
+            .HasConversion(new EnumDescriptionConverter<ColorScheme>());
         
         modelBuilder.Entity<Product>()
             .HasOne(p => p.Brand)

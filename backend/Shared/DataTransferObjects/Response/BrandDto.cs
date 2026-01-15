@@ -12,6 +12,7 @@ public class BrandDto: EntityDto
         Created = other.Created;
         Updated = other.Updated;
         Name = other.Name;
+        Description = other.Description;
     }
 }
 

@@ -17,6 +17,7 @@ public class BrandRepository(AppContext context) :
         return await Items
             .Include(b => b.Users)
             .Include(b => b.Products)
+            .Include(b => b.News)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
@@ -25,6 +26,7 @@ public class BrandRepository(AppContext context) :
         return await Items
             .Include(b => b.Products)
             .Include(b => b.Users)
+            .Include(b => b.News)
             .ToListAsync(cancellationToken);
     }
 

@@ -9,7 +9,10 @@ public class ProductDto: EntityDto
     public string Description { get; set; } = string.Empty;
     
     public string[] ImageLinks { get; set; }
-    
+    public string Color { get; set; }
+    public string Characteristics { get; set; }
+    public string Category { get; set; }
+
     public void CopyFrom(ProductDto other)
     {
         Id = other.Id;
@@ -19,6 +22,9 @@ public class ProductDto: EntityDto
         Price = other.Price;
         Description = other.Description;
         ImageLinks = other.ImageLinks;
+        Color = other.Color;
+        Characteristics = other.Characteristics;
+        Category = other.Category;
     }
 }
 

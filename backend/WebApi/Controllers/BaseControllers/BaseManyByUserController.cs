@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request;
 
-namespace WebApi.Controllers.BaseControllerrs;
+namespace WebApi.Controllers.BaseControllers;
 
 [ApiVersion("1.0")]
 public class BaseManyByUserController<T,TDto,TSearchDto>(IManyService<T,TDto,TSearchDto> service) : 
     BaseManyController<T,TDto,TSearchDto>(service) where TSearchDto : SearchDto, new()
 {
     [Authorize]
-    [HttpGet("user")]
+    [HttpGet("my")]
     [MapToApiVersion("1.0")]
     public async Task<IActionResult> UserItemsSearchAsync(
         [FromQuery] string query = "",

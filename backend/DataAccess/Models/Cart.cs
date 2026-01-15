@@ -1,5 +1,5 @@
 using Shared.DataTransferObjects.Request.CartDto;
-using Shared.DataTransferObjects.Response.CartDto;
+using Shared.DataTransferObjects.Response;
 using Shared.Exceptions;
 
 namespace DataAccess.Models;

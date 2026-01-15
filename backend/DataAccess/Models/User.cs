@@ -82,19 +82,8 @@ public class User : BaseModel, IBaseModel<User, UserLinkedDto, UserCreateDto, Us
         var dto = new UserLinkedDto();
         dto.CopyFrom(GetUnlinkedDto());
         
-        dto.Brands = Brands.Select(b => new BrandLinkedDto
-            {
-                Id = b.Id,
-                Created = b.Created,
-                Updated = b.Updated,
-                Name = b.Name,
-                Users = b.Users
-                    .Select(u => u.GetUnlinkedDto())
-                    .ToList(),
-                Products = b.Products
-                    .Select(p => p.GetUnlinkedDto())
-                    .ToList()
-            })
+        dto.Brands = Brands
+            .Select(b => b.GetDto())
             .ToList();
         return dto;
     }

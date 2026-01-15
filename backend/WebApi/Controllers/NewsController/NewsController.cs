@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request.NewsDto;
 using Shared.DataTransferObjects.Response;
-using WebApi.Controllers.BaseControllerrs;
+using WebApi.Controllers.BaseControllers;
 
 namespace WebApi.Controllers.NewsController;
 

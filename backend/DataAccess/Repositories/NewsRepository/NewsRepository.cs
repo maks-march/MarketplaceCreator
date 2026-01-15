@@ -16,6 +16,7 @@ public class NewsRepository(AppContext context) :
     {
         return await Items
             .Include(p => p.Brand)
+            .ThenInclude(b => b.Users)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 

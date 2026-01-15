@@ -7,11 +7,15 @@ internal class RefreshTokenRepository(AppContext context) : IRefreshTokenReposit
 {
     public async Task<RefreshToken?> GetByIdAsync(int tokenId, CancellationToken cancellationToken)
     {
-        return await context.RefreshTokens.FirstOrDefaultAsync(t => t.Id == tokenId, cancellationToken);
+        return await context.RefreshTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Id == tokenId, cancellationToken);
     }
-    public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken cancellationToken)
+    public async Task<RefreshToken?> GetByUserIdAsync(int userId, CancellationToken cancellationToken)
     {
-        return await context.RefreshTokens.FirstOrDefaultAsync(t => t.Token == token, cancellationToken);
+        return await context.RefreshTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.User.Id == userId, cancellationToken);
     }
 
     public async Task CreateAsync(RefreshToken token, CancellationToken cancellationToken)

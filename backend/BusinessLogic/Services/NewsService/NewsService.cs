@@ -25,7 +25,7 @@ public class NewsService(INewsRepository newsRepository):
         {
             throw new NotFoundException($"Бренда с id {item.BrandId} не найдено");
         }
-        if (userId != -1 && item!.Brand.Users.All(u => u.Id != userId))
+        if (userId != -1 && !item!.Brand.Users.Any(u => u.Id == userId))
             throw new AuthenticationException("Данный пользователь не может редактировать этот продукт");
         return await base.CheckItem(item, userId, valuesCheck);
     }

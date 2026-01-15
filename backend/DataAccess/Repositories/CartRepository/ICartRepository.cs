@@ -1,8 +1,7 @@
 using DataAccess.Models;
 using DataAccess.Repositories.CrudRepository;
-using Shared.DataTransferObjects.Request.CartDto;
 
-namespace WebApi.Controllers.CartsController;
+namespace DataAccess.Repositories.CartRepository;
 
 public interface ICartRepository : ICrudRepository<Cart, CartUpdateDto>
 {

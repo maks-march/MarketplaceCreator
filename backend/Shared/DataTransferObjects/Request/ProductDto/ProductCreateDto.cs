@@ -23,4 +23,9 @@ public class ProductCreateDto : BaseDto
     
     [Required(ErrorMessage = "Должна быть хотя бы одна картинка")]
     public IFormFile[] ImageFiles { get; set; }
+    public string? ProductCategory { get; set; } = "Нет категории";
+    public string? ColorScheme { get; set; } = "Нет цветовой схемы";
+    
+    [StringLength(2000, ErrorMessage = "Характеристики до 2000 символов")]
+    public string Characteristics { get; set; } = string.Empty;
 }

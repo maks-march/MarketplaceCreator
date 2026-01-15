@@ -1,6 +1,4 @@
-using DataAccess.Models;
-
-namespace Shared.DataTransferObjects.Request.CartDto;
+namespace DataAccess.Models;
 
 public class CartUpdateDto
 {

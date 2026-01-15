@@ -1,5 +1,7 @@
 using System.Security.Authentication;
+using DataAccess;
 using DataAccess.Models;
+using DataAccess.Models.Enums;
 using DataAccess.Repositories.ProductRepository;
 using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
@@ -41,6 +43,16 @@ internal class ProductService(IProductRepository productRepository) :
         if (!string.IsNullOrEmpty(searchDto.Query))
             products = products.Where(
                 p => p.Title.Contains(searchDto.Query) || p.Description.Contains(searchDto.Query)
+            );
+        if (!string.IsNullOrEmpty(searchDto.ColorScheme) && 
+            EnumConverter.TryConvertToEnum(searchDto.ColorScheme, out ColorScheme colorScheme))
+            products = products.Where(
+                p => p.Color == colorScheme
+            );
+        if (!string.IsNullOrEmpty(searchDto.Category) && 
+            EnumConverter.TryConvertToEnum(searchDto.Category, out ProductCategory productCategory))
+            products = products.Where(
+                p => p.ProductCategory == productCategory
             );
         return products
             .Where(p => filter is null || filter(p)).Skip((searchDto.Page - 1) * searchDto.PageSize)

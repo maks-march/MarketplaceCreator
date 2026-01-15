@@ -1,9 +1,10 @@
 using System.Text;
+using BusinessLogic.Services.CartService;
 using BusinessLogic.Services.ProductService;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.DataTransferObjects.Request.CartDto;
-using WebApi.Controllers.BaseControllerrs;
+using WebApi.Controllers.BaseControllers;
 
 namespace WebApi.Controllers.CartsController;
 
@@ -46,6 +47,15 @@ public class CartController(ICartService cartService, IProductService productSer
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         var cart = await cartService.GetByIdAsync(id);
+        return Ok(cart);
+    }
+    
+    [Authorize]
+    [MapToApiVersion("1.0")]
+    [HttpGet("my")]
+    public async Task<IActionResult> GetUserCartAsync()
+    {
+        var cart = await cartService.GetByUserIdAsync(GetCurrentUserId());
         return Ok(cart);
     }
     

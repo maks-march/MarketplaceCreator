@@ -12,4 +12,12 @@ public class ProductUpdateDto : BaseDto
     
     [StringLength(2000, ErrorMessage = "Описание до 2000 символов")]
     public string? Description { get; set; } = null;
+
+    [StringLength(2000, ErrorMessage = "Характеристики до 2000 символов")]
+
+    public string? Characteristics { get; set; } = null;
+    
+    public string? ProductCategory { get; set; } = null;
+
+    public string? ColorScheme { get; set; } = null;
 }

@@ -30,6 +30,11 @@ public class UserRepository(AppContext context) : IUserRepository
     {
         return await context.Users
             .Include(u => u.Brands)
+            .ThenInclude(b => b.News)
+            .Include(u => u.Brands)
+            .ThenInclude(b => b.Products)
+            .Include(u => u.Brands)
+            .ThenInclude(b => b.Users)
             .ToListAsync(cancellationToken);
     }
     
@@ -37,6 +42,7 @@ public class UserRepository(AppContext context) : IUserRepository
     {
         return await context.Users
             .Include(u => u.Brands)
+            .Include(u => u.RefreshToken)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
     

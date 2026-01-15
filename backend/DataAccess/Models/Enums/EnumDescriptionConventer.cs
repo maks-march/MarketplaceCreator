@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace DataAccess.Models;
+namespace DataAccess.Models.Enums;
 
 public class EnumDescriptionConverter<T> : ValueConverter<T, string>
     where T : struct, Enum
@@ -24,7 +24,8 @@ public class EnumDescriptionConverter<T> : ValueConverter<T, string>
                     return (T)field.GetValue(null);
             }
         }
-        
+
+        throw new ArgumentException($"{description} не валидная категория");
         // Если не нашли по Description, пробуем по имени
         if (Enum.TryParse<T>(description, out var result))
             return result;

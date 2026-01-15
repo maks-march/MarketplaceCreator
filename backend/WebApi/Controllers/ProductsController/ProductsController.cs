@@ -3,7 +3,7 @@ using DataAccess.Models;
 using Microsoft.AspNetCore.Mvc;
 using Shared.DataTransferObjects.Request.ProductDto;
 using Shared.DataTransferObjects.Response;
-using WebApi.Controllers.BaseControllerrs;
+using WebApi.Controllers.BaseControllers;
 
 namespace WebApi.Controllers.ProductsController;
 
@@ -13,6 +13,28 @@ namespace WebApi.Controllers.ProductsController;
 public class ProductsController(IProductService productsService) : 
     BaseManyByUserController<Product, ProductLinkedDto, ProductSearchDto>(productsService)
 {
+    [HttpGet("withFilters")]
+    [ResponseCache(Duration = 30)]
+    [MapToApiVersion("1.0")]
+    public async Task<IActionResult> FindWithFiltersAsync(
+        [FromQuery] string query = "",
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 20, 
+        [FromQuery] string color = "", 
+        [FromQuery] string category = "")
+    {
+        var searchDto = new ProductSearchDto()
+        {
+            Query = query,
+            Page = page,
+            PageSize = pageSize,
+            ColorScheme = color,
+            Category = category
+        };
+        var items = await productsService.GetFilteredAsync(searchDto);
+        return Ok(items);
+    }
+    
     protected override async Task<IEnumerable<ProductLinkedDto>> GetUserItems(ProductSearchDto searchDto)
     {
         var userId = GetCurrentUserId();

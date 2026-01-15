@@ -8,9 +8,9 @@ public abstract class CrudRepository<T, TDto, TCreateDto, TUpdateDto>(AppContext
 {
     protected virtual DbSet<T> Items => null;
     
-    public virtual async Task CreateAsync(T product, CancellationToken cancellationToken)
+    public virtual async Task CreateAsync(T item, CancellationToken cancellationToken)
     {
-        await Items.AddAsync(product, cancellationToken);
+        await Items.AddAsync(item, cancellationToken);
         await context.SaveChangesAsync(cancellationToken);
     }
 
@@ -20,16 +20,16 @@ public abstract class CrudRepository<T, TDto, TCreateDto, TUpdateDto>(AppContext
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public virtual async Task UpdateAsync(T product, TUpdateDto productDto, CancellationToken cancellationToken)
+    public virtual async Task UpdateAsync(T item, TUpdateDto itemUpdateDto, CancellationToken cancellationToken)
     {
-        product.Update(productDto);
-        Items.Update(product);
+        item.Update(itemUpdateDto);
+        Items.Update(item);
         await context.SaveChangesAsync(cancellationToken);
     }
 
-    public virtual async Task DeleteAsync(T product, CancellationToken cancellationToken)
+    public virtual async Task DeleteAsync(T item, CancellationToken cancellationToken)
     {
-        Items.Remove(product);
+        Items.Remove(item);
         await context.SaveChangesAsync(cancellationToken);
     }
 

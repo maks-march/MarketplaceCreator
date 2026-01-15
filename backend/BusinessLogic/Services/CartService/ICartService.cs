@@ -1,7 +1,7 @@
-using Shared.DataTransferObjects.Request.CartDto;
-using Shared.DataTransferObjects.Response.CartDto;
+using DataAccess.Models;
+using Shared.DataTransferObjects.Response;
 
-namespace WebApi.Controllers.CartsController;
+namespace BusinessLogic.Services.CartService;
 
 public interface ICartService
 {

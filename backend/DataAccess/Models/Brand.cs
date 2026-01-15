@@ -26,7 +26,7 @@ public sealed class Brand :
         var brand = new Brand()
         {
             Name = dto.Name,
-            Description = dto.Description ?? string.Empty,
+            Description = dto.Description,
         };
         return brand;
     }
